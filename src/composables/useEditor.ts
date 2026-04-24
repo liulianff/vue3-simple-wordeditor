@@ -2,12 +2,13 @@ import { useEditor as useTiptapEditor } from '@tiptap/vue-3'
 import StarterKit from '@tiptap/starter-kit'
 import Heading from '@tiptap/extension-heading'
 import TextAlign from '@tiptap/extension-text-align'
-import Image from '@tiptap/extension-image'
 import { TextStyle, FontSize, FontFamily } from '@tiptap/extension-text-style'
 import Color from '@tiptap/extension-color'
 import Highlight from '@tiptap/extension-highlight'
 import { ref, computed } from 'vue'
 import Link  from '@tiptap/extension-link'
+import { DraggableImage } from '../extensions/DraggableImage'
+import type { ImageAttributes } from '../types/editor'
 
 type Level = 1 | 2 | 3 | 4 | 5 | 6
 
@@ -27,9 +28,7 @@ export function useEditor({ placeholder = '开始编辑...', content = '', edita
       TextAlign.configure({
         types: ['heading', 'paragraph'],
       }),
-      Image.configure({
-        inline: true,
-      }),
+      DraggableImage,
       TextStyle,
       FontSize.configure({
         types: ['textStyle'],
@@ -123,6 +122,10 @@ export function useEditor({ placeholder = '开始编辑...', content = '', edita
 
   function setHeading(level: number) {
     if (!ensureFocus()) return
+    if (level === 0) {
+      editor.value!.commands.setParagraph()
+      return
+    }
     const l = level as Level
     if (headingLevel.value === level) {
       editor.value!.commands.setParagraph()
@@ -233,7 +236,12 @@ export function useEditor({ placeholder = '开始编辑...', content = '', edita
 
   function addImage(src: string, alt: string = '') {
     if (!ensureFocus()) return
-    editor.value!.commands.setImage({ src, alt })
+    editor.value!.commands.setDraggableImage({ src, alt })
+  }
+
+  function updateImageAttributes(attrs: Partial<ImageAttributes>) {
+    if (!editor.value) return
+    editor.value.commands.updateImageAttributes(attrs)
   }
 
   function getHTML() {
@@ -284,6 +292,7 @@ export function useEditor({ placeholder = '开始编辑...', content = '', edita
     unsetTextColor,
     unsetHighlightColor,
     addImage,
+    updateImageAttributes,
     getHTML,
     setHTML,
   }
