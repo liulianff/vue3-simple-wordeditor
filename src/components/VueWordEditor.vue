@@ -1,5 +1,5 @@
 <template>
-  <div class="vue-word-editor flex flex-col h-full" :class="{ dark: effectiveTheme === 'dark' }" :data-theme="effectiveTheme" style="background-color: var(--editor-bg-color, #ffffff); border-radius: var(--editor-radius, 0.5rem); border: 1px solid var(--editor-border-color, #e5e7eb); box-shadow: var(--editor-shadow, 0 1px 3px rgba(0,0,0,0.1));">
+  <div class="vue-word-editor editor-container flex flex-col h-full" :class="{ dark: effectiveTheme === 'dark' }" :data-theme="effectiveTheme">
     <div class="relative">
       <EditorToolbar
       :is-bold="isBold"
@@ -37,6 +37,7 @@
       @clear-text-color="unsetTextColor"
       @clear-highlight-color="unsetHighlightColor"
       @add-image="addImage"
+      @export="handleExport"
       />
     </div>
 
@@ -51,7 +52,7 @@
         :editor="editor"
         :should-show="shouldShowBubbleMenu"
         :tippy-options="bubbleMenuTippyOptions"
-        class="bubble-menu flex items-center gap-1 px-2 py-1" style="background-color: var(--editor-bg-color, #ffffff); border: 1px solid var(--editor-border-color, #e5e7eb); border-radius: var(--editor-radius, 0.5rem); box-shadow: var(--editor-shadow-lg, 0 4px 6px -1px rgba(0,0,0,0.1));"
+        class="bubble-menu editor-popup flex items-center gap-1 px-2 py-1"
       >
         <template v-if="isImageSelected">
           <button
@@ -60,9 +61,9 @@
               'w-8 h-8 flex items-center justify-center rounded transition-colors',
               isBulletList ? 'editor-btn-active' : 'editor-btn-default'
             ]"
-            title="无序列表"
+            :title="t('bubbleMenu.bulletList')"
           >
-            •
+            <List class="w-4 h-4" />
           </button>
           <button
             @click="toggleOrderedList"
@@ -70,9 +71,9 @@
               'w-8 h-8 flex items-center justify-center rounded transition-colors',
               isOrderedList ? 'editor-btn-active' : 'editor-btn-default'
             ]"
-            title="有序列表"
+            :title="t('bubbleMenu.orderedList')"
           >
-            1.
+            <ListOrdered class="w-4 h-4" />
           </button>
           <button
             @click="toggleBlockquote"
@@ -80,9 +81,9 @@
               'w-8 h-8 flex items-center justify-center rounded transition-colors',
               isBlockquote ? 'editor-btn-active' : 'editor-btn-default'
             ]"
-            title="引用"
+            :title="t('bubbleMenu.blockquote')"
           >
-            "
+            <Quote class="w-4 h-4" />
           </button>
           <div class="w-px h-6 mx-1 editor-divider"></div>
           <button
@@ -107,7 +108,6 @@
               min="30"
               max="800"
               class="w-20 h-1 appearance-none rounded-full outline-none cursor-pointer editor-slider"
-              :style="{ 'accent-color': 'var(--editor-primary-color, #3b82f6)' }"
             />
             <span class="text-xs min-w-[36px] text-right editor-text-secondary">{{ sliderWidth }}px</span>
           </span>
@@ -115,14 +115,14 @@
           <button
             @click="startCropImage"
             class="w-8 h-8 flex items-center justify-center rounded transition-colors editor-btn-default"
-            title="裁剪图片"
+            :title="t('bubbleMenu.cropImage')"
           >
             <Crop class="w-4 h-4" />
           </button>
           <button
             @click="deleteImage"
             class="w-8 h-8 flex items-center justify-center rounded transition-colors editor-btn-danger"
-            title="删除图片"
+            :title="t('bubbleMenu.deleteImage')"
           >
             <Trash2 class="w-4 h-4" />
           </button>
@@ -134,9 +134,9 @@
               'w-8 h-8 flex items-center justify-center rounded transition-colors',
               isBold ? 'editor-btn-active' : 'editor-btn-default'
             ]"
-            title="加粗"
+            :title="t('bubbleMenu.bold')"
           >
-            <strong>B</strong>
+            <Bold class="w-4 h-4" />
           </button>
           <button
             @click="toggleItalic"
@@ -144,9 +144,9 @@
               'w-8 h-8 flex items-center justify-center rounded transition-colors',
               isItalic ? 'editor-btn-active' : 'editor-btn-default'
             ]"
-            title="斜体"
+            :title="t('bubbleMenu.italic')"
           >
-            <em>I</em>
+            <Italic class="w-4 h-4" />
           </button>
           <button
             @click="toggleUnderline"
@@ -154,9 +154,9 @@
               'w-8 h-8 flex items-center justify-center rounded transition-colors',
               isUnderline ? 'editor-btn-active' : 'editor-btn-default'
             ]"
-            title="下划线"
+            :title="t('bubbleMenu.underline')"
           >
-            <u>U</u>
+            <Underline class="w-4 h-4" />
           </button>
           <button
             @click="toggleStrike"
@@ -164,9 +164,9 @@
               'w-8 h-8 flex items-center justify-center rounded transition-colors',
               isStrike ? 'editor-btn-active' : 'editor-btn-default'
             ]"
-            title="删除线"
+            :title="t('bubbleMenu.strike')"
           >
-            <s>S</s>
+            <Strikethrough class="w-4 h-4" />
           </button>
           <div class="w-px h-6 mx-1 editor-divider"></div>
           <button
@@ -175,9 +175,9 @@
               'w-8 h-8 flex items-center justify-center rounded transition-colors',
               isBulletList ? 'editor-btn-active' : 'editor-btn-default'
             ]"
-            title="无序列表"
+            :title="t('bubbleMenu.bulletList')"
           >
-            •
+            <List class="w-4 h-4" />
           </button>
           <button
             @click="toggleOrderedList"
@@ -185,9 +185,9 @@
               'w-8 h-8 flex items-center justify-center rounded transition-colors',
               isOrderedList ? 'editor-btn-active' : 'editor-btn-default'
             ]"
-            title="有序列表"
+            :title="t('bubbleMenu.orderedList')"
           >
-            1.
+            <ListOrdered class="w-4 h-4" />
           </button>
           <div class="w-px h-6 mx-1 editor-divider"></div>
           <button
@@ -196,9 +196,9 @@
               'w-8 h-8 flex items-center justify-center rounded transition-colors',
               isBlockquote ? 'editor-btn-active' : 'editor-btn-default'
             ]"
-            title="引用"
+            :title="t('bubbleMenu.blockquote')"
           >
-            "
+            <Quote class="w-4 h-4" />
           </button>
         </template>
       </BubbleMenu>
@@ -206,21 +206,21 @@
       <Teleport to="body">
         <div
           v-if="showLinkMenu"
-          class="fixed z-[100] p-2 link-menu-popup"
-          :style="{ left: linkMenuPosition.x + 'px', top: linkMenuPosition.y + 'px', backgroundColor: 'var(--editor-bg-color, #ffffff)', border: '1px solid var(--editor-border-color, #e5e7eb)', borderRadius: 'var(--editor-radius, 0.5rem)', boxShadow: 'var(--editor-shadow-lg, 0 4px 6px -1px rgba(0,0,0,0.1))' }"
+          class="fixed z-[100] p-2 link-menu-popup editor-popup"
+          :style="{ left: linkMenuPosition.x + 'px', top: linkMenuPosition.y + 'px' }"
         >
           <div class="py-1">
             <button
               @click="editLink"
               class="w-full px-4 py-2 text-left text-sm rounded editor-btn-default"
             >
-              修改链接
+              {{ t('linkMenu.edit') }}
             </button>
             <button
               @click="removeLink"
               class="w-full px-4 py-2 text-left text-sm rounded editor-btn-default"
             >
-              取消链接
+              {{ t('linkMenu.remove') }}
             </button>
           </div>
         </div>
@@ -243,27 +243,43 @@
 import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
 import { EditorContent } from '@tiptap/vue-3'
 import { BubbleMenu } from '@tiptap/vue-3/menus'
-import { Trash2, Crop, AlignLeft, AlignRight, AlignCenter, Minus } from 'lucide-vue-next'
+import { Trash2, Crop, AlignLeft, AlignRight, AlignCenter, Minus, Bold, Italic, Underline, Strikethrough, List, ListOrdered, Quote } from 'lucide-vue-next'
 import EditorToolbar from './EditorToolbar.vue'
 import { useEditor } from '../composables/useEditor'
+import { useExport } from '../composables/useExport'
+import { useI18n } from '../composables/useI18n'
 import { throttle } from '../utils/throttle'
 import type { ImageLayoutType } from '../types/editor'
+import type { Locale } from '../locales/types'
 
 const props = withDefaults(defineProps<{
   modelValue?: string
   placeholder?: string
   editable?: boolean
   theme?: 'light' | 'dark' | 'auto'
+  locale?: Locale
 }>(), {
   modelValue: '',
-  placeholder: '开始编辑...',
+  placeholder: '',
   editable: true,
   theme: 'light',
+  locale: 'zh-CN',
 })
 
 const emit = defineEmits<{
   'update:modelValue': [value: string]
+  'localeChange': [locale: Locale]
 }>()
+
+const { t, setLocale, locale: currentLocale } = useI18n()
+
+const resolvedPlaceholder = computed(() => props.placeholder || t('placeholder'))
+
+watch(() => props.locale, (newLocale) => {
+  if (newLocale && newLocale !== currentLocale.value) {
+    setLocale(newLocale)
+  }
+}, { immediate: true })
 
 const editorContainerRef = ref<HTMLElement | null>(null)
 
@@ -308,9 +324,27 @@ const {
   setHTML,
 } = useEditor({
   content: props.modelValue || '',
-  placeholder: props.placeholder,
+  placeholder: resolvedPlaceholder.value,
   editable: props.editable,
 })
+
+watch(resolvedPlaceholder, (newPlaceholder) => {
+  if (editor.value) {
+    editor.value.setOptions({
+      editorProps: {
+        attributes: {
+          placeholder: newPlaceholder,
+        },
+      },
+    })
+  }
+})
+
+const { exportAs, getImagesForUpload, replaceImageSrc, replaceMultipleImages } = useExport(editor)
+
+async function handleExport(format: string) {
+  await exportAs(format as any)
+}
 
 const showLinkMenu = ref(false)
 const linkMenuPosition = ref({ x: 0, y: 0 })
@@ -340,12 +374,12 @@ const bubbleMenuTippyOptions = computed(() => {
   return {}
 })
 
-const imageLayoutOptions = [
-  { label: '嵌入型', value: 'inline' as ImageLayoutType, icon: Minus },
-  { label: '左环绕', value: 'wrap-left' as ImageLayoutType, icon: AlignLeft },
-  { label: '右环绕', value: 'wrap-right' as ImageLayoutType, icon: AlignRight },
-  { label: '块级', value: 'block' as ImageLayoutType, icon: AlignCenter },
-]
+const imageLayoutOptions = computed(() => [
+  { label: t('bubbleMenu.imageLayout.inline'), value: 'inline' as ImageLayoutType, icon: Minus },
+  { label: t('bubbleMenu.imageLayout.wrapLeft'), value: 'wrap-left' as ImageLayoutType, icon: AlignLeft },
+  { label: t('bubbleMenu.imageLayout.wrapRight'), value: 'wrap-right' as ImageLayoutType, icon: AlignRight },
+  { label: t('bubbleMenu.imageLayout.block'), value: 'block' as ImageLayoutType, icon: AlignCenter },
+])
 
 function shouldShowBubbleMenu({ editor }: { editor: any }) {
   const { selection } = editor.state
@@ -551,6 +585,9 @@ defineExpose({
   editor,
   getHTML,
   setHTML,
+  getImagesForUpload,
+  replaceImageSrc,
+  replaceMultipleImages,
 })
 </script>
 

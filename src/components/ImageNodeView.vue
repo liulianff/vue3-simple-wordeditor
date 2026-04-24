@@ -15,6 +15,8 @@
           draggable="false"
           ref="cropImageRef"
           @load="initCrop"
+          @mousedown.prevent
+          @dragstart.prevent
         />
         <div class="crop-mask" :style="maskStyle"></div>
         <div class="crop-box" :style="cropBoxStyle" @mousedown.stop="startCropMove" @dragstart.prevent>
@@ -28,9 +30,9 @@
         </div>
       </div>
       <div class="crop-toolbar">
-        <button class="crop-btn reset" @click.stop="resetCrop">重置裁剪</button>
-        <button class="crop-btn cancel" @click.stop="cancelCrop">取消</button>
-        <button class="crop-btn apply" @click.stop="applyCrop">确认裁剪</button>
+        <button class="crop-btn reset" @click.stop="resetCrop">{{ t('imageNodeView.resetCrop') }}</button>
+        <button class="crop-btn cancel" @click.stop="cancelCrop">{{ t('imageNodeView.cancel') }}</button>
+        <button class="crop-btn apply" @click.stop="applyCrop">{{ t('imageNodeView.applyCrop') }}</button>
       </div>
     </div>
     <template v-else>
@@ -40,6 +42,8 @@
           :alt="nodeAttrs.alt || ''"
           :style="cropImgStyle"
           draggable="false"
+          ref="normalCropImageRef"
+          @load="onNormalImageLoad"
           @dragstart.prevent
           @dblclick.stop="enterCropMode"
         />
@@ -51,6 +55,8 @@
         :width="nodeAttrs.width || undefined"
         :style="imgStyle"
         draggable="false"
+        ref="normalImageRef"
+        @load="onNormalImageLoad"
         @dragstart.prevent
         @dblclick.stop="enterCropMode"
       />
@@ -66,8 +72,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onBeforeUnmount, nextTick } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount, nextTick, watch } from 'vue'
 import { NodeViewWrapper } from '@tiptap/vue-3'
+import { useI18n } from '../composables/useI18n'
 import type { CropData } from '../types/editor'
 
 const props = defineProps<{
@@ -78,6 +85,8 @@ const props = defineProps<{
   updateAttributes: (attrs: Record<string, any>) => void
   deleteNode: () => void
 }>()
+
+const { t } = useI18n()
 
 const isResizing = ref(false)
 const resizeStart = ref({ x: 0, y: 0, w: 0 })
@@ -122,8 +131,16 @@ const cropViewStyle = computed(() => {
   const c = a.crop as CropData | null
   if (!c) return {}
   const displayW = isResizing.value ? localWidth.value : (a.width || 200)
-  const w = displayW * (c.width / 100)
-  const h = w * (c.height / c.width)
+  let naturalRatio: number
+  if (persistentNaturalSize.value.h > 0 && persistentNaturalSize.value.w > 0) {
+    naturalRatio = persistentNaturalSize.value.h / persistentNaturalSize.value.w
+  } else {
+    naturalRatio = c.height / c.width
+  }
+  const fullW = displayW
+  const fullH = fullW * naturalRatio
+  const w = fullW * (c.width / 100)
+  const h = fullH * (c.height / 100)
   return {
     width: `${Math.round(w)}px`,
     height: `${Math.round(h)}px`,
@@ -138,12 +155,20 @@ const cropImgStyle = computed(() => {
   const c = a.crop as CropData | null
   if (!c) return {}
   const displayW = isResizing.value ? localWidth.value : (a.width || 200)
+  let naturalRatio: number
+  if (persistentNaturalSize.value.h > 0 && persistentNaturalSize.value.w > 0) {
+    naturalRatio = persistentNaturalSize.value.h / persistentNaturalSize.value.w
+  } else {
+    // Fallback to crop ratio if we don't have natural size yet
+    naturalRatio = c.height / c.width
+  }
   const fullW = displayW
-  const fullH = fullW
+  const fullH = fullW * naturalRatio
   const offsetX = -(c.x / 100) * fullW
   const offsetY = -(c.y / 100) * fullH
   return {
     width: `${fullW}px`,
+    height: `${fullH}px`,
     maxWidth: 'none',
     verticalAlign: 'bottom',
     transform: `translate(${offsetX}px, ${offsetY}px)`,
@@ -180,14 +205,45 @@ function stopResize() {
 
 const isCropping = ref(false)
 const cropImageRef = ref<HTMLImageElement | null>(null)
+const normalImageRef = ref<HTMLImageElement | null>(null)
+const normalCropImageRef = ref<HTMLImageElement | null>(null)
 const cropWrapRef = ref<HTMLElement | null>(null)
 const cropRect = ref({ x: 0, y: 0, w: 100, h: 100 })
 const imageNaturalSize = ref({ w: 0, h: 0 })
 const cropDisplaySize = ref({ w: 0, h: 0 })
+const persistentNaturalSize = ref({ w: 0, h: 0 })
 const cropDragStart = ref({ x: 0, y: 0, rx: 0, ry: 0, rw: 0, rh: 0 })
 const activeHandle = ref<string | null>(null)
 const isMoving = ref(false)
 const moveStart = ref({ x: 0, y: 0, rx: 0, ry: 0 })
+const offscreenImg = ref<HTMLImageElement | null>(null)
+
+function onNormalImageLoad(e: Event) {
+  const img = e.target as HTMLImageElement
+  if (img.naturalWidth > 0 && img.naturalHeight > 0) {
+    persistentNaturalSize.value = { w: img.naturalWidth, h: img.naturalHeight }
+  }
+}
+
+function loadNaturalSize() {
+  if (offscreenImg.value) return // already loading/loaded
+  const img = new Image()
+  img.onload = () => {
+    persistentNaturalSize.value = { w: img.naturalWidth, h: img.naturalHeight }
+  }
+  img.onerror = () => {
+    console.warn('Failed to load image for size detection')
+  }
+  img.src = nodeAttrs.value.src
+  offscreenImg.value = img
+}
+
+loadNaturalSize()
+
+watch(() => nodeAttrs.value.src, () => {
+  offscreenImg.value = null
+  loadNaturalSize()
+}, { immediate: true })
 
 const cropHandles = ['nw', 'n', 'ne', 'e', 'se', 's', 'sw', 'w']
 
@@ -220,6 +276,7 @@ function initCrop() {
   const img = cropImageRef.value
   if (!img) return
   imageNaturalSize.value = { w: img.naturalWidth, h: img.naturalHeight }
+  persistentNaturalSize.value = { w: img.naturalWidth, h: img.naturalHeight }
   cropDisplaySize.value = { w: img.offsetWidth, h: img.offsetHeight }
   const dw = img.offsetWidth
   const dh = img.offsetHeight
@@ -238,6 +295,8 @@ function initCrop() {
 }
 
 function startCropResize(e: MouseEvent, handle: string) {
+  e.preventDefault()
+  e.stopPropagation()
   activeHandle.value = handle
   cropDragStart.value = {
     x: e.clientX,
@@ -252,6 +311,8 @@ function startCropResize(e: MouseEvent, handle: string) {
 }
 
 function onCropResize(e: MouseEvent) {
+  e.preventDefault()
+  e.stopPropagation()
   const dx = e.clientX - cropDragStart.value.x
   const dy = e.clientY - cropDragStart.value.y
   const dw = cropDisplaySize.value.w
@@ -292,6 +353,8 @@ function stopCropResize() {
 
 function startCropMove(e: MouseEvent) {
   if ((e.target as HTMLElement).classList.contains('crop-handle')) return
+  e.preventDefault()
+  e.stopPropagation()
   isMoving.value = true
   moveStart.value = {
     x: e.clientX,
@@ -304,6 +367,8 @@ function startCropMove(e: MouseEvent) {
 }
 
 function onCropMove(e: MouseEvent) {
+  e.preventDefault()
+  e.stopPropagation()
   if (!isMoving.value) return
   const dx = e.clientX - moveStart.value.x
   const dy = e.clientY - moveStart.value.y

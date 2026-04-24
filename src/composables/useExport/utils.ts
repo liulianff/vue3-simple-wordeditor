@@ -1,0 +1,168 @@
+export function downloadFile(content: Blob | string, filename: string, mimeType: string) {
+  const blob = content instanceof Blob ? content : new Blob([content], { type: mimeType })
+  const url = URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.href = url
+  link.download = filename
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
+  URL.revokeObjectURL(url)
+}
+
+export function generateFilename(ext: string): string {
+  const now = new Date()
+  const date = now.toISOString().slice(0, 10)
+  const time = now.toTimeString().slice(0, 8).replace(/:/g, '-')
+  return `document-${date}-${time}.${ext}`
+}
+
+export interface CropData {
+  x: number
+  y: number
+  width: number
+  height: number
+}
+
+export async function cropImage(src: string, crop: CropData): Promise<string> {
+  const img = new Image()
+  const imgLoadPromise = new Promise<void>((resolve, reject) => {
+    img.onload = () => resolve()
+    img.onerror = () => reject(new Error('Failed to load image'))
+  })
+  img.src = src
+  await imgLoadPromise
+
+  const canvas = document.createElement('canvas')
+  const ctx = canvas.getContext('2d')
+  if (!ctx) {
+    return src
+  }
+
+  const naturalW = img.naturalWidth
+  const naturalH = img.naturalHeight
+
+  const cropX = (crop.x / 100) * naturalW
+  const cropY = (crop.y / 100) * naturalH
+  const cropW = (crop.width / 100) * naturalW
+  const cropH = (crop.height / 100) * naturalH
+
+  canvas.width = cropW
+  canvas.height = cropH
+
+  ctx.drawImage(img, cropX, cropY, cropW, cropH, 0, 0, cropW, cropH)
+
+  const isJpeg = /^data:image\/jpe?g/i.test(src) || /\.jpe?g(\?|$)/i.test(src) || src.startsWith('blob:')
+  const mimeType = isJpeg ? 'image/jpeg' : 'image/png'
+  const quality = isJpeg ? 0.92 : undefined
+  return canvas.toDataURL(mimeType, quality)
+}
+
+export interface ImageUploadItem {
+  originalSrc: string
+  base64Data: string
+  crop?: CropData | null
+}
+
+export async function extractImagesForUpload(html: string): Promise<ImageUploadItem[]> {
+  const tempDiv = document.createElement('div')
+  tempDiv.innerHTML = html
+
+  const imgElements = Array.from(tempDiv.querySelectorAll('img'))
+  const images: ImageUploadItem[] = []
+
+  for (const imgEl of imgElements) {
+    const src = imgEl.getAttribute('src')
+    const cropAttr = imgEl.getAttribute('data-crop')
+
+    if (!src) continue
+
+    let base64Data = src
+
+    if (src.startsWith('data:') || src.startsWith('blob:')) {
+      if (cropAttr) {
+        try {
+          const crop = JSON.parse(cropAttr) as CropData
+          base64Data = await cropImage(src, crop)
+        } catch (e) {
+          console.warn('Failed to crop image for upload:', e)
+        }
+      }
+
+      images.push({
+        originalSrc: src,
+        base64Data,
+        crop: cropAttr ? JSON.parse(cropAttr) : null,
+      })
+    }
+  }
+
+  return images
+}
+
+export function replaceImagesInHTML(html: string, srcMapping: Map<string, string>): string {
+  let result = html
+
+  for (const [oldSrc, newSrc] of srcMapping.entries()) {
+    result = result.split(oldSrc).join(newSrc)
+  }
+
+  return result
+}
+
+export async function processImagesWithCrop(html: string): Promise<{ html: string; imgSizes: Map<string, { width: number; height: number }> }> {
+  const tempDiv = document.createElement('div')
+  tempDiv.innerHTML = html
+  
+  const imgElements = Array.from(tempDiv.querySelectorAll('img'))
+  const imgSizes = new Map<string, { width: number; height: number }>()
+
+  for (const imgEl of imgElements) {
+    const src = imgEl.getAttribute('src')
+    const cropAttr = imgEl.getAttribute('data-crop')
+    
+    if (src && cropAttr) {
+      try {
+        const crop = JSON.parse(cropAttr) as CropData
+        const croppedSrc = await cropImage(src, crop)
+        imgEl.setAttribute('src', croppedSrc)
+        imgEl.removeAttribute('data-crop')
+        
+        const size = await loadImageSize(croppedSrc)
+        imgSizes.set(croppedSrc, size)
+      } catch (e) {
+        console.warn('Failed to crop image:', e)
+        if (src) {
+          const size = await loadImageSize(src)
+          imgSizes.set(src, size)
+        }
+      }
+    } else if (src) {
+      const size = await loadImageSize(src)
+      imgSizes.set(src, size)
+    }
+  }
+
+  return { html: tempDiv.innerHTML, imgSizes }
+}
+
+function loadImageSize(src: string): Promise<{ width: number; height: number }> {
+  return new Promise((resolve) => {
+    const img = new Image()
+    img.onload = () => {
+      let width = img.naturalWidth
+      let height = img.naturalHeight
+      const maxWidth = 500
+      if (width > maxWidth) {
+        const ratio = maxWidth / width
+        width = maxWidth
+        height = height * ratio
+      }
+      resolve({ width: Math.round(width), height: Math.round(height) })
+    }
+    img.onerror = () => {
+      resolve({ width: 500, height: 375 })
+    }
+    img.src = src
+  })
+}

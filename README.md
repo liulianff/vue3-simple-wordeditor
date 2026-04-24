@@ -92,9 +92,12 @@ const editorRef = ref()
 // 模板中: <VueWordEditor ref="editorRef" />
 
 // 可用方法:
-editorRef.getHTML(): string        // 获取当前 HTML 内容
-editorRef.setHTML(html: string)    // 设置 HTML 内容
-editorRef.editor                   // TipTap 编辑器实例
+editorRef.getHTML(): string                            // 获取当前 HTML 内容
+editorRef.setHTML(html: string)                        // 设置 HTML 内容
+editorRef.editor                                       // TipTap 编辑器实例
+editorRef.getImagesForUpload(): Promise<ImageUploadItem[]>  // 获取所有图片用于上传
+editorRef.replaceImageSrc(oldSrc: string, newSrc: string): boolean  // 替换单个图片 src
+editorRef.replaceMultipleImages(srcMapping: Map<string, string>): boolean  // 批量替换图片 src
 ```
 
 #### 示例
@@ -209,6 +212,253 @@ const theme = ref<'light' | 'dark' | 'auto'>('light')
 }
 ```
 
+## 国际化（i18n）
+
+编辑器内置国际化支持，默认提供中文（zh-CN）和英文（en-US）两种语言包，并开放接口允许用户自定义其他语言。
+
+### Props
+
+| 属性     | 类型                          | 默认值     | 说明       |
+| -------- | ----------------------------- | ---------- | ---------- |
+| `locale` | `'zh-CN' \| 'en-US' \| string` | `'zh-CN'` | 语言设置 |
+
+### 使用方式
+
+通过 `locale` prop 切换语言：
+
+```vue
+<template>
+  <VueWordEditor v-model="content" locale="en-US" />
+</template>
+```
+
+### 自定义语言包
+
+通过 `registerLocale` 接口注册自定义语言包，支持任意语言标识：
+
+```typescript
+import { registerLocale } from 'vue-word-editor'
+import type { LocaleMessages } from 'vue-word-editor'
+
+// 注册日语语言包
+registerLocale('ja-JP', {
+  toolbar: {
+    heading: {
+      paragraph: '段落',
+      h1: '見出し 1',
+      h2: '見出し 2',
+      h3: '見出し 3',
+      h4: '見出し 4',
+      h5: '見出し 5',
+      h6: '見出し 6',
+    },
+    bold: '太字',
+    italic: '斜体',
+    underline: '下線',
+    strike: '取り消し線',
+    fontFamily: {
+      sansSerif: 'サンセリフ',
+      serif: 'セリフ',
+      monospace: '等幅',
+      microsoftYaHei: 'Microsoft YaHei',
+      simSun: 'SimSun',
+      simHei: 'SimHei',
+      kaiTi: 'KaiTi',
+    },
+    fontSize: 'フォントサイズ',
+    textColor: '文字色',
+    highlightColor: 'ハイライト',
+    customColor: 'カスタム色',
+    align: {
+      left: '左揃え',
+      center: '中央揃え',
+      right: '右揃え',
+      justify: '両端揃え',
+    },
+    bulletList: '箇条書き',
+    orderedList: '番号付きリスト',
+    blockquote: '引用',
+    insertLink: 'リンク挿入',
+    removeLink: 'リンク削除',
+    insertImage: '画像挿入',
+    export: 'エクスポート',
+    linkDialog: {
+      placeholder: 'URLを入力',
+      confirm: '確定',
+      cancel: 'キャンセル',
+    },
+  },
+  bubbleMenu: {
+    imageLayout: {
+      inline: 'インライン',
+      wrapLeft: '左回り込み',
+      wrapRight: '右回り込み',
+      block: 'ブロック',
+    },
+    cropImage: '画像を切り抜く',
+    deleteImage: '画像を削除',
+    bold: '太字',
+    italic: '斜体',
+    underline: '下線',
+    strike: '取り消し線',
+    bulletList: '箇条書き',
+    orderedList: '番号付きリスト',
+    blockquote: '引用',
+  },
+  linkMenu: {
+    edit: 'リンクを編集',
+    remove: 'リンクを解除',
+  },
+  imageEditor: {
+    title: '画像編集',
+    crop: {
+      cancel: '切り抜きキャンセル',
+      confirm: '切り抜き確定',
+    },
+    edit: {
+      width: '幅',
+      rotation: '回転',
+      textWrap: 'テキストの折り返し',
+      wrapNone: '折り返しなし',
+      wrapLeft: '左回り込み',
+      wrapRight: '右回り込み',
+      blockCenter: 'ブロック中央',
+      rightMargin: '右マージン',
+      leftMargin: '左マージン',
+      bottomMargin: '下マージン',
+      crop: '切り抜き',
+      reset: 'リセット',
+      apply: '適用',
+    },
+  },
+  imageNodeView: {
+    resetCrop: '切り抜きリセット',
+    cancel: 'キャンセル',
+    applyCrop: '切り抜き適用',
+  },
+  placeholder: '編集を開始...',
+})
+
+// 使用日语
+// <VueWordEditor locale="ja-JP" />
+```
+
+### 语言包类型定义
+
+完整的 `LocaleMessages` 类型定义如下，自定义语言包时需要实现所有字段：
+
+```typescript
+interface LocaleMessages {
+  toolbar: {
+    heading: {
+      paragraph: string
+      h1: string
+      h2: string
+      h3: string
+      h4: string
+      h5: string
+      h6: string
+    }
+    bold: string
+    italic: string
+    underline: string
+    strike: string
+    fontFamily: {
+      sansSerif: string
+      serif: string
+      monospace: string
+      microsoftYaHei: string
+      simSun: string
+      simHei: string
+      kaiTi: string
+    }
+    fontSize: string
+    textColor: string
+    highlightColor: string
+    customColor: string
+    align: {
+      left: string
+      center: string
+      right: string
+      justify: string
+    }
+    bulletList: string
+    orderedList: string
+    blockquote: string
+    insertLink: string
+    removeLink: string
+    insertImage: string
+    export: string
+    linkDialog: {
+      placeholder: string
+      confirm: string
+      cancel: string
+    }
+  }
+  bubbleMenu: {
+    imageLayout: {
+      inline: string
+      wrapLeft: string
+      wrapRight: string
+      block: string
+    }
+    cropImage: string
+    deleteImage: string
+    bold: string
+    italic: string
+    underline: string
+    strike: string
+    bulletList: string
+    orderedList: string
+    blockquote: string
+  }
+  linkMenu: {
+    edit: string
+    remove: string
+  }
+  imageEditor: {
+    title: string
+    crop: {
+      cancel: string
+      confirm: string
+    }
+    edit: {
+      width: string
+      rotation: string
+      textWrap: string
+      wrapNone: string
+      wrapLeft: string
+      wrapRight: string
+      blockCenter: string
+      rightMargin: string
+      leftMargin: string
+      bottomMargin: string
+      crop: string
+      reset: string
+      apply: string
+    }
+  }
+  imageNodeView: {
+    resetCrop: string
+    cancel: string
+    applyCrop: string
+  }
+  placeholder: string
+}
+```
+
+### 导出
+
+```typescript
+import {
+  useI18n,        // 国际化 composable
+  registerLocale, // 注册自定义语言包
+  zhCN,           // 中文语言包
+  enUS,           // 英文语言包
+} from 'vue-word-editor'
+import type { LocaleMessages, Locale } from 'vue-word-editor'
+```
+
 ## 样式自定义
 
 ### CSS 变量方式（推荐）
@@ -219,26 +469,32 @@ const theme = ref<'light' | 'dark' | 'auto'>('light')
 
 编辑器使用以下 CSS 类，你可以覆盖它们来自定义样式：
 
-| 类名                            | 用途       | 默认样式                                                                                                                      |
-| ----------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------- |
-| `.editor-btn-default`         | 工具栏按钮默认态 | `color: var(--editor-text-color); background: transparent`                                                                |
-| `.editor-btn-default:hover`   | 工具栏按钮悬停态 | `background-color: var(--editor-toolbar-bg)`                                                                              |
-| `.editor-btn-active`          | 工具栏按钮激活态 | `background-color: var(--editor-primary-color); color: #ffffff`                                                           |
-| `.editor-btn-danger`          | 危险操作按钮   | `color: var(--editor-danger-color)`                                                                                       |
-| `.editor-btn-danger:hover`    | 危险操作按钮悬停 | `background-color: var(--editor-danger-hover)`                                                                            |
-| `.editor-divider`             | 工具栏分隔线   | `background-color: var(--editor-border-color)`                                                                            |
-| `.editor-text-secondary`      | 次要文字     | `color: var(--editor-text-secondary)`                                                                                     |
-| `.editor-slider`              | 滑块轨道     | `background-color: var(--editor-border-color)`                                                                            |
-| `.editor-select`              | 下拉选择框    | `background-color: var(--editor-bg-color); border: 1px solid var(--editor-border-color); color: var(--editor-text-color)` |
-| `.editor-select:hover`        | 下拉选择框悬停  | `background-color: var(--editor-toolbar-bg)`                                                                              |
-| `.editor-select:focus`        | 下拉选择框聚焦  | `box-shadow: 0 0 0 2px var(--editor-primary-color)`                                                                       |
-| `.editor-input`               | 文本输入框    | `background-color: var(--editor-bg-color); border: 1px solid var(--editor-border-color); color: var(--editor-text-color)` |
-| `.editor-input:focus`         | 文本输入框聚焦  | `box-shadow: 0 0 0 2px var(--editor-primary-color)`                                                                       |
-| `.editor-btn-primary`         | 主要按钮     | `background-color: var(--editor-primary-color); color: #ffffff`                                                           |
-| `.editor-btn-primary:hover`   | 主要按钮悬停   | `background-color: var(--editor-primary-hover)`                                                                           |
-| `.editor-btn-secondary`       | 次要按钮     | `background-color: var(--editor-toolbar-bg); color: var(--editor-text-color)`                                             |
-| `.editor-btn-secondary:hover` | 次要按钮悬停   | `background-color: var(--editor-border-color)`                                                                            |
-| `.editor-color-swatch`        | 颜色选择色块   | `border-color: var(--editor-border-color)`                                                                                |
+| 类名                             | 用途                    | 默认样式                                                                                                                                                               |
+| ------------------------------ | --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `.editor-btn-default`          | 工具栏按钮默认态              | `color: var(--editor-text-color); background: transparent`                                                                                                         |
+| `.editor-btn-default:hover`    | 工具栏按钮悬停态              | `background-color: var(--editor-toolbar-bg)`                                                                                                                       |
+| `.editor-btn-active`           | 工具栏按钮激活态              | `background-color: var(--editor-primary-color); color: #ffffff`                                                                                                    |
+| `.editor-btn-danger`           | 危险操作按钮                | `color: var(--editor-danger-color)`                                                                                                                                |
+| `.editor-btn-danger:hover`     | 危险操作按钮悬停              | `background-color: var(--editor-danger-hover)`                                                                                                                     |
+| `.editor-divider`              | 工具栏分隔线                | `background-color: var(--editor-border-color)`                                                                                                                     |
+| `.editor-text-secondary`       | 次要文字                  | `color: var(--editor-text-secondary)`                                                                                                                              |
+| `.editor-slider`               | 滑块轨道                  | `background-color: var(--editor-border-color)`                                                                                                                     |
+| `.editor-select`               | 下拉选择框                 | `background-color: var(--editor-bg-color); border: 1px solid var(--editor-border-color); color: var(--editor-text-color)`                                          |
+| `.editor-select:hover`         | 下拉选择框悬停               | `background-color: var(--editor-toolbar-bg)`                                                                                                                       |
+| `.editor-select:focus`         | 下拉选择框聚焦               | `box-shadow: 0 0 0 2px var(--editor-primary-color)`                                                                                                                |
+| `.editor-input`                | 文本输入框                 | `background-color: var(--editor-bg-color); border: 1px solid var(--editor-border-color); color: var(--editor-text-color)`                                          |
+| `.editor-input:focus`          | 文本输入框聚焦               | `box-shadow: 0 0 0 2px var(--editor-primary-color)`                                                                                                                |
+| `.editor-btn-primary`          | 主要按钮                  | `background-color: var(--editor-primary-color); color: #ffffff`                                                                                                    |
+| `.editor-btn-primary:hover`    | 主要按钮悬停                | `background-color: var(--editor-primary-hover)`                                                                                                                    |
+| `.editor-btn-secondary`        | 次要按钮                  | `background-color: var(--editor-toolbar-bg); color: var(--editor-text-color)`                                                                                      |
+| `.editor-btn-secondary:hover`  | 次要按钮悬停                | `background-color: var(--editor-border-color)`                                                                                                                     |
+| `.editor-color-swatch`         | 颜色选择色块                | `border-color: var(--editor-border-color)`                                                                                                                         |
+| `.editor-container`            | 编辑器容器                 | `background-color: var(--editor-bg-color); border-radius: var(--editor-radius); border: 1px solid var(--editor-border-color); box-shadow: var(--editor-shadow)`    |
+| `.editor-toolbar`              | 工具栏                   | `background-color: var(--editor-toolbar-bg); border-bottom: 1px solid var(--editor-border-color); padding: 0.5rem`                                                 |
+| `.editor-popup`                | 弹出层（BubbleMenu、链接菜单等） | `background-color: var(--editor-bg-color); border: 1px solid var(--editor-border-color); border-radius: var(--editor-radius); box-shadow: var(--editor-shadow-lg)` |
+| `.editor-tooltip`              | 提示框                   | `background-color: var(--editor-text-color); color: var(--editor-bg-color)`                                                                                        |
+| `.editor-color-picker-divider` | 颜色选择器分隔线              | `border-top: 1px solid var(--editor-border-color)`                                                                                                                 |
+| `.editor-color-input`          | 颜色选择器自定义颜色输入          | `border: 1px solid var(--editor-border-color)`                                                                                                                     |
 
 #### 自定义示例
 
@@ -334,6 +590,141 @@ editorRef.value.editor.commands.setDraggableImage({
 - 点击图片外部确认裁剪
 - Ctrl+Z 撤销裁剪
 
+### 图片上传（外部处理）
+
+由于这是富文本编辑器库，**不自动上传图片**。图片在本地以 base64 形式存储，外部项目需要在发布/提交时自行上传。
+
+#### 1. 获取所有图片用于上传
+
+通过组件 ref 直接调用暴露的方法：
+
+```typescript
+const editorRef = ref()
+
+// 在发布时调用
+const images = await editorRef.value.getImagesForUpload()
+// images 是 ImageUploadItem[] 数组，包含：
+// [
+//   {
+//     originalSrc: "data:image/png;base64,...",  // 原始src
+//     base64Data: "data:image/png;base64,...", // 用于上传的数据（已裁剪）
+//     crop: { x, y, width, height }           // 裁剪数据（如有）
+//   },
+//   ...
+// ]
+```
+
+#### 2. 上传图片到服务器
+
+获取图片后，用户自行实现上传逻辑（可使用任何上传方式）：
+
+```typescript
+// 辅助函数：将 base64 转为 Blob（自行实现）
+function dataURLtoBlob(dataurl: string): Blob {
+  const arr = dataurl.split(',')
+  const mime = arr[0].match(/:(.*?);/)![1]
+  const bstr = atob(arr[1])
+  let n = bstr.length
+  const u8arr = new Uint8Array(n)
+  while (n--) {
+    u8arr[n] = bstr.charCodeAt(n)
+  }
+  return new Blob([u8arr], { type: mime })
+}
+
+// 批量上传（自行实现）
+const uploadResults = await Promise.all(
+  images.map(async (img) => {
+    const formData = new FormData()
+    formData.append('file', dataURLtoBlob(img.base64Data))
+    const response = await fetch('/api/upload', {
+      method: 'POST',
+      body: formData
+    })
+    const result = await response.json()
+    return { originalSrc: img.originalSrc, url: result.url }
+  })
+)
+```
+
+#### 3. 替换编辑器中的图片为服务器 URL
+
+上传完成后，调用组件方法替换图片 src：
+
+```typescript
+// 创建映射：旧src -> 新url
+const srcMapping = new Map(
+  uploadResults.map(r => [r.originalSrc, r.url])
+)
+
+// 一次性替换所有图片
+editorRef.value.replaceMultipleImages(srcMapping)
+
+// 获取最终 HTML（现在所有图片src都已是服务器URL）
+const finalHTML = editorRef.value.getHTML()
+```
+
+#### 完整示例
+
+```typescript
+// 辅助函数：将 base64 转为 Blob（自行实现）
+function dataURLtoBlob(dataurl: string): Blob {
+  const arr = dataurl.split(',')
+  const mime = arr[0].match(/:(.*?);/)![1]
+  const bstr = atob(arr[1])
+  let n = bstr.length
+  const u8arr = new Uint8Array(n)
+  while (n--) {
+    u8arr[n] = bstr.charCodeAt(n)
+  }
+  return new Blob([u8arr], { type: mime })
+}
+
+//发布文章
+async function publishArticle() {
+  const editorRef = ref()
+
+  // 1. 获取所有图片
+  const images = await editorRef.value.getImagesForUpload()
+
+  if (images.length > 0) {
+    // 2. 上传到服务器（自行实现）
+    const uploadResults = await Promise.all(
+      images.map(async (img) => {
+        const formData = new FormData()
+        formData.append('file', dataURLtoBlob(img.base64Data))
+        const res = await fetch('/api/upload', { method: 'POST', body: formData })
+        const result = await res.json()
+        return { originalSrc: img.originalSrc, url: result.url }
+      })
+    )
+
+    // 3. 替换所有图片URL
+    const srcMapping = new Map(uploadResults.map(r => [r.originalSrc, r.url]))
+    editorRef.value.replaceMultipleImages(srcMapping)
+  }
+
+  // 4. 最终获取的完整内容（所有图片已是服务器URL）
+  const finalHTML = editorRef.value.getHTML()//html
+  const finalJSON = editorRef.value.getHTML()//json
+  const finalMD = editorRef.value.getHTML()//markdown(纯文本推荐)
+
+  // 5. 提交到后端
+  await fetch('/api/articles', {
+    method: 'POST',
+    body: JSON.stringify({ content: finalMD }),//finalHTML或者finalJSON
+    headers: { 'Content-Type': 'application/json' }
+  })
+}
+```
+
+#### 关键说明
+
+- **不自动上传**：插入图片时仅存储为 base64，不会自动触发上传
+- **裁剪处理**：如果图片被裁剪过，上传的会是裁剪后的 base64 数据
+- **批量替换**：可以一次性替换所有图片，也可以单独替换
+- **编辑回显**：从服务器加载已发布的内容时，图片 src 已经是 URL，无需额外处理
+
 ### 图片调整
 
 - 拖拽右下角手柄调整图片大小
@@ -372,6 +763,8 @@ import type {
   ImageAttributes,
   LinkData,
   FontStyle,
+  ExportFormat,
+  ImageUploadItem,
 } from 'vue-word-editor'
 ```
 
@@ -383,6 +776,8 @@ import type {
 | `ImageAttributes` | 图片属性 `{ src, alt?, title?, width?, height?, layout?, crop?, marginTop?, marginRight?, marginBottom?, marginLeft? }` |
 | `LinkData`        | 链接数据 `{ href: string; target?: string }`                                                                            |
 | `FontStyle`       | 字体样式 `{ family?, size?, weight?, color?, backgroundColor? }`                                                        |
+| `ExportFormat`    | 导出格式 `'html' \| 'json' \| 'md' \| 'pdf' \| 'docx'`                                                                  |
+| `ImageUploadItem` | 上传图片项 `{ originalSrc: string; base64Data: string; crop?: CropData }`                                                |
 
 ## 高级用法
 
@@ -449,6 +844,65 @@ function getContent() {
   console.log(html)
 }
 </script>
+```
+
+## 导出文档
+
+编辑器支持多种格式导出，点击工具栏右侧的下载图标即可选择导出格式：
+
+| 格式           | 说明                 |
+| ------------ | ------------------ |
+| HTML         | 导出完整的 HTML 文件，包含样式 |
+| JSON         | 导出 TipTap JSON 格式  |
+| Markdown     | 导出 Markdown 格式     |
+| PDF          | 导出 PDF 文件（A4 格式）   |
+| Word (.docx) | 导出 Word 文档         |
+
+### 使用 useExport composable
+
+如果需要直接使用 `useExport`，需要传入组件实例（不是 editor 实例）：
+
+```typescript
+import { useExport } from 'vue-word-editor'
+
+const editorRef = ref()
+
+// ✅ 正确：传入组件实例 ref
+const { exportAs, getImagesForUpload, replaceMultipleImages, getHTML } = useExport(editorRef.value)
+
+// ❌ 错误：传入 editor 实例本身
+// const { ... } = useExport(editorRef.value.editor)
+```
+
+### 单独使用导出方法
+
+```typescript
+const {
+  exportAs,       // 通用导出方法
+  exportAsHTML,   // 导出 HTML
+  exportAsJSON,  // 导出 JSON
+  exportAsMD,    // 导出 Markdown
+  exportAsPDF,   // 导出 PDF
+  exportAsDocx,  // 导出 Word
+  getHTML,       // 获取 HTML 内容
+  getJSON,       // 获取 JSON 内容
+  getMarkdown,   // 获取 Markdown 内容
+  getImagesForUpload,    // 获取所有图片用于上传
+  replaceMultipleImages,  // 批量替换图片 src
+} = useExport(editorRef.value)
+```
+
+### 推荐：直接使用组件暴露的方法
+
+更简单的方式是直接通过组件 ref 调用：
+
+```typescript
+const editorRef = ref()
+
+// 直接调用，无需 useExport
+const images = await editorRef.value.getImagesForUpload()
+editorRef.value.replaceMultipleImages(srcMapping)
+const html = editorRef.value.getHTML()
 ```
 
 ## 开发

@@ -1,15 +1,13 @@
 <template>
-  <div class="editor-toolbar flex flex-wrap items-center gap-1 overflow-x-auto relative" style="background-color: var(--editor-toolbar-bg, #f9fafb); border-bottom: 1px solid var(--editor-border-color, #e5e7eb); padding: 0.5rem;">
+  <div class="editor-toolbar flex flex-wrap items-center gap-1 overflow-x-auto relative">
     <Teleport to="body">
       <div
         v-if="tooltip.visible"
-        class="fixed z-[9999] px-2 py-1 text-xs rounded whitespace-nowrap pointer-events-none"
+        class="fixed z-[9999] px-2 py-1 text-xs rounded whitespace-nowrap pointer-events-none editor-tooltip"
         :style="{
           left: tooltip.x + 'px',
           top: tooltip.y + 'px',
           transform: tooltip.above ? 'translate(-50%, -100%)' : 'translate(-50%, 0)',
-          backgroundColor: 'var(--editor-text-color, #1f2937)',
-          color: 'var(--editor-bg-color, #ffffff)',
         }"
       >
         {{ tooltip.text }}
@@ -21,13 +19,13 @@
         @change="onHeadingChange"
         class="px-2 py-1.5 text-sm rounded editor-select min-w-[80px]"
       >
-        <option value="0">正文</option>
-        <option value="1">H1 标题</option>
-        <option value="2">H2 标题</option>
-        <option value="3">H3 标题</option>
-        <option value="4">H4 标题</option>
-        <option value="5">H5 标题</option>
-        <option value="6">H6 标题</option>
+        <option value="0">{{ t('toolbar.heading.paragraph') }}</option>
+        <option value="1">{{ t('toolbar.heading.h1') }}</option>
+        <option value="2">{{ t('toolbar.heading.h2') }}</option>
+        <option value="3">{{ t('toolbar.heading.h3') }}</option>
+        <option value="4">{{ t('toolbar.heading.h4') }}</option>
+        <option value="5">{{ t('toolbar.heading.h5') }}</option>
+        <option value="6">{{ t('toolbar.heading.h6') }}</option>
       </select>
     </div>
 
@@ -36,7 +34,7 @@
     <div class="flex items-center gap-1">
       <button
         @click="$emit('toggleBold')"
-        @mouseenter="showTooltip($event, '加粗')"
+        @mouseenter="showTooltip($event, t('toolbar.bold'))"
         @mouseleave="hideTooltip"
         :class="[
           'w-8 h-8 flex items-center justify-center rounded transition-colors',
@@ -49,7 +47,7 @@
       </button>
       <button
         @click="$emit('toggleItalic')"
-        @mouseenter="showTooltip($event, '斜体')"
+        @mouseenter="showTooltip($event, t('toolbar.italic'))"
         @mouseleave="hideTooltip"
         :class="[
           'w-8 h-8 flex items-center justify-center rounded transition-colors',
@@ -62,7 +60,7 @@
       </button>
       <button
         @click="$emit('toggleUnderline')"
-        @mouseenter="showTooltip($event, '下划线')"
+        @mouseenter="showTooltip($event, t('toolbar.underline'))"
         @mouseleave="hideTooltip"
         :class="[
           'w-8 h-8 flex items-center justify-center rounded transition-colors',
@@ -75,7 +73,7 @@
       </button>
       <button
         @click="$emit('toggleStrike')"
-        @mouseenter="showTooltip($event, '删除线')"
+        @mouseenter="showTooltip($event, t('toolbar.strike'))"
         @mouseleave="hideTooltip"
         :class="[
           'w-8 h-8 flex items-center justify-center rounded transition-colors',
@@ -96,13 +94,13 @@
         @change="$emit('setFontFamily', ($event.target as HTMLSelectElement).value)"
         class="px-2 py-1.5 text-sm rounded editor-select"
       >
-        <option value="sans-serif">无衬线字体</option>
-        <option value="serif">衬线字体</option>
-        <option value="monospace">等宽字体</option>
-        <option value="Microsoft+YaHei">微软雅黑</option>
-        <option value="SimSun">宋体</option>
-        <option value="SimHei">黑体</option>
-        <option value="KaiTi">楷体</option>
+        <option value="sans-serif">{{ t('toolbar.fontFamily.sansSerif') }}</option>
+        <option value="serif">{{ t('toolbar.fontFamily.serif') }}</option>
+        <option value="monospace">{{ t('toolbar.fontFamily.monospace') }}</option>
+        <option value="Microsoft+YaHei">{{ t('toolbar.fontFamily.microsoftYaHei') }}</option>
+        <option value="SimSun">{{ t('toolbar.fontFamily.simSun') }}</option>
+        <option value="SimHei">{{ t('toolbar.fontFamily.simHei') }}</option>
+        <option value="KaiTi">{{ t('toolbar.fontFamily.kaiTi') }}</option>
       </select>
       <select
         :value="fontSize"
@@ -120,7 +118,7 @@
     <div class="flex items-center gap-1">
       <button
         @click.stop="openTextColorPicker($event)"
-        @mouseenter="showTooltip($event, '文字颜色')"
+        @mouseenter="showTooltip($event, t('toolbar.textColor'))"
         @mouseleave="hideTooltip"
         class="w-8 h-8 flex items-center justify-center rounded transition-colors editor-btn-default relative"
       >
@@ -132,7 +130,7 @@
     <div class="flex items-center gap-1">
       <button
         @click.stop="openHighlightColorPicker($event)"
-        @mouseenter="showTooltip($event, '背景高亮')"
+        @mouseenter="showTooltip($event, t('toolbar.highlightColor'))"
         @mouseleave="hideTooltip"
         :class="[
           'w-8 h-8 flex items-center justify-center rounded transition-colors relative',
@@ -153,7 +151,7 @@
         v-for="align in ['left', 'center', 'right', 'justify']"
         :key="align"
         @click="$emit('setAlign', align)"
-        @mouseenter="showTooltip($event, alignLabels[align])"
+        @mouseenter="showTooltip($event, t(`toolbar.align.${align}`))"
         @mouseleave="hideTooltip"
         :class="[
           'w-8 h-8 flex items-center justify-center rounded transition-colors',
@@ -171,7 +169,7 @@
     <div class="flex items-center gap-1">
       <button
         @click="$emit('toggleBulletList')"
-        @mouseenter="showTooltip($event, '无序列表')"
+        @mouseenter="showTooltip($event, t('toolbar.bulletList'))"
         @mouseleave="hideTooltip"
         :class="[
           'w-8 h-8 flex items-center justify-center rounded transition-colors',
@@ -184,7 +182,7 @@
       </button>
       <button
         @click="$emit('toggleOrderedList')"
-        @mouseenter="showTooltip($event, '有序列表')"
+        @mouseenter="showTooltip($event, t('toolbar.orderedList'))"
         @mouseleave="hideTooltip"
         :class="[
           'w-8 h-8 flex items-center justify-center rounded transition-colors',
@@ -197,7 +195,7 @@
       </button>
       <button
         @click="$emit('toggleBlockquote')"
-        @mouseenter="showTooltip($event, '引用')"
+        @mouseenter="showTooltip($event, t('toolbar.blockquote'))"
         @mouseleave="hideTooltip"
         :class="[
           'w-8 h-8 flex items-center justify-center rounded transition-colors',
@@ -215,7 +213,7 @@
     <div class="flex items-center gap-1">
       <button
         @click="openLinkDialog($event)"
-        @mouseenter="showTooltip($event, '插入链接')"
+        @mouseenter="showTooltip($event, t('toolbar.insertLink'))"
         @mouseleave="hideTooltip"
         class="w-8 h-8 flex items-center justify-center rounded transition-colors editor-btn-default"
       >
@@ -224,7 +222,7 @@
 
       <button
         @click="$emit('unsetLink')"
-        @mouseenter="showTooltip($event, '删除链接')"
+        @mouseenter="showTooltip($event, t('toolbar.removeLink'))"
         @mouseleave="hideTooltip"
         class="w-8 h-8 flex items-center justify-center rounded transition-colors editor-btn-danger"
       >
@@ -232,7 +230,7 @@
       </button>
 
       <label
-        @mouseenter="showTooltip($event, '插入图片')"
+        @mouseenter="showTooltip($event, t('toolbar.insertImage'))"
         @mouseleave="hideTooltip"
         class="w-8 h-8 flex items-center justify-center rounded transition-colors editor-btn-default cursor-pointer"
       >
@@ -244,19 +242,53 @@
           @change="handleImageUpload"
         />
       </label>
+
+      <div class="relative">
+        <button
+          @click="toggleExportMenu($event)"
+          @mouseenter="showTooltip($event, t('toolbar.export'))"
+          @mouseleave="hideTooltip"
+          class="w-8 h-8 flex items-center justify-center rounded transition-colors editor-btn-default"
+        >
+          <Download class="w-4 h-4" />
+        </button>
+        <Teleport to="body">
+          <div
+            v-if="showExportMenu"
+            class="fixed z-[100] min-w-[150px] editor-popup p-1"
+            :style="{ left: exportMenuPosition.x + 'px', top: exportMenuPosition.y + 'px' }"
+          >
+            <div class="py-1">
+              <button
+                v-for="opt in exportOptions"
+                :key="opt.value"
+                @click="handleExport(opt.value)"
+                class="w-full px-3 py-2 text-left text-sm rounded editor-btn-default flex items-center gap-2"
+              >
+                {{ opt.label }}
+              </button>
+            </div>
+          </div>
+          <div
+            v-if="showExportMenu"
+            class="fixed inset-0 z-[99]"
+            @click="showExportMenu = false"
+          ></div>
+        </Teleport>
+      </div>
     </div>
   </div>
   
   <Teleport to="body">
     <div
       v-if="showLinkDialog"
-      class="fixed p-3 z-[100] min-w-[200px]"
-      :style="{ left: linkDialogPosition.x + 'px', top: linkDialogPosition.y + 'px', backgroundColor: 'var(--editor-bg-color, #ffffff)', border: '1px solid var(--editor-border-color, #e5e7eb)', borderRadius: 'var(--editor-radius, 0.5rem)', boxShadow: 'var(--editor-shadow-lg, 0 4px 6px -1px rgba(0,0,0,0.1))' }"
+      class="fixed p-3 z-[100] min-w-[200px] editor-popup"
+      :style="{ left: linkDialogPosition.x + 'px', top: linkDialogPosition.y + 'px' }"
     >
       <input
         v-model="linkUrl"
         type="text"
-        placeholder="输入链接地址"
+        :placeholder="t('toolbar.linkDialog.placeholder')"
         class="w-full px-2 py-1.5 text-sm rounded editor-input"
         @keyup.enter="insertLink"
         @click.stop
@@ -266,13 +298,13 @@
           @click="insertLink"
           class="flex-1 px-3 py-1.5 text-sm rounded editor-btn-primary"
         >
-          确定
+          {{ t('toolbar.linkDialog.confirm') }}
         </button>
         <button
           @click="showLinkDialog = false"
           class="flex-1 px-3 py-1.5 text-sm rounded editor-btn-secondary"
         >
-          取消
+          {{ t('toolbar.linkDialog.cancel') }}
         </button>
       </div>
     </div>
@@ -292,8 +324,8 @@
     ></div>
     <div 
       v-if="showTextColorPicker" 
-      class="text-color-picker-container fixed p-3 z-[100]"
-      :style="{ left: textColorPickerPosition.x + 'px', top: textColorPickerPosition.y + 'px', backgroundColor: 'var(--editor-bg-color, #ffffff)', border: '1px solid var(--editor-border-color, #e5e7eb)', borderRadius: 'var(--editor-radius, 0.5rem)', boxShadow: 'var(--editor-shadow-lg, 0 4px 6px -1px rgba(0,0,0,0.1))' }"
+      class="text-color-picker-container fixed p-3 z-[100] editor-popup editor-color-picker"
+      :style="{ left: textColorPickerPosition.x + 'px', top: textColorPickerPosition.y + 'px' }"
     >
         <div class="grid grid-cols-7 gap-1">
           <button
@@ -301,7 +333,6 @@
             :key="color"
             @click="selectPresetTextColor(color)"
             class="w-7 h-7 rounded border editor-color-swatch hover:ring-2 transition-all relative overflow-hidden"
-            :style="{ borderColor: 'var(--editor-border-color, #e5e7eb)', '--tw-ring-color': 'var(--editor-primary-color, #3b82f6)' }"
             :class="{ 'bg-white': color === 'transparent' }"
           >
             <span v-if="color === 'transparent'" class="absolute inset-0 flex items-center justify-center">
@@ -310,16 +341,15 @@
             <span v-else class="w-full h-full block rounded" :style="{ backgroundColor: color }"></span>
           </button>
         </div>
-        <div class="mt-2 pt-2" style="border-top: 1px solid var(--editor-border-color, #e5e7eb);">
+        <div class="mt-2 pt-2 editor-color-picker-divider">
           <div class="flex items-center gap-2">
             <input
               type="color"
               :value="textColor"
               @input="selectTextColor(($event.target as HTMLInputElement).value)"
-              class="w-7 h-7 cursor-pointer rounded"
-              style="border: 1px solid var(--editor-border-color, #e5e7eb);"
+              class="w-7 h-7 cursor-pointer rounded editor-color-input"
             />
-            <span class="text-xs editor-text-secondary">自定义颜色</span>
+            <span class="text-xs editor-text-secondary">{{ t('toolbar.customColor') }}</span>
           </div>
         </div>
     </div>
@@ -333,8 +363,8 @@
     ></div>
     <div 
       v-if="showHighlightColorPicker" 
-      class="highlight-color-picker-container fixed p-3 z-[100]"
-      :style="{ left: highlightColorPickerPosition.x + 'px', top: highlightColorPickerPosition.y + 'px', backgroundColor: 'var(--editor-bg-color, #ffffff)', border: '1px solid var(--editor-border-color, #e5e7eb)', borderRadius: 'var(--editor-radius, 0.5rem)', boxShadow: 'var(--editor-shadow-lg, 0 4px 6px -1px rgba(0,0,0,0.1))' }"
+      class="highlight-color-picker-container fixed p-3 z-[100] editor-popup editor-color-picker"
+      :style="{ left: highlightColorPickerPosition.x + 'px', top: highlightColorPickerPosition.y + 'px' }"
     >
         <div class="grid grid-cols-6 gap-1">
           <button
@@ -342,7 +372,6 @@
             :key="color"
             @click="selectPresetHighlightColor(color)"
             class="w-7 h-7 rounded border editor-color-swatch hover:ring-2 transition-all relative overflow-hidden"
-            :style="{ borderColor: 'var(--editor-border-color, #e5e7eb)', '--tw-ring-color': 'var(--editor-primary-color, #3b82f6)' }"
             :class="{ 'bg-white': color === 'transparent' }"
           >
             <span v-if="color === 'transparent'" class="absolute inset-0 flex items-center justify-center">
@@ -351,16 +380,15 @@
             <span v-else class="w-full h-full block rounded" :style="{ backgroundColor: color }"></span>
           </button>
         </div>
-        <div class="mt-2 pt-2" style="border-top: 1px solid var(--editor-border-color, #e5e7eb);">
+        <div class="mt-2 pt-2 editor-color-picker-divider">
           <div class="flex items-center gap-2">
             <input
               type="color"
               :value="highlightColor"
               @input="selectHighlightColor(($event.target as HTMLInputElement).value)"
-              class="w-7 h-7 cursor-pointer rounded"
-              style="border: 1px solid var(--editor-border-color, #e5e7eb);"
+              class="w-7 h-7 cursor-pointer rounded editor-color-input"
             />
-            <span class="text-xs editor-text-secondary">自定义颜色</span>
+            <span class="text-xs editor-text-secondary">{{ t('toolbar.customColor') }}</span>
           </div>
         </div>
     </div>
@@ -385,9 +413,11 @@ import {
   Quote,
   Link2,
   Image as ImageIcon,
+  Download,
 } from 'lucide-vue-next'
+import { useI18n } from '../composables/useI18n'
 
-defineProps<{
+interface Props {
   isBold: boolean
   isItalic: boolean
   isUnderline: boolean
@@ -403,7 +433,8 @@ defineProps<{
   fontSize: string
   textColor: string
   highlightColor: string
-}>()
+}
+withDefaults(defineProps<Props>(), {})
 
 const emit = defineEmits<{
   toggleBold: []
@@ -426,7 +457,13 @@ const emit = defineEmits<{
   clearTextColor: []
   clearHighlightColor: []
   addImage: [src: string, alt: string]
+  export: [format: string]
+  startUpload: [file: File]
+  uploadSuccess: [url: string, alt: string]
+  uploadError: [error: Error]
 }>()
+
+const { t } = useI18n()
 
 const showTextColorPicker = ref(false)
 const showHighlightColorPicker = ref(false)
@@ -435,6 +472,37 @@ const highlightColorPickerPosition = ref({ x: 0, y: 0 })
 const showLinkDialog = ref(false)
 const linkUrl = ref('')
 const linkDialogPosition = ref({ x: 0, y: 0 })
+
+const showExportMenu = ref(false)
+const exportMenuPosition = ref({ x: 0, y: 0 })
+const exportOptions = [
+  { label: 'HTML', value: 'html' },
+  { label: 'JSON', value: 'json' },
+  { label: 'Markdown', value: 'md' },
+  { label: 'PDF', value: 'pdf' },
+  { label: 'Word (.docx)', value: 'docx' },
+]
+
+function toggleExportMenu(event: MouseEvent) {
+  const target = event.currentTarget as HTMLElement
+  const rect = target.getBoundingClientRect()
+  const menuHeight = 220
+  const bottomSpace = window.innerHeight - rect.bottom
+  let top = rect.bottom + 8
+  if (bottomSpace < menuHeight) {
+    top = rect.top - menuHeight - 8
+  }
+  exportMenuPosition.value = { x: rect.left, y: top }
+  showExportMenu.value = !showExportMenu.value
+  showLinkDialog.value = false
+  showTextColorPicker.value = false
+  showHighlightColorPicker.value = false
+}
+
+function handleExport(format: string) {
+  emit('export', format)
+  showExportMenu.value = false
+}
 
 const tooltip = ref({ visible: false, text: '', x: 0, y: 0, above: true })
 let tooltipTimer: ReturnType<typeof setTimeout> | null = null
@@ -478,13 +546,6 @@ const alignIcons: Record<string, unknown> = {
   center: AlignCenter,
   right: AlignRight,
   justify: AlignJustify,
-}
-
-const alignLabels: Record<string, string> = {
-  left: '左对齐',
-  center: '居中',
-  right: '右对齐',
-  justify: '两端对齐',
 }
 
 function openTextColorPicker(event: MouseEvent) {

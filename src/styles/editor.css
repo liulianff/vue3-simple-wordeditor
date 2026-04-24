@@ -230,3 +230,45 @@
     min-height: 300px;
   }
 }
+
+.editor-container {
+  background-color: var(--editor-bg-color, #ffffff);
+  border-radius: var(--editor-radius, 0.5rem);
+  border: 1px solid var(--editor-border-color, #e5e7eb);
+  box-shadow: var(--editor-shadow, 0 1px 3px rgba(0,0,0,0.1));
+}
+
+.editor-toolbar {
+  background-color: var(--editor-toolbar-bg, #f9fafb);
+  border-bottom: 1px solid var(--editor-border-color, #e5e7eb);
+  padding: 0.5rem;
+}
+
+.editor-popup {
+  background-color: var(--editor-bg-color, #ffffff);
+  border: 1px solid var(--editor-border-color, #e5e7eb);
+  border-radius: var(--editor-radius, 0.5rem);
+  box-shadow: var(--editor-shadow-lg, 0 4px 6px -1px rgba(0,0,0,0.1));
+}
+
+.editor-tooltip {
+  background-color: var(--editor-text-color, #1f2937);
+  color: var(--editor-bg-color, #ffffff);
+}
+
+.editor-slider {
+  accent-color: var(--editor-primary-color, #3b82f6);
+}
+
+.editor-color-picker-divider {
+  border-top: 1px solid var(--editor-border-color, #e5e7eb);
+}
+
+.editor-color-input {
+  border: 1px solid var(--editor-border-color, #e5e7eb);
+}
+
+.editor-color-swatch:hover {
+  --tw-ring-color: var(--editor-primary-color, #3b82f6);
+}
+

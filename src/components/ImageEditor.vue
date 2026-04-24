@@ -4,7 +4,7 @@
       <div class="fixed inset-0 bg-black bg-opacity-50"></div>
       <div class="relative bg-white rounded-lg shadow-xl max-w-3xl w-full max-h-[90vh] overflow-hidden flex flex-col">
         <div class="flex items-center justify-between p-4 border-b border-gray-200 shrink-0">
-          <h3 class="text-lg font-semibold text-gray-800">图片编辑</h3>
+          <h3 class="text-lg font-semibold text-gray-800">{{ t('imageEditor.title') }}</h3>
           <button
             @click="$emit('close')"
             class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors"
@@ -41,7 +41,7 @@
 
             <div class="grid grid-cols-2 gap-4">
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">宽度</label>
+                <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('imageEditor.edit.width') }}</label>
                 <div class="flex items-center gap-2">
                   <input
                     type="range"
@@ -55,7 +55,7 @@
                 </div>
               </div>
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">旋转</label>
+                <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('imageEditor.edit.rotation') }}</label>
                 <div class="flex items-center gap-2">
                   <input
                     type="range"
@@ -71,7 +71,7 @@
             </div>
 
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">文字环绕方式</label>
+              <label class="block text-sm font-medium text-gray-700 mb-2">{{ t('imageEditor.edit.textWrap') }}</label>
               <div class="flex flex-wrap gap-2">
                 <button
                   v-for="layout in layoutOptions"
@@ -93,7 +93,7 @@
             <div v-if="editLayout === 'wrap-left' || editLayout === 'wrap-right'" class="grid grid-cols-2 gap-4">
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">
-                  {{ editLayout === 'wrap-left' ? '右边距' : '左边距' }}
+                  {{ editLayout === 'wrap-left' ? t('imageEditor.edit.rightMargin') : t('imageEditor.edit.leftMargin') }}
                 </label>
                 <div class="flex items-center gap-2">
                   <input
@@ -108,7 +108,7 @@
                 </div>
               </div>
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">下边距</label>
+                <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('imageEditor.edit.bottomMargin') }}</label>
                 <div class="flex items-center gap-2">
                   <input
                     type="range"
@@ -131,14 +131,14 @@
               @click="cancelCrop"
               class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
             >
-              取消裁剪
+              {{ t('imageEditor.crop.cancel') }}
             </button>
             <button
               @click="applyCrop"
               class="flex-1 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center justify-center gap-2"
             >
               <Check class="w-4 h-4" />
-              确认裁剪
+              {{ t('imageEditor.crop.confirm') }}
             </button>
           </div>
           <div v-else class="flex gap-3">
@@ -147,19 +147,19 @@
               class="px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-colors flex items-center gap-2"
             >
               <Crop class="w-4 h-4" />
-              裁剪
+              {{ t('imageEditor.edit.crop') }}
             </button>
             <button
               @click="resetImage"
               class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
             >
-              重置
+              {{ t('imageEditor.edit.reset') }}
             </button>
             <button
               @click="applyChanges"
               class="flex-1 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
             >
-              应用
+              {{ t('imageEditor.edit.apply') }}
             </button>
           </div>
         </div>
@@ -173,6 +173,7 @@ import { ref, computed, watch } from 'vue'
 import { X, Crop, Check, AlignCenter, AlignLeft, AlignRight, Minus } from 'lucide-vue-next'
 import { Cropper } from 'vue-advanced-cropper'
 import 'vue-advanced-cropper/dist/style.css'
+import { useI18n } from '../composables/useI18n'
 import type { ImageLayoutType } from '../types/editor'
 
 const props = defineProps<{
@@ -197,6 +198,8 @@ const emit = defineEmits<{
   }]
 }>()
 
+const { t } = useI18n()
+
 const cropperRef = ref<InstanceType<typeof Cropper> | null>(null)
 const previewRef = ref<HTMLElement | null>(null)
 
@@ -217,12 +220,12 @@ const previewStyle = computed(() => ({
   maxWidth: '100%',
 }))
 
-const layoutOptions = [
-  { label: '无环绕', value: 'inline' as ImageLayoutType, icon: Minus },
-  { label: '左环绕', value: 'wrap-left' as ImageLayoutType, icon: AlignLeft },
-  { label: '右环绕', value: 'wrap-right' as ImageLayoutType, icon: AlignRight },
-  { label: '块级居中', value: 'block' as ImageLayoutType, icon: AlignCenter },
-]
+const layoutOptions = computed(() => [
+  { label: t('imageEditor.edit.wrapNone'), value: 'inline' as ImageLayoutType, icon: Minus },
+  { label: t('imageEditor.edit.wrapLeft'), value: 'wrap-left' as ImageLayoutType, icon: AlignLeft },
+  { label: t('imageEditor.edit.wrapRight'), value: 'wrap-right' as ImageLayoutType, icon: AlignRight },
+  { label: t('imageEditor.edit.blockCenter'), value: 'block' as ImageLayoutType, icon: AlignCenter },
+])
 
 watch(() => props.visible, (val) => {
   if (val) {
