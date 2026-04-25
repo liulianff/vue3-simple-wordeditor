@@ -4,16 +4,16 @@ import { downloadFile, generateFilename, cropImage, type CropData } from './util
 
 async function processJsonImages(json: any): Promise<any> {
   if (!json) return json
-  
+
   if (Array.isArray(json)) {
     return Promise.all(json.map(item => processJsonImages(item)))
   }
-  
+
   if (typeof json === 'object' && json !== null) {
     if (json.type === 'draggableImage' && json.attrs) {
       const src = json.attrs.src
       const crop = json.attrs.crop as CropData | null
-      
+
       if (src && crop && crop.width < 100) {
         const croppedSrc = await cropImage(src, crop)
         json.attrs.src = croppedSrc
@@ -21,14 +21,14 @@ async function processJsonImages(json: any): Promise<any> {
       }
       return json
     }
-    
+
     const result: any = {}
     for (const key in json) {
       result[key] = await processJsonImages(json[key])
     }
     return result
   }
-  
+
   return json
 }
 

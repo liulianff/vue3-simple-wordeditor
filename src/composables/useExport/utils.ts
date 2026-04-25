@@ -116,52 +116,117 @@ export async function processImagesWithCrop(html: string): Promise<{ html: strin
   
   const imgElements = Array.from(tempDiv.querySelectorAll('img'))
   const imgSizes = new Map<string, { width: number; height: number }>()
+  
+  // 记录原始图片顺序的映射表
+  const srcMapping = new Map<string, string>()
+  // 记录用户设置的图片宽度
+  const widthMapping = new Map<string, number>()
 
+  // 先处理所有图片，记录src映射和宽度
   for (const imgEl of imgElements) {
     const src = imgEl.getAttribute('src')
+    const widthAttr = imgEl.getAttribute('width')
     const cropAttr = imgEl.getAttribute('data-crop')
     
-    if (src && cropAttr) {
-      try {
-        const crop = JSON.parse(cropAttr) as CropData
-        const croppedSrc = await cropImage(src, crop)
-        imgEl.setAttribute('src', croppedSrc)
-        imgEl.removeAttribute('data-crop')
-        
-        const size = await loadImageSize(croppedSrc)
-        imgSizes.set(croppedSrc, size)
-      } catch (e) {
-        console.warn('Failed to crop image:', e)
-        if (src) {
+    if (src) {
+      // 记录用户设置的宽度
+      if (widthAttr) {
+        const width = parseInt(widthAttr)
+        if (!isNaN(width)) {
+          widthMapping.set(src, width)
+        }
+      }
+      
+      if (cropAttr) {
+        try {
+          const crop = JSON.parse(cropAttr) as CropData
+          const croppedSrc = await cropImage(src, crop)
+          srcMapping.set(src, croppedSrc)
+          
+          // 使用用户设置的宽度或默认大小
+          const userWidth = widthMapping.get(src)
+          if (userWidth) {
+            const size = await loadImageSize(croppedSrc, userWidth)
+            imgSizes.set(croppedSrc, size)
+          } else {
+            const size = await loadImageSize(croppedSrc)
+            imgSizes.set(croppedSrc, size)
+          }
+        } catch (e) {
+          console.warn('Failed to crop image:', e)
+          if (src) {
+            const userWidth = widthMapping.get(src)
+            if (userWidth) {
+              const size = await loadImageSize(src, userWidth)
+              imgSizes.set(src, size)
+            } else {
+              const size = await loadImageSize(src)
+              imgSizes.set(src, size)
+            }
+          }
+        }
+      } else {
+        const userWidth = widthMapping.get(src)
+        if (userWidth) {
+          const size = await loadImageSize(src, userWidth)
+          imgSizes.set(src, size)
+        } else {
           const size = await loadImageSize(src)
           imgSizes.set(src, size)
         }
       }
-    } else if (src) {
-      const size = await loadImageSize(src)
-      imgSizes.set(src, size)
     }
   }
+  
+  // 直接替换原始HTML中的src，保持原始顺序
+  let processedHtml = html
+  for (const [oldSrc, newSrc] of srcMapping.entries()) {
+    processedHtml = processedHtml.replace(new RegExp(oldSrc.replace(/[.*+?^${}()|\[\]\\]/g, '\\$&'), 'g'), newSrc)
+    processedHtml = processedHtml.replace(/data-crop="[^"]*"/g, '')
+  }
 
-  return { html: tempDiv.innerHTML, imgSizes }
+  // 确保保留宽度属性
+  const tempDiv2 = document.createElement('div')
+  tempDiv2.innerHTML = processedHtml
+  const imgElements2 = Array.from(tempDiv2.querySelectorAll('img'))
+  imgElements2.forEach(imgEl => {
+    const src = imgEl.getAttribute('src')
+    if (src) {
+      const userWidth = widthMapping.get(src)
+      if (userWidth) {
+        imgEl.setAttribute('width', userWidth.toString())
+      }
+    }
+  })
+  processedHtml = tempDiv2.innerHTML
+
+  return { html: processedHtml, imgSizes }
 }
 
-function loadImageSize(src: string): Promise<{ width: number; height: number }> {
+function loadImageSize(src: string, targetWidth?: number): Promise<{ width: number; height: number }> {
   return new Promise((resolve) => {
     const img = new Image()
     img.onload = () => {
       let width = img.naturalWidth
       let height = img.naturalHeight
-      const maxWidth = 500
+      
+      // 使用用户设置的宽度或默认最大宽度
+      const maxWidth = targetWidth || 500
       if (width > maxWidth) {
         const ratio = maxWidth / width
         width = maxWidth
         height = height * ratio
+      } else if (targetWidth && targetWidth < width) {
+        // 如果用户设置的宽度小于原始宽度，按比例缩小
+        const ratio = targetWidth / width
+        width = targetWidth
+        height = height * ratio
       }
+      
       resolve({ width: Math.round(width), height: Math.round(height) })
     }
     img.onerror = () => {
-      resolve({ width: 500, height: 375 })
+      resolve({ width: targetWidth || 500, height: targetWidth ? Math.round(targetWidth * 0.75) : 375 })
     }
     img.src = src
   })

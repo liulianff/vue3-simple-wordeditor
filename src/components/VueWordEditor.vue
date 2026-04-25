@@ -322,6 +322,7 @@ const {
   addImage,
   getHTML,
   setHTML,
+  setJSON,
 } = useEditor({
   content: props.modelValue || '',
   placeholder: resolvedPlaceholder.value,
@@ -408,7 +409,19 @@ function setImageLayout(layout: ImageLayoutType) {
   const { from, to } = state.selection
   state.doc.nodesBetween(from, to, (node: any, pos: number) => {
     if (node.type.name === 'draggableImage') {
+      const attrs = node.attrs
       const tr = state.tr.setNodeAttribute(pos, 'layout', layout)
+      // 根据 layout 设置对应的内联 style
+      let style = ''
+      if (layout === 'wrap-left') {
+        style = `float:left; margin-right:${attrs.marginRight ?? 16}px; margin-bottom:${attrs.marginBottom ?? 8}px`
+      } else if (layout === 'wrap-right') {
+        style = `float:right; margin-left:${attrs.marginLeft ?? 16}px; margin-bottom:${attrs.marginBottom ?? 8}px`
+      } else if (layout === 'block') {
+        style = `display:block; margin:0 auto`
+      }
+      // inline 时清空 style（也可保留为空）
+      tr.setNodeAttribute(pos, 'style', style || null)
       view.dispatch(tr)
     }
   })
@@ -585,6 +598,7 @@ defineExpose({
   editor,
   getHTML,
   setHTML,
+  setJSON,
   getImagesForUpload,
   replaceImageSrc,
   replaceMultipleImages,

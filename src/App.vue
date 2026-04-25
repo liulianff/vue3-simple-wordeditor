@@ -61,6 +61,25 @@
             {{ uploadStatus }}
           </p>
         </div>
+
+        <div class="mt-6 rounded-lg p-6 transition-colors" style="background-color: var(--editor-bg-color, #ffffff); box-shadow: var(--editor-shadow, 0 1px 3px rgba(0,0,0,0.1));">
+          <h2 class="text-lg font-semibold mb-4 transition-colors" style="color: var(--editor-text-color, #374151);">JSON 导入测试</h2>
+          <textarea
+            v-model="jsonContent"
+            class="w-full h-40 p-3 rounded-lg font-mono text-sm resize-none focus:outline-none transition-colors mb-4"
+            style="background-color: var(--editor-bg-color, #ffffff); color: var(--editor-text-color, #374151); border: 1px solid var(--editor-border-color, #e5e7eb);"
+            placeholder="粘贴导出的 JSON 数据..."
+          ></textarea>
+          <button
+            @click="importFromJSON"
+            class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
+          >
+            从 JSON 导入
+          </button>
+          <p class="mt-2 text-sm" style="color: var(--editor-text-secondary, #6b7280);">
+            {{ importStatus }}
+          </p>
+        </div>
       </div>
     </div>
   </div>
@@ -74,6 +93,8 @@ const pageTheme = ref<'light' | 'dark' | 'auto'>('light')
 const currentLocale = ref<'zh-CN' | 'en-US'>('zh-CN')
 const editorRef = ref<InstanceType<typeof VueWordEditor> | null>(null)
 const uploadStatus = ref('')
+const jsonContent = ref('')
+const importStatus = ref('')
 
 const effectiveTheme = computed(() => {
   if (pageTheme.value !== 'auto') return pageTheme.value
@@ -160,6 +181,33 @@ async function testUpload() {
   } catch (e) {
     console.error('上传失败:', e)
     uploadStatus.value = '上传失败: ' + (e as Error).message
+  }
+}
+
+async function importFromJSON() {
+  if (!editorRef.value) {
+    importStatus.value = '编辑器未初始化'
+    return
+  }
+
+  if (!jsonContent.value.trim()) {
+    importStatus.value = '请输入JSON数据'
+    return
+  }
+
+  importStatus.value = '正在解析JSON数据...'
+
+  try {
+    const json = JSON.parse(jsonContent.value)
+    editorRef.value.setJSON(json)
+    importStatus.value = '✅ 导入成功！'
+
+    // 更新HTML输出
+    const finalHTML = editorRef.value.getHTML()
+    content.value = finalHTML
+  } catch (e) {
+    console.error('JSON解析失败:', e)
+    importStatus.value = 'JSON解析失败: ' + (e as Error).message
   }
 }
 </script>

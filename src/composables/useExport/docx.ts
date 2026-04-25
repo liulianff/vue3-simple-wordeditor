@@ -1,4 +1,4 @@
-import { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType, BorderStyle, ImageRun, type ParagraphChild } from 'docx'
+import { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType, BorderStyle, ImageRun, TextWrappingType, HorizontalPositionRelativeFrom, VerticalPositionRelativeFrom, HorizontalPositionAlign, VerticalPositionAlign, type ParagraphChild } from 'docx'
 import type { ShallowRef } from 'vue'
 import type { Editor } from '@tiptap/vue-3'
 import { downloadFile, generateFilename, processImagesWithCrop } from './utils'
@@ -66,11 +66,74 @@ function parseInlineRuns(node: Node, runs: ParagraphChild[], imgSizes?: Map<stri
         }
         const mimeMatch = src.match(/data:image\/(\w+);/)
         const type = (mimeMatch && mimeMatch[1]) || 'png'
-        
+
         let imgSize = imgSizes?.get(src)
         let imgWidth = imgSize?.width || 500
         let imgHeight = imgSize?.height || 375
-        
+
+        const layout = el.getAttribute('data-layout') ||
+          (el.classList.contains('wrap-left') ? 'wrap-left' :
+          el.classList.contains('wrap-right') ? 'wrap-right' :
+          el.classList.contains('block') ? 'block' : 'inline');
+
+        // 读取 HTML 中设定的 margin（导出时写在 style 里）
+        const getStyleMargin = (prop: string) => {
+          const val = el.style.getPropertyValue(prop)
+          return val ? parseInt(val, 10) : 0
+        }
+        const marginRight = getStyleMargin('marginRight');
+        const marginLeft  = getStyleMargin('marginLeft');
+        const marginBottom = getStyleMargin('marginBottom');
+        // 将 px 转换为 EMU（1px ≈ 9525 EMU @96dpi）
+        const pxToEmu = (px: number) => Math.round(px * 9525);
+
+        let floating: any = undefined;
+        if (layout === 'wrap-left') {
+          floating = {
+            horizontalPosition: {
+              relative: HorizontalPositionRelativeFrom.MARGIN,
+              align: HorizontalPositionAlign.LEFT,
+            },
+            verticalPosition: {
+              relative: VerticalPositionRelativeFrom.PARAGRAPH,
+              align: VerticalPositionAlign.TOP,
+            },
+            wrap: {
+              type: TextWrappingType.SQUARE,
+              side: 'right',                     // 文字在右侧环绕
+            },
+            margins: {
+              top: 0,
+              bottom: pxToEmu(marginBottom || 8),
+              left: 0,
+              right: pxToEmu(marginRight || 16), // 右侧留白
+            },
+            allowOverlap: false,
+          };
+        } else if (layout === 'wrap-right') {
+          floating = {
+            horizontalPosition: {
+              relative: HorizontalPositionRelativeFrom.MARGIN,
+              align: HorizontalPositionAlign.RIGHT,
+            },
+            verticalPosition: {
+              relative: VerticalPositionRelativeFrom.PARAGRAPH,
+              align: VerticalPositionAlign.TOP,
+            },
+            wrap: {
+              type: TextWrappingType.SQUARE,
+              side: 'left',                      // 文字在左侧环绕
+            },
+            margins: {
+              top: 0,
+              bottom: pxToEmu(marginBottom || 8),
+              left: pxToEmu(marginLeft || 16),
+              right: 0,
+            },
+            allowOverlap: false,
+          };
+        }
+
         runs.push(new ImageRun({
           type: type as 'png' | 'jpg' | 'gif' | 'bmp',
           data: bytes,
@@ -78,6 +141,7 @@ function parseInlineRuns(node: Node, runs: ParagraphChild[], imgSizes?: Map<stri
             width: imgWidth,
             height: imgHeight,
           },
+          floating,
         }))
       } catch (e) {
         console.warn('Failed to process image:', e)

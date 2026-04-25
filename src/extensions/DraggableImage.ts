@@ -109,6 +109,14 @@ export const DraggableImage = Node.create<DraggableImageOptions>({
       marginLeft: {
         default: 16,
       },
+      style: {
+        default: null,
+        parseHTML: (el) => el.getAttribute('style'),
+        renderHTML: (attrs) => {
+          if (!attrs.style) return {}
+          return { style: attrs.style }
+        },
+      },
     }
   },
 
@@ -119,12 +127,23 @@ export const DraggableImage = Node.create<DraggableImageOptions>({
         getAttrs: (el) => {
           if (typeof el === 'string') return {}
           const img = el as HTMLImageElement
+          const layout = img.getAttribute('data-layout')
           return {
             src: img.getAttribute('src'),
             alt: img.getAttribute('alt'),
             title: img.getAttribute('title'),
             width: img.getAttribute('width') ? parseInt(img.getAttribute('width')!, 10) : null,
             height: img.getAttribute('height') ? parseInt(img.getAttribute('height')!, 10) : null,
+            layout: layout && ['inline', 'block', 'wrap-left', 'wrap-right', 'break'].includes(layout)
+              ? layout
+              : img.classList.contains('wrap-left') ? 'wrap-left'
+              : img.classList.contains('wrap-right') ? 'wrap-right'
+              : img.classList.contains('block') ? 'block'
+              : 'inline',
+            marginTop: img.style.marginTop ? parseInt(img.style.marginTop, 10) : 0,
+            marginRight: img.style.marginRight ? parseInt(img.style.marginRight, 10) : 16,
+            marginBottom: img.style.marginBottom ? parseInt(img.style.marginBottom, 10) : 8,
+            marginLeft: img.style.marginLeft ? parseInt(img.style.marginLeft, 10) : 16,
           }
         },
       },
@@ -132,35 +151,27 @@ export const DraggableImage = Node.create<DraggableImageOptions>({
   },
 
   renderHTML({ HTMLAttributes }) {
-    const attrs = HTMLAttributes as Record<string, any>
-    const classes: string[] = []
+  const attrs = HTMLAttributes as Record<string, any>
+  const classes: string[] = []
+  
+  if (attrs['data-layout'] === 'wrap-left') classes.push('wrap-left')
+  if (attrs['data-layout'] === 'wrap-right') classes.push('wrap-right')
+  if (attrs['data-layout'] === 'block') classes.push('block')
 
-    if (attrs.layout === 'wrap-left') classes.push('wrap-left')
-    else if (attrs.layout === 'wrap-right') classes.push('wrap-right')
-    else if (attrs.layout === 'block') classes.push('block')
-
-    const style: Record<string, string> = {}
-    if (attrs.layout === 'wrap-left') {
-      style.marginRight = `${attrs.marginRight ?? 16}px`
-      style.marginBottom = `${attrs.marginBottom ?? 8}px`
-    } else if (attrs.layout === 'wrap-right') {
-      style.marginLeft = `${attrs.marginLeft ?? 16}px`
-      style.marginBottom = `${attrs.marginBottom ?? 8}px`
-    }
-
-    const styleStr = Object.entries(style)
-      .map(([k, v]) => `${k}: ${v}`)
-      .join('; ')
-
-    return [
-      'img',
-      mergeAttributes(this.options.HTMLAttributes, HTMLAttributes, {
-        class: classes.join(' '),
-        style: styleStr || undefined,
-        'data-layout': attrs.layout !== 'inline' ? attrs.layout : undefined,
-      }),
-    ]
-  },
+  return [
+    'img',
+    mergeAttributes(this.options.HTMLAttributes, {
+      src: attrs.src,
+      alt: attrs.alt,
+      title: attrs.title,
+      width: attrs.width,
+      height: attrs.height,
+      class: classes.join(' ') || undefined,
+      style: attrs.style,                         // ← 直接透传
+      'data-layout': attrs['data-layout'] !== 'inline' ? attrs['data-layout'] : undefined,
+    }),
+  ]
+},
 
   addNodeView() {
     return VueNodeViewRenderer(ImageNodeView as any)

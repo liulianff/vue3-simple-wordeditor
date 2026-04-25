@@ -28,7 +28,7 @@ export function useEditor({ placeholder = '开始编辑...', content = '', edita
       TextAlign.configure({
         types: ['heading', 'paragraph'],
       }),
-      DraggableImage,
+      DraggableImage.configure({}),
       TextStyle,
       FontSize.configure({
         types: ['textStyle'],
@@ -236,7 +236,23 @@ export function useEditor({ placeholder = '开始编辑...', content = '', edita
 
   function addImage(src: string, alt: string = '') {
     if (!ensureFocus()) return
-    editor.value!.commands.setDraggableImage({ src, alt })
+
+    const img = new Image()
+    img.onload = () => {
+      const naturalWidth = img.naturalWidth
+      const maxWidth = 800
+      const displayWidth = Math.min(naturalWidth, maxWidth)
+      editor.value!.commands.setDraggableImage({
+        src,
+        alt,
+        width: displayWidth,
+        height: img.naturalHeight
+      })
+    }
+    img.onerror = () => {
+      editor.value!.commands.setDraggableImage({ src, alt })
+    }
+    img.src = src
   }
 
   function updateImageAttributes(attrs: Partial<ImageAttributes>) {
@@ -252,6 +268,11 @@ export function useEditor({ placeholder = '开始编辑...', content = '', edita
   function setHTML(html: string) {
     if (!editor.value) return
     editor.value.commands.setContent(html)
+  }
+
+  function setJSON(json: any) {
+    if (!editor.value) return
+    editor.value.commands.setContent(json)
   }
 
   return {
@@ -295,5 +316,6 @@ export function useEditor({ placeholder = '开始编辑...', content = '', edita
     updateImageAttributes,
     getHTML,
     setHTML,
+    setJSON,
   }
 }
