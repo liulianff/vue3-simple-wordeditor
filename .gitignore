@@ -26,5 +26,3 @@ dist-ssr
 /Backend/bin
 /Backend/obj
 /Backend/wwwroot/uploads
-.npmignore
-.npmrc

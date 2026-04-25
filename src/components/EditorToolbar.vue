@@ -34,30 +34,54 @@
           <Strikethrough class="icon" />
         </button>
         <div class="editor-divider"></div>
-        <button
-          @click="toggleHeading('h1')"
-          :class="['editor-button', { active: activeHeading === 'h1' }]"
-          @mouseenter="showTooltip($event, t('toolbar.heading.h1'))"
-          @mouseleave="hideTooltip"
+        <select
+          :value="currentFontFamily"
+          @change="onFontFamilyChange"
+          class="editor-select"
+          style="min-width: 100px;"
         >
-          <Heading1 class="icon" />
-        </button>
-        <button
-          @click="toggleHeading('h2')"
-          :class="['editor-button', { active: activeHeading === 'h2' }]"
-          @mouseenter="showTooltip($event, t('toolbar.heading.h2'))"
-          @mouseleave="hideTooltip"
+          <option value="none">{{ t('toolbar.fontFamily.none') }}</option>
+          <option value="sans-serif">{{ t('toolbar.fontFamily.sansSerif') }}</option>
+          <option value="serif">{{ t('toolbar.fontFamily.serif') }}</option>
+          <option value="monospace">{{ t('toolbar.fontFamily.monospace') }}</option>
+          <option value="Microsoft+YaHei">{{ t('toolbar.fontFamily.microsoftYaHei') }}</option>
+          <option value="SimSun">{{ t('toolbar.fontFamily.simSun') }}</option>
+          <option value="SimHei">{{ t('toolbar.fontFamily.simHei') }}</option>
+          <option value="KaiTi">{{ t('toolbar.fontFamily.kaiTi') }}</option>
+        </select>
+        <select
+          :value="currentFontSize"
+          @change="onFontSizeChange"
+          class="editor-select"
+          style="min-width: 60px;"
         >
-          <Heading2 class="icon" />
-        </button>
-        <button
-          @click="toggleHeading('h3')"
-          :class="['editor-button', { active: activeHeading === 'h3' }]"
-          @mouseenter="showTooltip($event, t('toolbar.heading.h3'))"
-          @mouseleave="hideTooltip"
+          <option value="none">{{ t('toolbar.fontSizeNone') }}</option>
+          <option value="12">12px</option>
+          <option value="14">14px</option>
+          <option value="16">16px</option>
+          <option value="18">18px</option>
+          <option value="20">20px</option>
+          <option value="24">24px</option>
+          <option value="28">28px</option>
+          <option value="32">32px</option>
+          <option value="36">36px</option>
+          <option value="48">48px</option>
+        </select>
+        <div class="editor-divider"></div>
+        <select
+          :value="currentHeadingLevel"
+          @change="onHeadingChange"
+          class="editor-select"
+          style="min-width: 90px;"
         >
-          <Heading3 class="icon" />
-        </button>
+          <option value="0">{{ t('toolbar.heading.paragraph') }}</option>
+          <option value="1">{{ t('toolbar.heading.h1') }}</option>
+          <option value="2">{{ t('toolbar.heading.h2') }}</option>
+          <option value="3">{{ t('toolbar.heading.h3') }}</option>
+          <option value="4">{{ t('toolbar.heading.h4') }}</option>
+          <option value="5">{{ t('toolbar.heading.h5') }}</option>
+          <option value="6">{{ t('toolbar.heading.h6') }}</option>
+        </select>
         <div class="editor-divider"></div>
         <button
           @click="toggleBulletList"
@@ -166,7 +190,7 @@
         <button
           @click="openPreview"
           :class="['editor-button']"
-          @mouseenter="showTooltip($event, '预览导出格式')"
+          @mouseenter="showTooltip($event, t('toolbar.preview'))"
           @mouseleave="hideTooltip"
         >
           <Eye class="icon" />
@@ -308,12 +332,15 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
-import { Bold, Italic, Underline, Strikethrough, Heading1, Heading2, Heading3, List, ListOrdered, Quote, AlignLeft, AlignCenter, AlignRight, AlignJustify, Link, Unlink, Image, Palette, Highlighter, Download, Eye } from 'lucide-vue-next'
+import { Bold, Italic, Underline, Strikethrough, List, ListOrdered, Quote, AlignLeft, AlignCenter, AlignRight, AlignJustify, Link, Unlink, Image, Palette, Highlighter, Download, Eye } from 'lucide-vue-next'
 import { useI18n } from '../composables/useI18n'
 
 const props = defineProps<{
   editor: any
   isDark: boolean
+  currentFontSize?: string
+  currentFontFamily?: string
+  headingLevel?: number
 }>()
 
 const emit = defineEmits<{
@@ -321,7 +348,14 @@ const emit = defineEmits<{
   insertImage: []
   setLink: [url: string]
   openPreview: []
+  setFontSize: [size: string]
+  setFontFamily: [family: string]
+  setHeading: [level: number]
 }>()
+
+const currentFontSize = computed(() => props.currentFontSize ?? '16')
+const currentFontFamily = computed(() => props.currentFontFamily ?? 'sans-serif')
+const currentHeadingLevel = computed(() => props.headingLevel ?? 0)
 
 const { t } = useI18n()
 
@@ -364,14 +398,7 @@ const isBold = computed(() => props.editor?.isActive('bold') || false)
 const isItalic = computed(() => props.editor?.isActive('italic') || false)
 const isUnderline = computed(() => props.editor?.isActive('underline') || false)
 const isStrike = computed(() => props.editor?.isActive('strike') || false)
-const activeHeading = computed(() => {
-  for (let i = 1; i <= 3; i++) {
-    if (props.editor?.isActive(`heading${i}`)) {
-      return `h${i}`
-    }
-  }
-  return null
-})
+
 const isBulletList = computed(() => props.editor?.isActive('bulletList') || false)
 const isOrderedList = computed(() => props.editor?.isActive('orderedList') || false)
 const isBlockquote = computed(() => props.editor?.isActive('blockquote') || false)
@@ -401,8 +428,19 @@ function toggleStrike() {
   props.editor?.chain().focus().toggleStrike().run()
 }
 
-function toggleHeading(level: string) {
-  props.editor?.chain().focus().toggleHeading({ level: parseInt(level.substring(1)) }).run()
+function onHeadingChange(event: Event) {
+  const value = parseInt((event.target as HTMLSelectElement).value)
+  emit('setHeading', value)
+}
+
+function onFontSizeChange(event: Event) {
+  const value = (event.target as HTMLSelectElement).value
+  emit('setFontSize', value)
+}
+
+function onFontFamilyChange(event: Event) {
+  const value = (event.target as HTMLSelectElement).value
+  emit('setFontFamily', value)
 }
 
 function toggleBulletList() {
@@ -631,6 +669,42 @@ onUnmounted(() => {
   justify-content: flex-start;
   gap: 0.5rem;
   flex-wrap: wrap;
+}
+
+.editor-select {
+  padding: 0.25rem 0.5rem;
+  border: 1px solid var(--editor-border-color, #e5e7eb);
+  border-radius: 0.25rem;
+  font-size: 0.875rem;
+  color: var(--editor-text-color, #1f2937);
+  background-color: var(--editor-bg-color, #ffffff);
+  cursor: pointer;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.editor-select:hover {
+  border-color: var(--editor-primary-color, #3b82f6);
+}
+
+.editor-select:focus {
+  outline: none;
+  border-color: var(--editor-primary-color, #3b82f6);
+  box-shadow: 0 0 0 2px var(--editor-primary-color, #3b82f6);
+}
+
+.editor-toolbar.dark .editor-select {
+  color: var(--editor-text-color, #f3f4f6);
+  background-color: var(--editor-bg-color, #111827);
+  border-color: var(--editor-border-color, #374151);
+}
+
+.editor-toolbar.dark .editor-select:hover {
+  border-color: var(--editor-primary-color, #60a5fa);
+}
+
+.editor-toolbar.dark .editor-select:focus {
+  border-color: var(--editor-primary-color, #60a5fa);
+  box-shadow: 0 0 0 2px var(--editor-primary-color, #60a5fa);
 }
 
 /* 工具栏分组 */

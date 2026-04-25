@@ -16,6 +16,7 @@ const zhCN: LocaleMessages = {
     underline: '下划线',
     strike: '删除线',
     fontFamily: {
+      none: '无',
       sansSerif: '无衬线字体',
       serif: '衬线字体',
       monospace: '等宽字体',
@@ -25,6 +26,7 @@ const zhCN: LocaleMessages = {
       kaiTi: '楷体',
     },
     fontSize: '字号',
+    fontSizeNone: '无',
     textColor: '文字颜色',
     highlightColor: '背景高亮',
     customColor: '自定义颜色',
@@ -41,6 +43,7 @@ const zhCN: LocaleMessages = {
     removeLink: '删除链接',
     insertImage: '插入图片',
     export: '导出文档',
+    preview: '预览导出格式',
     linkDialog: {
       placeholder: '输入链接地址',
       confirm: '确定',

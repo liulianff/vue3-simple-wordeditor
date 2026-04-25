@@ -4,10 +4,16 @@
       <EditorToolbar
       :editor="editor"
       :is-dark="effectiveTheme === 'dark'"
+      :current-font-size="currentFontSize"
+      :current-font-family="currentFontFamily"
+      :heading-level="headingLevel || 0"
       @export="handleExport"
       @insert-image="addImage"
       @set-link="setLink"
       @open-preview="openExportPreview"
+      @set-font-size="setFontSize"
+      @set-font-family="setFontFamily"
+      @set-heading="setHeading"
       />
     </div>
 
@@ -284,6 +290,9 @@ const {
   editor,
   fontSize,
   fontFamily,
+  currentFontSize,
+  currentFontFamily,
+  headingLevel,
   isBold,
   isItalic,
   isUnderline,
@@ -303,6 +312,9 @@ const {
   addImage,
   setHTML,
   setJSON,
+  setFontSize,
+  setFontFamily,
+  setHeading,
 } = useEditor({
   content: props.modelValue || '',
   placeholder: resolvedPlaceholder.value,
@@ -589,8 +601,8 @@ function updateCurrentStyle() {
   const { from, to } = editor.value.state.selection
   
   if (from === to) {
-    fontSize.value = '16'
-    fontFamily.value = 'sans-serif'
+    fontSize.value = 'none'
+    fontFamily.value = 'none'
     return
   }
   
@@ -614,13 +626,13 @@ function updateCurrentStyle() {
   if (fontSizeResult.length > 0) {
     fontSize.value = fontSizeResult[0].replace('px', '')
   } else {
-    fontSize.value = '16'
+    fontSize.value = 'none'
   }
   
   if (fontFamilyResult.length > 0) {
     fontFamily.value = fontFamilyResult[0].replace(/\s/g, '+')
   } else {
-    fontFamily.value = 'sans-serif'
+    fontFamily.value = 'none'
   }
 }
 

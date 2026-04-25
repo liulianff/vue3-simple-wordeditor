@@ -30,8 +30,17 @@
 
         <div class="app-grid">
           <div class="app-grid-item">
-            <h2 class="app-h2 app-card-title">📝 编辑器</h2>
-            <div class="app-editor-wrapper app-shadow">
+            <div class="app-card-header">
+              <h2 class="app-h2 app-card-title">📝 编辑器</h2>
+              <label class="app-sync-toggle">
+                <input type="checkbox" v-model="syncScroll" />
+                <span>同步滚动</span>
+              </label>
+            </div>
+            <div 
+              class="app-editor-wrapper app-shadow app-scrollable"
+              ref="editorWrapperRef"
+            >
               <VueWordEditor
                 ref="editorRef"
                 v-model="content"
@@ -43,8 +52,13 @@
             </div>
           </div>
           <div class="app-grid-item">
-            <h2 class="app-h2 app-card-title">👁️ 实时预览</h2>
-            <div class="app-preview-wrapper app-shadow">
+            <div class="app-card-header">
+              <h2 class="app-h2 app-card-title">👁️ 实时预览</h2>
+            </div>
+            <div 
+              class="app-preview-wrapper app-shadow app-scrollable"
+              ref="previewWrapperRef"
+            >
               <EditorPreview
                 :html="content"
                 :theme="pageTheme"
@@ -99,16 +113,22 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import VueWordEditor from './components/VueWordEditor.vue'
 import EditorPreview from './components/EditorPreview.vue'
 
 const pageTheme = ref<'light' | 'dark' | 'auto'>('light')
 const currentLocale = ref<'zh-CN' | 'en-US'>('zh-CN')
 const editorRef = ref<InstanceType<typeof VueWordEditor> | null>(null)
+const editorWrapperRef = ref<HTMLElement | null>(null)
+const previewWrapperRef = ref<HTMLElement | null>(null)
 const uploadStatus = ref('')
 const jsonContent = ref('')
 const importStatus = ref('')
+const syncScroll = ref(true)
+let isSyncing = false
+let editorContentEl: HTMLElement | null = null
+let previewContentEl: HTMLElement | null = null
 
 const effectiveTheme = computed(() => {
   if (pageTheme.value !== 'auto') return pageTheme.value
@@ -214,6 +234,87 @@ async function importFromJSON() {
     importStatus.value = 'JSON解析失败: ' + (e as Error).message
   }
 }
+
+function syncScrollHandler(source: 'editor' | 'preview') {
+  if (!syncScroll.value || isSyncing) return
+  isSyncing = true
+
+  const sourceEl = source === 'editor' ? editorContentEl : previewContentEl
+  const targetEl = source === 'editor' ? previewContentEl : editorContentEl
+
+  if (sourceEl && targetEl) {
+    // 获取源容器的滚动位置和总高度
+    const sourceScrollTop = sourceEl.scrollTop
+    const sourceScrollHeight = sourceEl.scrollHeight
+    const sourceClientHeight = sourceEl.clientHeight
+
+    // 计算滚动百分比
+    const scrollPercent = sourceScrollTop / (sourceScrollHeight - sourceClientHeight)
+
+    // 应用到目标容器
+    const targetScrollHeight = targetEl.scrollHeight
+    const targetClientHeight = targetEl.clientHeight
+    const targetScrollTop = scrollPercent * (targetScrollHeight - targetClientHeight)
+
+    targetEl.scrollTop = targetScrollTop
+    
+  }
+
+  // 延迟重置 isSyncing 标志，防止快速滚动时的抖动
+  requestAnimationFrame(() => {
+    isSyncing = false
+  })
+}
+
+function handleEditorScroll() {
+  syncScrollHandler('editor')
+}
+
+function handlePreviewScroll() {
+  syncScrollHandler('preview')
+}
+
+onMounted(() => {
+  // 等待 DOM 渲染完成后查找内容容器
+  setTimeout(() => {
+    
+    // 在编辑器组件内部查找
+    if (editorRef.value) {
+      const editorEl = (editorRef.value as any).$el
+      if (editorEl) {
+        editorContentEl = editorEl.querySelector('.editor-content-wrapper') // 滚动的是 wrapper！
+      }
+    }
+    
+    // 备用查找方式
+    if (!editorContentEl && editorWrapperRef.value) {
+      editorContentEl = editorWrapperRef.value.querySelector('.editor-content-wrapper')
+    }
+    
+    // 查找预览器的内容
+    if (previewWrapperRef.value) {
+      previewContentEl = previewWrapperRef.value.querySelector('.editor-content-wrapper')
+    }
+    
+    // 绑定滚动事件
+    if (editorContentEl) {
+      editorContentEl.addEventListener('scroll', handleEditorScroll)
+    }
+    if (previewContentEl) {
+      previewContentEl.addEventListener('scroll', handlePreviewScroll)
+    }
+    
+  }, 300)
+})
+
+onUnmounted(() => {
+  if (editorContentEl) {
+    editorContentEl.removeEventListener('scroll', handleEditorScroll)
+  }
+  if (previewContentEl) {
+    previewContentEl.removeEventListener('scroll', handlePreviewScroll)
+  }
+})
 </script>
 
 <style scoped>
@@ -311,11 +412,35 @@ async function importFromJSON() {
   flex-direction: column;
 }
 
+/* Card header */
+.app-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+/* Sync toggle */
+.app-sync-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  cursor: pointer;
+  font-size: 0.875rem;
+  color: var(--editor-text-secondary, #6b7280);
+}
+
+.app-sync-toggle input[type="checkbox"] {
+  width: 1rem;
+  height: 1rem;
+  accent-color: var(--editor-primary-color, #3b82f6);
+  cursor: pointer;
+}
+
 /* Editor wrapper */
 .app-editor-wrapper,
 .app-preview-wrapper {
   border-radius: 0.5rem;
-  overflow: hidden;
   flex: 1;
 }
 

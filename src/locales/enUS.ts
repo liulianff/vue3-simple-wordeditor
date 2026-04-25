@@ -16,6 +16,7 @@ const enUS: LocaleMessages = {
     underline: 'Underline',
     strike: 'Strikethrough',
     fontFamily: {
+      none: 'None',
       sansSerif: 'Sans Serif',
       serif: 'Serif',
       monospace: 'Monospace',
@@ -25,6 +26,7 @@ const enUS: LocaleMessages = {
       kaiTi: 'KaiTi',
     },
     fontSize: 'Font Size',
+    fontSizeNone: 'None',
     textColor: 'Text Color',
     highlightColor: 'Highlight',
     customColor: 'Custom Color',
@@ -41,6 +43,7 @@ const enUS: LocaleMessages = {
     removeLink: 'Remove Link',
     insertImage: 'Insert Image',
     export: 'Export',
+    preview: 'Preview Export',
     linkDialog: {
       placeholder: 'Enter link URL',
       confirm: 'OK',

@@ -1,0 +1,38 @@
+# Dependencies
+node_modules/
+
+# Build output
+!dist/
+
+# Source code
+src/
+
+# Configuration files
+.vscode/
+.git/
+.gitignore
+tsconfig.json
+tsconfig.node.json
+vite.config.ts
+postcss.config.js
+tailwind.config.js
+docs/
+
+# Documentation
+README.md
+JSON_IMPORT_GUIDE.md
+LOCALE_GUIDE.md
+CLASS_REFERENCE.md
+USAGE_GUIDE.md
+docsMD/
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.temp
+
+# OS generated files
+.DS_Store
+Thumbs.db

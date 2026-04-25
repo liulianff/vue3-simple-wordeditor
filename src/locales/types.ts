@@ -14,6 +14,7 @@ export interface LocaleMessages {
     underline: string
     strike: string
     fontFamily: {
+      none: string
       sansSerif: string
       serif: string
       monospace: string
@@ -23,6 +24,7 @@ export interface LocaleMessages {
       kaiTi: string
     }
     fontSize: string
+    fontSizeNone: string
     textColor: string
     highlightColor: string
     customColor: string
@@ -39,6 +41,7 @@ export interface LocaleMessages {
     removeLink: string
     insertImage: string
     export: string
+    preview: string
     linkDialog: {
       placeholder: string
       confirm: string

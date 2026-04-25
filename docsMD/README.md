@@ -4,14 +4,14 @@
 
 ## 快速导航
 
-| 文档 | 推荐人群 | 说明 |
-|------|---------|------|
-| [STYLING_GUIDE.md](./STYLING_GUIDE.md) | ⭐ 所有人 | **推荐先读！** 完整的样式自定义教程 |
-| [PREVIEW_COMPONENT.md](./PREVIEW_COMPONENT.md) | 前端工程师 | 独立预览组件使用指南 |
-| [USAGE_GUIDE.md](./USAGE_GUIDE.md) | 前端工程师 | 完整的使用指南 |
-| [JSON_IMPORT_GUIDE.md](./JSON_IMPORT_GUIDE.md) | 有 JSON 导入需求的用户 | JSON 导入教程 |
-| [LOCALE_GUIDE.md](./LOCALE_GUIDE.md) | 需要其他语言的用户 | 国际化和自定义语言包 |
-| [CLASS_REFERENCE.md](./CLASS_REFERENCE.md) | 需要深度定制样式的用户 | 所有 CSS 类名完整参考 |
+| 文档 | 说明 |
+|------|------|
+| [STYLING_GUIDE.md](./STYLING_GUIDE.md) | **推荐先读！** 完整的样式自定义教程 |
+| [PREVIEW_COMPONENT.md](./PREVIEW_COMPONENT.md) |  独立预览组件使用指南 |
+| [USAGE_GUIDE.md](./USAGE_GUIDE.md) | 完整的使用指南 |
+| [JSON_IMPORT_GUIDE.md](./JSON_IMPORT_GUIDE.md) |  JSON 导入教程 |
+| [LOCALE_GUIDE.md](./LOCALE_GUIDE.md) | 国际化和自定义语言包 |
+| [CLASS_REFERENCE.md](./CLASS_REFERENCE.md) | 所有 CSS 类名完整参考 |
 
 ---
 

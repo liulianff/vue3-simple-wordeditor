@@ -81,6 +81,26 @@ export function useEditor({ placeholder = '开始编辑...', content = '', edita
     return paragraphAttrs?.textAlign || headingAttrs?.textAlign || 'left'
   })
 
+  const currentFontSize = computed(() => {
+    if (!editor.value) return 'none'
+    const attrs = editor.value.getAttributes('textStyle')
+    const fontSize = attrs?.fontSize
+    if (fontSize) {
+      return fontSize.replace('px', '')
+    }
+    return 'none'
+  })
+
+  const currentFontFamily = computed(() => {
+    if (!editor.value) return 'none'
+    const attrs = editor.value.getAttributes('textStyle')
+    const fontFamily = attrs?.fontFamily
+    if (fontFamily) {
+      return fontFamily.replace(/\s+/g, '+')
+    }
+    return 'none'
+  })
+
   const isBulletList = computed(() => editor.value?.isActive('bulletList') ?? false)
   const isOrderedList = computed(() => editor.value?.isActive('orderedList') ?? false)
   const isBlockquote = computed(() => editor.value?.isActive('blockquote') ?? false)
@@ -176,13 +196,25 @@ export function useEditor({ placeholder = '开始编辑...', content = '', edita
   function setFontSize(size: string) {
     fontSize.value = size
     if (!ensureFocus()) return
-    editor.value!.commands.setMark('textStyle', { fontSize: `${size}px` })
+    
+    if (size === 'none') {
+      // 移除整个 textStyle 标记，简单直接
+      editor.value!.commands.unsetMark('textStyle')
+    } else {
+      editor.value!.commands.setMark('textStyle', { fontSize: `${size}px` })
+    }
   }
 
   function setFontFamily(family: string) {
     fontFamily.value = family
     if (!ensureFocus()) return
-    editor.value!.commands.setMark('textStyle', { fontFamily: family.replace('+', ' ') })
+    
+    if (family === 'none') {
+      // 移除整个 textStyle 标记，简单直接
+      editor.value!.commands.unsetMark('textStyle')
+    } else {
+      editor.value!.commands.setMark('textStyle', { fontFamily: family.replace('+', ' ') })
+    }
   }
 
   function setTextColor(color: string) {
@@ -317,6 +349,8 @@ export function useEditor({ placeholder = '开始编辑...', content = '', edita
     isLink,
     headingLevel,
     textAlign,
+    currentFontSize,
+    currentFontFamily,
     isBulletList,
     isOrderedList,
     isBlockquote,
