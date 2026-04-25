@@ -46,7 +46,7 @@ export default defineConfig(({ mode }) => {
       }
     },
     build: {
-      outDir: 'demo'
+      outDir: 'docs'
     },
     server: {
       port: 5174
