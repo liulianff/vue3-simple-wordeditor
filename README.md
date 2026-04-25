@@ -7,7 +7,7 @@
 - `vue` ^3.4.0（peer dependency）
 - `lucide-vue-next` ^0.294.0（peer dependency，图标库）
 
-## 方式一：安装(未发布,无法使用)
+## 方式一：安装
 
 ```bash
 npm install vue3-simple-wordeditor
@@ -69,13 +69,13 @@ const content = ref('<p>Hello World</p>')
 
 #### Props
 
-| 属性            | 类型                            | 默认值         | 说明                   |
-| ------------- | ----------------------------- | ----------- | -------------------- |
-| `modelValue`  | `string`                      | `''`        | 编辑器 HTML 内容（v-model） |
-| `placeholder` | `string`                      | `'开始编辑...'` | 占位符文本                |
-| `editable`    | `boolean`                     | `true`      | 是否可编辑                |
-| `theme`       | `'light' \| 'dark' \| 'auto'` | `'light'`   | 主题模式                 |
-| `locale`      | `'zh-CN' \| 'en-US' \| string` | `'zh-CN'`  | 语言设置                 |
+| 属性            | 类型                             | 默认值         | 说明                   |
+| ------------- | ------------------------------ | ----------- | -------------------- |
+| `modelValue`  | `string`                       | `''`        | 编辑器 HTML 内容（v-model） |
+| `placeholder` | `string`                       | `'开始编辑...'` | 占位符文本                |
+| `editable`    | `boolean`                      | `true`      | 是否可编辑                |
+| `theme`       | `'light' \| 'dark' \| 'auto'`  | `'light'`   | 主题模式                 |
+| `locale`      | `'zh-CN' \| 'en-US' \| string` | `'zh-CN'`   | 语言设置                 |
 
 #### Events
 
@@ -155,8 +155,8 @@ const theme = ref<'light' | 'dark' | 'auto'>('light')
 
 ### Props
 
-| 属性     | 类型                          | 默认值     | 说明       |
-| -------- | ----------------------------- | ---------- | ---------- |
+| 属性       | 类型                             | 默认值       | 说明   |
+| -------- | ------------------------------ | --------- | ---- |
 | `locale` | `'zh-CN' \| 'en-US' \| string` | `'zh-CN'` | 语言设置 |
 
 ### 使用方式
@@ -171,7 +171,7 @@ const theme = ref<'light' | 'dark' | 'auto'>('light')
 
 ### 自定义语言包
 
-> 完整的自定义语言包教程（包括完整示例、日语/韩语语言包、类型定义、高级用法、常见问题）请查看 [LOCALE_GUIDE.md](./LOCALE_GUIDE.md)。
+> 完整的自定义语言包教程（包括完整示例、日语/韩语语言包、类型定义、高级用法、常见问题）请查看 [LOCALE\_GUIDE.md](./LOCALE_GUIDE.md)。
 
 ### 导出
 
@@ -260,7 +260,7 @@ import type { LocaleMessages, Locale } from 'vue3-simple-wordeditor'
 
 编辑器使用以下 CSS 类，你可以覆盖它们来自定义样式。
 
-> 完整的 CSS 类参考手册请查看 [CLASS_REFERENCE.md](./CLASS_REFERENCE.md)，包含所有组件的类名、用途和默认样式。
+> 完整的 CSS 类参考手册请查看 [CLASS\_REFERENCE.md](./CLASS_REFERENCE.md)，包含所有组件的类名、用途和默认样式。
 
 #### 自定义示例
 
@@ -678,7 +678,7 @@ function loadFromLocal() {
 
 ### 详细教程
 
-完整的 JSON 导入教程（包括从服务器获取数据、处理复杂内容、错误处理、性能优化等）请查看 [JSON_IMPORT_GUIDE.md](./JSON_IMPORT_GUIDE.md)。
+完整的 JSON 导入教程（包括从服务器获取数据、处理复杂内容、错误处理、性能优化等）请查看 [JSON\_IMPORT\_GUIDE.md](./JSON_IMPORT_GUIDE.md)。
 
 ### 使用 useExport composable
 
