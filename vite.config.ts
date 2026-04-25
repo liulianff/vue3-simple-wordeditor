@@ -1,11 +1,18 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
+import dts from 'vite-plugin-dts'
 import { resolve } from 'path'
 
 export default defineConfig(({ mode }) => {
   if (mode === 'lib') {
     return {
-      plugins: [vue()],
+      plugins: [
+        vue(),
+        dts({
+          include: 'src/index.ts',
+          outDir: 'dist',
+        }),
+      ],
       resolve: {
         alias: {
           '@': resolve(__dirname, 'src')
@@ -22,6 +29,7 @@ export default defineConfig(({ mode }) => {
           external: ['vue', 'lucide-vue-next'],
           output: {
             exports: 'named',
+            entryFileNames: 'vue3-simple-wordeditor.[format].js',
             globals: {
               vue: 'Vue',
               'lucide-vue-next': 'LucideVueNext',
