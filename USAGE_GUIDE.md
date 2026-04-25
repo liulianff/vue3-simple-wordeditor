@@ -52,7 +52,7 @@ npm install vue3-simple-wordeditor
 <script setup lang="ts">
 import { ref } from 'vue'
 import Vue3SimpleWordEditor from 'vue3-simple-wordeditor'
-import 'vue3-simple-wordeditor/dist/style.css'
+import 'vue3-simple-wordeditor/dist/vue3-simple-wordeditor.css'
 
 const content = ref('<p>Hello World!</p>')
 </script>
@@ -90,7 +90,7 @@ npm install vue3-simple-wordeditor
 <script setup>
 import { ref } from 'vue'
 import Vue3SimpleWordEditor from 'vue3-simple-wordeditor'
-import 'vue3-simple-wordeditor/dist/style.css'
+import 'vue3-simple-wordeditor/dist/vue3-simple-wordeditor.css'
 
 const content = ref('<p>Hello World!</p>')
 </script>

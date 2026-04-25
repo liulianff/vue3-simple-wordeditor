@@ -1,26 +1,26 @@
 <template>
   <div class="app-page" :class="{ dark: effectiveTheme === 'dark' }">
-    <div class="min-h-screen transition-colors duration-200" style="background-color: var(--editor-toolbar-bg, #f3f4f6);">
-      <div class="max-w-4xl mx-auto py-8 px-4">
-        <div class="flex items-center justify-between mb-6">
-          <h1 class="text-2xl font-bold transition-colors" style="color: var(--editor-text-color, #1f2937);">vue3-simple-wordeditor Demo</h1>
-          
-          <div class="flex items-center gap-2">
+    <div class="app-min-height app-transition app-background">
+      <div class="app-container app-padding">
+        <div class="app-header app-margin-bottom">
+          <h1 class="app-h1 app-title">vue3-simple-wordeditor Demo</h1>
+
+          <div class="app-button-group">
             <button
               v-for="t in themeOptions"
               :key="t.value"
               @click="pageTheme = t.value"
-              class="px-3 py-1.5 text-sm rounded-lg transition-all theme-btn"
+              class="app-btn theme-btn"
               :class="{ active: pageTheme === t.value }"
             >
               {{ t.label }}
             </button>
-            <div class="w-px h-6 mx-1" style="background-color: var(--editor-border-color, #d1d5db);"></div>
+            <div class="app-divider"></div>
             <button
               v-for="opt in localeOptions"
               :key="opt.value"
               @click="currentLocale = opt.value"
-              class="px-3 py-1.5 text-sm rounded-lg transition-all theme-btn"
+              class="app-btn theme-btn"
               :class="{ active: currentLocale === opt.value }"
             >
               {{ opt.label }}
@@ -28,55 +28,53 @@
           </div>
         </div>
 
-        <div class="rounded-lg overflow-hidden" style="box-shadow: var(--editor-shadow, 0 1px 3px rgba(0,0,0,0.1));">
+        <div class="app-editor-wrapper app-shadow">
           <VueWordEditor
             ref="editorRef"
             v-model="content"
             :theme="pageTheme"
             :locale="currentLocale"
             placeholder="开始编辑您的文档..."
-            class="h-[500px]"
+            class="app-editor-height"
           />
         </div>
 
-        <div class="mt-6 rounded-lg p-6 transition-colors" style="background-color: var(--editor-bg-color, #ffffff); box-shadow: var(--editor-shadow, 0 1px 3px rgba(0,0,0,0.1));">
-          <h2 class="text-lg font-semibold mb-4 transition-colors" style="color: var(--editor-text-color, #374151);">HTML 输出</h2>
+        <div class="app-section app-card">
+          <h2 class="app-h2 app-card-title">HTML 输出</h2>
           <textarea
             v-model="content"
-            class="w-full h-40 p-3 rounded-lg font-mono text-sm resize-none focus:outline-none transition-colors"
-            style="background-color: var(--editor-bg-color, #ffffff); color: var(--editor-text-color, #374151); border: 1px solid var(--editor-border-color, #e5e7eb);"
+            class="app-textarea app-textarea-input"
             placeholder="HTML content..."
           ></textarea>
         </div>
 
-        <div class="mt-6 rounded-lg p-6 transition-colors" style="background-color: var(--editor-bg-color, #ffffff); box-shadow: var(--editor-shadow, 0 1px 3px rgba(0,0,0,0.1));">
-          <h2 class="text-lg font-semibold mb-4 transition-colors" style="color: var(--editor-text-color, #374151);">图片上传测试</h2>
+        <div class="app-section app-card">
+          <h2 class="app-h2 app-card-title">图片上传测试</h2>
           <button
             @click="testUpload"
-            class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+            class="app-btn-primary"
           >
             模拟上传图片
           </button>
-          <p class="mt-2 text-sm" style="color: var(--editor-text-secondary, #6b7280);">
+          <p class="app-status app-text-secondary">
             {{ uploadStatus }}
           </p>
         </div>
 
-        <div class="mt-6 rounded-lg p-6 transition-colors" style="background-color: var(--editor-bg-color, #ffffff); box-shadow: var(--editor-shadow, 0 1px 3px rgba(0,0,0,0.1));">
-          <h2 class="text-lg font-semibold mb-4 transition-colors" style="color: var(--editor-text-color, #374151);">JSON 导入测试</h2>
+        <div class="app-section app-card">
+          <h2 class="app-h2 app-card-title">JSON 导入测试</h2>
           <textarea
             v-model="jsonContent"
-            class="w-full h-40 p-3 rounded-lg font-mono text-sm resize-none focus:outline-none transition-colors mb-4"
-            style="background-color: var(--editor-bg-color, #ffffff); color: var(--editor-text-color, #374151); border: 1px solid var(--editor-border-color, #e5e7eb);"
+            class="app-textarea app-textarea-input app-margin-bottom-sm"
             placeholder="粘贴导出的 JSON 数据..."
           ></textarea>
           <button
             @click="importFromJSON"
-            class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
+            class="app-btn-success"
           >
             从 JSON 导入
           </button>
-          <p class="mt-2 text-sm" style="color: var(--editor-text-secondary, #6b7280);">
+          <p class="app-status app-text-secondary">
             {{ importStatus }}
           </p>
         </div>
@@ -140,7 +138,6 @@ async function testUpload() {
   uploadStatus.value = '正在获取图片...'
 
   try {
-    // 直接调用组件暴露的方法
     const images = await editorRef.value.getImagesForUpload()
     console.log('找到的图片:', images)
 
@@ -151,32 +148,24 @@ async function testUpload() {
 
     uploadStatus.value = `找到 ${images.length} 张图片，开始模拟上传...`
 
-    // 模拟上传，返回假 URL
     const uploadResults = images.map((img, index) => ({
       originalSrc: img.originalSrc,
       url: `https://fake-upload.example.com/image-${index + 1}.jpg`
     }))
 
-    // 延迟模拟上传过程
     await new Promise(resolve => setTimeout(resolve, 1000))
 
     uploadStatus.value = '图片上传完成，正在替换 URL...'
 
-    // 替换 URL
     const srcMapping = new Map(uploadResults.map(r => [r.originalSrc, r.url]))
     editorRef.value.replaceMultipleImages(srcMapping)
 
     await new Promise(resolve => setTimeout(resolve, 500))
 
-    // 获取最终 HTML
     const finalHTML = editorRef.value.getHTML()
-
-    // 统计替换情况
     const fakeUrlCount = (finalHTML.match(/fake-upload\.example\.com/g) || []).length
 
     uploadStatus.value = `✅ 完成！已替换 ${fakeUrlCount} 张图片为模拟 URL`
-
-    // 更新 content 以便在 textarea 中查看
     content.value = finalHTML
   } catch (e) {
     console.error('上传失败:', e)
@@ -202,7 +191,6 @@ async function importFromJSON() {
     editorRef.value.setJSON(json)
     importStatus.value = '✅ 导入成功！'
 
-    // 更新HTML输出
     const finalHTML = editorRef.value.getHTML()
     content.value = finalHTML
   } catch (e) {
@@ -213,16 +201,190 @@ async function importFromJSON() {
 </script>
 
 <style scoped>
+/* Page layout */
+.app-page {
+  min-height: 100vh;
+}
+
+.app-min-height {
+  min-height: 100vh;
+}
+
+.app-transition {
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.app-background {
+  background-color: var(--editor-toolbar-bg, #f3f4f6);
+}
+
+.app-container {
+  max-width: 896px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.app-padding {
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+}
+
+.app-margin-bottom {
+  margin-bottom: 1.5rem;
+}
+
+.app-margin-bottom-sm {
+  margin-bottom: 1rem;
+}
+
+.app-h1 {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.app-h2 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.app-title {
+  color: var(--editor-text-color, #1f2937);
+}
+
+.app-button-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.app-divider {
+  width: 1px;
+  height: 1.5rem;
+  margin-left: 0.25rem;
+  margin-right: 0.25rem;
+  background-color: var(--editor-border-color, #d1d5db);
+}
+
+.app-btn {
+  padding: 0.375rem 0.75rem;
+  font-size: 0.875rem;
+  border-radius: 0.5rem;
+  transition: all 0.2s;
+}
+
+/* Editor wrapper */
+.app-editor-wrapper {
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+
+.app-shadow {
+  box-shadow: var(--editor-shadow, 0 1px 3px rgba(0,0,0,0.1));
+}
+
+.app-editor-height {
+  height: 500px;
+}
+
+/* Cards */
+.app-section {
+  margin-top: 1.5rem;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  transition: background-color 0.2s;
+}
+
+.app-card {
+  background-color: var(--editor-bg-color, #ffffff);
+  box-shadow: var(--editor-shadow, 0 1px 3px rgba(0,0,0,0.1));
+}
+
+.app-card-title {
+  color: var(--editor-text-color, #374151);
+}
+
+/* Textarea */
+.app-textarea {
+  width: 100%;
+  height: 10rem;
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  font-family: monospace;
+  font-size: 0.875rem;
+  resize: none;
+  outline: none;
+  transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+}
+
+.app-textarea-input {
+  background-color: var(--editor-bg-color, #ffffff);
+  color: var(--editor-text-color, #374151);
+  border: 1px solid var(--editor-border-color, #e5e7eb);
+}
+
+.app-textarea-input:focus {
+  border-color: var(--editor-primary-color, #3b82f6);
+  box-shadow: 0 0 0 2px var(--editor-primary-color, #3b82f6);
+}
+
+/* Status text */
+.app-status {
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.app-text-secondary {
+  color: var(--editor-text-secondary, #6b7280);
+}
+
+/* Buttons */
+.app-btn-primary {
+  padding: 0.5rem 1rem;
+  background-color: #3b82f6;
+  color: #ffffff;
+  border-radius: 0.5rem;
+  transition: background-color 0.2s;
+}
+
+.app-btn-primary:hover {
+  background-color: #2563eb;
+}
+
+.app-btn-success {
+  padding: 0.5rem 1rem;
+  background-color: #22c55e;
+  color: #ffffff;
+  border-radius: 0.5rem;
+  transition: background-color 0.2s;
+}
+
+.app-btn-success:hover {
+  background-color: #16a34a;
+}
+
+/* Theme buttons */
 .theme-btn {
   background: transparent;
   color: var(--editor-text-secondary, #6b7280);
   border: 1px solid var(--editor-border-color, #d1d5db);
 }
+
 .theme-btn.active {
   background-color: var(--editor-primary-color, #3b82f6);
   color: #ffffff;
   border-color: var(--editor-primary-color, #3b82f6);
 }
+
 .theme-btn:hover:not(.active) {
   background-color: var(--editor-toolbar-bg, #f3f4f6);
 }

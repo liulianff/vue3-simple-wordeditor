@@ -1,50 +1,19 @@
 <template>
-  <div class="vue-word-editor editor-container flex flex-col h-full" :class="{ dark: effectiveTheme === 'dark' }" :data-theme="effectiveTheme">
-    <div class="relative">
+  <div class="vue-word-editor editor-container" :class="{ dark: effectiveTheme === 'dark' }" :data-theme="effectiveTheme">
+    <div class="editor-toolbar-wrapper">
       <EditorToolbar
-      :is-bold="isBold"
-      :is-italic="isItalic"
-      :is-underline="isUnderline"
-      :is-strike="isStrike"
-      :is-highlight="isHighlight"
-      :is-link="isLink"
-      :heading-level="headingLevel ?? null"
-      :text-align="textAlign"
-      :is-bullet-list="isBulletList"
-      :is-ordered-list="isOrderedList"
-      :is-blockquote="isBlockquote"
-      :font-family="fontFamily"
-      :font-size="fontSize"
-      :text-color="textColor"
-      :highlight-color="highlightColor"
-      @toggle-bold="toggleBold"
-      @toggle-italic="toggleItalic"
-      @toggle-underline="toggleUnderline"
-      @toggle-strike="toggleStrike"
-      @toggle-highlight="toggleHighlight"
-      @toggle-link="toggleLink"
-      @unset-link="unsetLink"
-      @set-heading="setHeading"
-      @set-align="setAlign"
-      @toggle-bullet-list="toggleBulletList"
-      @toggle-ordered-list="toggleOrderedList"
-      @toggle-blockquote="toggleBlockquote"
-      @set-link="setLink"
-      @set-font-size="setFontSize"
-      @set-font-family="setFontFamily"
-      @set-text-color="setTextColor"
-      @set-highlight-color="setHighlightColor"
-      @clear-text-color="unsetTextColor"
-      @clear-highlight-color="unsetHighlightColor"
-      @add-image="addImage"
+      :editor="editor"
+      :is-dark="effectiveTheme === 'dark'"
       @export="handleExport"
+      @insert-image="addImage"
+      @set-link="setLink"
       />
     </div>
 
-    <div class="flex-1 overflow-auto p-4 relative" ref="editorContainerRef">
+    <div class="editor-content-wrapper" ref="editorContainerRef">
       <EditorContent
         :editor="editor"
-        class="editor-content focus:outline-none min-h-[400px]"
+        class="editor-content"
       />
       
       <BubbleMenu
@@ -52,54 +21,54 @@
         :editor="editor"
         :should-show="shouldShowBubbleMenu"
         :tippy-options="bubbleMenuTippyOptions"
-        class="bubble-menu editor-popup flex items-center gap-1 px-2 py-1"
+        class="bubble-menu editor-popup"
       >
         <template v-if="isImageSelected">
           <button
             @click="toggleBulletList"
             :class="[
-              'w-8 h-8 flex items-center justify-center rounded transition-colors',
+              'editor-button',
               isBulletList ? 'editor-btn-active' : 'editor-btn-default'
             ]"
             :title="t('bubbleMenu.bulletList')"
           >
-            <List class="w-4 h-4" />
+            <List class="icon" />
           </button>
           <button
             @click="toggleOrderedList"
             :class="[
-              'w-8 h-8 flex items-center justify-center rounded transition-colors',
+              'editor-button',
               isOrderedList ? 'editor-btn-active' : 'editor-btn-default'
             ]"
             :title="t('bubbleMenu.orderedList')"
           >
-            <ListOrdered class="w-4 h-4" />
+            <ListOrdered class="icon" />
           </button>
           <button
             @click="toggleBlockquote"
             :class="[
-              'w-8 h-8 flex items-center justify-center rounded transition-colors',
+              'editor-button',
               isBlockquote ? 'editor-btn-active' : 'editor-btn-default'
             ]"
             :title="t('bubbleMenu.blockquote')"
           >
-            <Quote class="w-4 h-4" />
+            <Quote class="icon" />
           </button>
-          <div class="w-px h-6 mx-1 editor-divider"></div>
+          <div class="editor-divider"></div>
           <button
             v-for="opt in imageLayoutOptions"
             :key="opt.value"
             @click="setImageLayout(opt.value)"
             :class="[
-              'w-8 h-8 flex items-center justify-center rounded transition-colors',
+              'editor-button',
               currentImageLayout === opt.value ? 'editor-btn-active' : 'editor-btn-default'
             ]"
             :title="opt.label"
           >
-            <component :is="opt.icon" class="w-4 h-4" />
+            <component :is="opt.icon" class="icon" />
           </button>
-          <div class="w-px h-6 mx-1 editor-divider"></div>
-          <span class="flex items-center gap-2 px-1">
+          <div class="editor-divider"></div>
+          <span class="slider-container">
             <input
               type="range"
               :value="sliderWidth"
@@ -107,98 +76,98 @@
               @change="onSliderChange"
               min="30"
               max="800"
-              class="w-20 h-1 appearance-none rounded-full outline-none cursor-pointer editor-slider"
+              class="editor-slider"
             />
-            <span class="text-xs min-w-[36px] text-right editor-text-secondary">{{ sliderWidth }}px</span>
+            <span class="slider-label editor-text-secondary">{{ sliderWidth }}px</span>
           </span>
-          <div class="w-px h-6 mx-1 editor-divider"></div>
+          <div class="editor-divider"></div>
           <button
             @click="startCropImage"
-            class="w-8 h-8 flex items-center justify-center rounded transition-colors editor-btn-default"
+            class="editor-button editor-btn-default"
             :title="t('bubbleMenu.cropImage')"
           >
-            <Crop class="w-4 h-4" />
+            <Crop class="icon" />
           </button>
           <button
             @click="deleteImage"
-            class="w-8 h-8 flex items-center justify-center rounded transition-colors editor-btn-danger"
+            class="editor-button editor-btn-danger"
             :title="t('bubbleMenu.deleteImage')"
           >
-            <Trash2 class="w-4 h-4" />
+            <Trash2 class="icon" />
           </button>
         </template>
         <template v-else>
           <button
             @click="toggleBold"
             :class="[
-              'w-8 h-8 flex items-center justify-center rounded transition-colors',
+              'editor-button',
               isBold ? 'editor-btn-active' : 'editor-btn-default'
             ]"
             :title="t('bubbleMenu.bold')"
           >
-            <Bold class="w-4 h-4" />
+            <Bold class="icon" />
           </button>
           <button
             @click="toggleItalic"
             :class="[
-              'w-8 h-8 flex items-center justify-center rounded transition-colors',
+              'editor-button',
               isItalic ? 'editor-btn-active' : 'editor-btn-default'
             ]"
             :title="t('bubbleMenu.italic')"
           >
-            <Italic class="w-4 h-4" />
+            <Italic class="icon" />
           </button>
           <button
             @click="toggleUnderline"
             :class="[
-              'w-8 h-8 flex items-center justify-center rounded transition-colors',
+              'editor-button',
               isUnderline ? 'editor-btn-active' : 'editor-btn-default'
             ]"
             :title="t('bubbleMenu.underline')"
           >
-            <Underline class="w-4 h-4" />
+            <Underline class="icon" />
           </button>
           <button
             @click="toggleStrike"
             :class="[
-              'w-8 h-8 flex items-center justify-center rounded transition-colors',
+              'editor-button',
               isStrike ? 'editor-btn-active' : 'editor-btn-default'
             ]"
             :title="t('bubbleMenu.strike')"
           >
-            <Strikethrough class="w-4 h-4" />
+            <Strikethrough class="icon" />
           </button>
-          <div class="w-px h-6 mx-1 editor-divider"></div>
+          <div class="editor-divider"></div>
           <button
             @click="toggleBulletList"
             :class="[
-              'w-8 h-8 flex items-center justify-center rounded transition-colors',
+              'editor-button',
               isBulletList ? 'editor-btn-active' : 'editor-btn-default'
             ]"
             :title="t('bubbleMenu.bulletList')"
           >
-            <List class="w-4 h-4" />
+            <List class="icon" />
           </button>
           <button
             @click="toggleOrderedList"
             :class="[
-              'w-8 h-8 flex items-center justify-center rounded transition-colors',
+              'editor-button',
               isOrderedList ? 'editor-btn-active' : 'editor-btn-default'
             ]"
             :title="t('bubbleMenu.orderedList')"
           >
-            <ListOrdered class="w-4 h-4" />
+            <ListOrdered class="icon" />
           </button>
-          <div class="w-px h-6 mx-1 editor-divider"></div>
+          <div class="editor-divider"></div>
           <button
             @click="toggleBlockquote"
             :class="[
-              'w-8 h-8 flex items-center justify-center rounded transition-colors',
+              'editor-button',
               isBlockquote ? 'editor-btn-active' : 'editor-btn-default'
             ]"
             :title="t('bubbleMenu.blockquote')"
           >
-            <Quote class="w-4 h-4" />
+            <Quote class="icon" />
           </button>
         </template>
       </BubbleMenu>
@@ -206,32 +175,51 @@
       <Teleport to="body">
         <div
           v-if="showLinkMenu"
-          class="fixed z-[100] p-2 link-menu-popup editor-popup"
+          class="editor-popup-fixed link-menu-popup editor-popup"
           :style="{ left: linkMenuPosition.x + 'px', top: linkMenuPosition.y + 'px' }"
+          @click.stop
         >
-          <div class="py-1">
+          <div class="link-menu-content">
             <button
               @click="editLink"
-              class="w-full px-4 py-2 text-left text-sm rounded editor-btn-default"
+              class="link-menu-item editor-btn-default"
             >
               {{ t('linkMenu.edit') }}
             </button>
             <button
               @click="removeLink"
-              class="w-full px-4 py-2 text-left text-sm rounded editor-btn-default"
+              class="link-menu-item editor-btn-default"
             >
               {{ t('linkMenu.remove') }}
             </button>
           </div>
         </div>
       </Teleport>
-      
+
       <Teleport to="body">
         <div
-          v-if="showLinkMenu"
-          class="fixed inset-0 z-[99]"
-          @click="showLinkMenu = false"
-        ></div>
+          v-if="showLinkEditDialog"
+          class="editor-popup-fixed link-edit-dialog editor-popup"
+          :style="{ left: linkEditPosition.x + 'px', top: linkEditPosition.y + 'px' }"
+          @click.stop
+        >
+          <div class="link-edit-dialog-content">
+            <input
+              v-model="linkEditUrl"
+              type="url"
+              placeholder="https://..."
+              class="editor-input link-edit-input"
+            />
+            <div class="link-edit-dialog-buttons">
+              <button @click="cancelLinkEdit" class="link-edit-dialog-btn editor-btn-secondary">
+                {{ t('toolbar.linkDialog.cancel') }}
+              </button>
+              <button @click="confirmLinkEdit" class="link-edit-dialog-btn editor-btn-primary">
+                {{ t('toolbar.linkDialog.confirm') }}
+              </button>
+            </div>
+          </div>
+        </div>
       </Teleport>
 
 
@@ -287,16 +275,10 @@ const {
   editor,
   fontSize,
   fontFamily,
-  textColor,
-  highlightColor,
   isBold,
   isItalic,
   isUnderline,
   isStrike,
-  isHighlight,
-  isLink,
-  headingLevel,
-  textAlign,
   isBulletList,
   isOrderedList,
   isBlockquote,
@@ -304,21 +286,11 @@ const {
   toggleItalic,
   toggleUnderline,
   toggleStrike,
-  toggleHighlight,
-  toggleLink,
-  setHeading,
-  setAlign,
   toggleBulletList,
   toggleOrderedList,
   toggleBlockquote,
   setLink,
   unsetLink,
-  setFontSize,
-  setFontFamily,
-  setTextColor,
-  setHighlightColor,
-  unsetTextColor,
-  unsetHighlightColor,
   addImage,
   getHTML,
   setHTML,
@@ -350,6 +322,9 @@ async function handleExport(format: string) {
 const showLinkMenu = ref(false)
 const linkMenuPosition = ref({ x: 0, y: 0 })
 const currentLinkHref = ref('')
+const showLinkEditDialog = ref(false)
+const linkEditUrl = ref('')
+const linkEditPosition = ref({ x: 0, y: 0 })
 
 const isImageSelected = ref(false)
 const currentImageLayout = ref<ImageLayoutType>('inline')
@@ -497,11 +472,25 @@ function handleLinkClick(event: MouseEvent, href: string) {
 }
 
 function editLink() {
-  const newHref = prompt('请输入新的链接地址:', currentLinkHref.value)
-  if (newHref && newHref.trim()) {
-    editor.value!.chain().extendMarkRange('link').setLink({ href: newHref.trim() }).run()
-  }
+  linkEditUrl.value = currentLinkHref.value
+  // 显示链接编辑对话框
+  showLinkEditDialog.value = true
+  // 位置设置为与链接菜单相同
+  linkEditPosition.value = { ...linkMenuPosition.value }
   showLinkMenu.value = false
+}
+
+function confirmLinkEdit() {
+  if (linkEditUrl.value && linkEditUrl.value.trim()) {
+    editor.value!.chain().extendMarkRange('link').setLink({ href: linkEditUrl.value.trim() }).run()
+  }
+  showLinkEditDialog.value = false
+  linkEditUrl.value = ''
+}
+
+function cancelLinkEdit() {
+  showLinkEditDialog.value = false
+  linkEditUrl.value = ''
 }
 
 function removeLink() {
@@ -514,6 +503,13 @@ watch(() => props.modelValue, (newValue) => {
     setHTML(newValue)
   }
 })
+
+// 点击文档其他地方关闭链接菜单和编辑对话框
+function handleDocumentClick() {
+  showLinkMenu.value = false
+  showLinkEditDialog.value = false
+  linkEditUrl.value = ''
+}
 
 onMounted(() => {
   editor.value?.on('update', ({ transaction }) => {
@@ -546,11 +542,19 @@ onMounted(() => {
 
   editor.value?.view.dom.addEventListener('keydown', (event: KeyboardEvent) => {
     if (event.key === 'Escape') {
+      showLinkMenu.value = false
+      showLinkEditDialog.value = false
+      linkEditUrl.value = ''
     }
   })
+
+  // 添加文档点击事件监听
+  document.addEventListener('click', handleDocumentClick)
 })
 
 onBeforeUnmount(() => {
+  // 移除文档点击事件监听
+  document.removeEventListener('click', handleDocumentClick)
 })
 
 function updateCurrentStyle() {
@@ -718,6 +722,60 @@ defineExpose({
 
 .editor-content :deep(s) {
   text-decoration: line-through;
+}
+
+.link-menu-popup {
+  width: 120px;
+}
+
+.link-menu-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.link-menu-item {
+  padding: 0.5rem;
+  text-align: left;
+  border: none;
+  background: transparent;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  color: var(--editor-text-color, #1f2937);
+}
+
+.link-menu-item:hover {
+  background-color: var(--editor-border-color, #e5e7eb);
+}
+
+.link-edit-dialog {
+  width: 200px;
+}
+
+.link-edit-dialog-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.5rem;
+}
+
+.link-edit-input {
+  width: 100%;
+}
+
+.link-edit-dialog-buttons {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+}
+
+.link-edit-dialog-btn {
+  padding: 0.25rem 0.5rem;
+  border: none;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
 }
 
 @media (max-width: 640px) {

@@ -169,6 +169,7 @@ export const DraggableImage = Node.create<DraggableImageOptions>({
       class: classes.join(' ') || undefined,
       style: attrs.style,                         // ← 直接透传
       'data-layout': attrs['data-layout'] !== 'inline' ? attrs['data-layout'] : undefined,
+      'data-crop': attrs['data-crop'] ? attrs['data-crop'] : undefined,
     }),
   ]
 },

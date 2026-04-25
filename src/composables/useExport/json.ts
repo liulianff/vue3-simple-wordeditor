@@ -15,9 +15,13 @@ async function processJsonImages(json: any): Promise<any> {
       const crop = json.attrs.crop as CropData | null
 
       if (src && crop && crop.width < 100) {
-        const croppedSrc = await cropImage(src, crop)
-        json.attrs.src = croppedSrc
-        delete json.attrs.crop
+        try {
+          const croppedSrc = await cropImage(src, crop)
+          json.attrs.src = croppedSrc
+          delete json.attrs.crop
+        } catch (e) {
+          console.warn('Failed to crop image for JSON export:', e)
+        }
       }
       return json
     }

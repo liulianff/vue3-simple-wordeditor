@@ -90,7 +90,7 @@ export async function extractImagesForUpload(html: string): Promise<ImageUploadI
       }
 
       images.push({
-        originalSrc: src,
+        originalSrc: cropAttr ? `${src}?cropped=${Date.now()}_${Math.random().toString(36).substr(2, 9)}` : src,
         base64Data,
         crop: cropAttr ? JSON.parse(cropAttr) : null,
       })
@@ -101,13 +101,21 @@ export async function extractImagesForUpload(html: string): Promise<ImageUploadI
 }
 
 export function replaceImagesInHTML(html: string, srcMapping: Map<string, string>): string {
-  let result = html
+  if (srcMapping.size === 0) return html
 
-  for (const [oldSrc, newSrc] of srcMapping.entries()) {
-    result = result.split(oldSrc).join(newSrc)
+  const tempDiv = document.createElement('div')
+  tempDiv.innerHTML = html
+
+  const imgElements = Array.from(tempDiv.querySelectorAll('img'))
+
+  for (const imgEl of imgElements) {
+    const currentSrc = imgEl.getAttribute('src')
+    if (currentSrc && srcMapping.has(currentSrc)) {
+      imgEl.setAttribute('src', srcMapping.get(currentSrc)!)
+    }
   }
 
-  return result
+  return tempDiv.innerHTML
 }
 
 export async function processImagesWithCrop(html: string): Promise<{ html: string; imgSizes: Map<string, { width: number; height: number }> }> {

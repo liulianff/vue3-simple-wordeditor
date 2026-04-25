@@ -1,24 +1,24 @@
 <template>
   <Teleport to="body">
-    <div v-if="visible" class="fixed inset-0 z-50 flex items-center justify-center p-4" @click.self="$emit('close')">
-      <div class="fixed inset-0 bg-black bg-opacity-50"></div>
-      <div class="relative bg-white rounded-lg shadow-xl max-w-3xl w-full max-h-[90vh] overflow-hidden flex flex-col">
-        <div class="flex items-center justify-between p-4 border-b border-gray-200 shrink-0">
-          <h3 class="text-lg font-semibold text-gray-800">{{ t('imageEditor.title') }}</h3>
+    <div v-if="visible" class="image-editor-overlay" @click.self="$emit('close')">
+      <div class="image-editor-backdrop"></div>
+      <div class="image-editor-modal">
+        <div class="image-editor-header">
+          <h3 class="image-editor-title">{{ t('imageEditor.title') }}</h3>
           <button
             @click="$emit('close')"
-            class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors"
+            class="image-editor-close-btn"
           >
-            <X class="w-5 h-5 text-gray-500" />
+            <X class="image-editor-icon" />
           </button>
         </div>
 
-        <div class="flex-1 overflow-auto p-4">
-          <div v-if="mode === 'crop'" class="h-[400px]">
+        <div class="image-editor-content">
+          <div v-if="mode === 'crop'" class="image-editor-crop-area">
             <Cropper
               ref="cropperRef"
               :src="imageSrc"
-              class="h-full"
+              class="image-editor-cropper"
               :stencil-props="{
                 aspectRatio: cropAspectRatio,
               }"
@@ -28,136 +28,136 @@
             />
           </div>
 
-          <div v-else class="space-y-6">
-            <div class="relative mx-auto max-w-lg mb-4">
+          <div v-else class="image-editor-edit-area">
+            <div class="image-editor-preview-wrapper">
               <img
                 :src="previewSrc"
                 :alt="imageAlt"
                 :style="previewStyle"
-                class="max-w-full h-auto rounded"
+                class="image-editor-preview"
                 ref="previewRef"
               />
             </div>
 
-            <div class="grid grid-cols-2 gap-4">
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('imageEditor.edit.width') }}</label>
-                <div class="flex items-center gap-2">
+            <div class="image-editor-grid">
+              <div class="image-editor-field">
+                <label class="image-editor-label">{{ t('imageEditor.edit.width') }}</label>
+                <div class="image-editor-input-group">
                   <input
                     type="range"
                     :value="editWidth"
                     @input="editWidth = Math.round(Number(($event.target as HTMLInputElement).value))"
                     min="50"
                     max="800"
-                    class="flex-1"
+                    class="image-editor-slider"
                   />
-                  <span class="text-sm text-gray-600 w-16">{{ editWidth }}px</span>
+                  <span class="image-editor-value">{{ editWidth }}px</span>
                 </div>
               </div>
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('imageEditor.edit.rotation') }}</label>
-                <div class="flex items-center gap-2">
+              <div class="image-editor-field">
+                <label class="image-editor-label">{{ t('imageEditor.edit.rotation') }}</label>
+                <div class="image-editor-input-group">
                   <input
                     type="range"
                     :value="editRotation"
                     @input="editRotation = Number(($event.target as HTMLInputElement).value)"
                     min="-180"
                     max="180"
-                    class="flex-1"
+                    class="image-editor-slider"
                   />
-                  <span class="text-sm text-gray-600 w-16">{{ editRotation }}°</span>
+                  <span class="image-editor-value">{{ editRotation }}°</span>
                 </div>
               </div>
             </div>
 
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">{{ t('imageEditor.edit.textWrap') }}</label>
-              <div class="flex flex-wrap gap-2">
+            <div class="image-editor-section">
+              <label class="image-editor-label">{{ t('imageEditor.edit.textWrap') }}</label>
+              <div class="image-editor-layout-buttons">
                 <button
                   v-for="layout in layoutOptions"
                   :key="layout.value"
                   @click="editLayout = layout.value"
                   :class="[
-                    'px-3 py-1.5 text-sm rounded transition-colors flex items-center gap-1.5',
+                    'image-editor-layout-btn',
                     editLayout === layout.value
-                      ? 'bg-blue-500 text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      ? 'image-editor-layout-btn-active'
+                      : 'image-editor-layout-btn-inactive'
                   ]"
                 >
-                  <component :is="layout.icon" class="w-4 h-4" />
+                  <component :is="layout.icon" class="image-editor-layout-icon" />
                   {{ layout.label }}
                 </button>
               </div>
             </div>
 
-            <div v-if="editLayout === 'wrap-left' || editLayout === 'wrap-right'" class="grid grid-cols-2 gap-4">
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">
+            <div v-if="editLayout === 'wrap-left' || editLayout === 'wrap-right'" class="image-editor-grid">
+              <div class="image-editor-field">
+                <label class="image-editor-label">
                   {{ editLayout === 'wrap-left' ? t('imageEditor.edit.rightMargin') : t('imageEditor.edit.leftMargin') }}
                 </label>
-                <div class="flex items-center gap-2">
+                <div class="image-editor-input-group">
                   <input
                     type="range"
                     :value="editMargin"
                     @input="editMargin = Math.round(Number(($event.target as HTMLInputElement).value))"
                     min="4"
                     max="64"
-                    class="flex-1"
+                    class="image-editor-slider"
                   />
-                  <span class="text-sm text-gray-600 w-12">{{ editMargin }}px</span>
+                  <span class="image-editor-value-sm">{{ editMargin }}px</span>
                 </div>
               </div>
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('imageEditor.edit.bottomMargin') }}</label>
-                <div class="flex items-center gap-2">
+              <div class="image-editor-field">
+                <label class="image-editor-label">{{ t('imageEditor.edit.bottomMargin') }}</label>
+                <div class="image-editor-input-group">
                   <input
                     type="range"
                     :value="editMarginBottom"
                     @input="editMarginBottom = Math.round(Number(($event.target as HTMLInputElement).value))"
                     min="0"
                     max="64"
-                    class="flex-1"
+                    class="image-editor-slider"
                   />
-                  <span class="text-sm text-gray-600 w-12">{{ editMarginBottom }}px</span>
+                  <span class="image-editor-value-sm">{{ editMarginBottom }}px</span>
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        <div class="border-t border-gray-200 p-4 shrink-0">
-          <div v-if="mode === 'crop'" class="flex gap-3">
+        <div class="image-editor-footer">
+          <div v-if="mode === 'crop'" class="image-editor-btn-group">
             <button
               @click="cancelCrop"
-              class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
+              class="image-editor-btn image-editor-btn-secondary"
             >
               {{ t('imageEditor.crop.cancel') }}
             </button>
             <button
               @click="applyCrop"
-              class="flex-1 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center justify-center gap-2"
+              class="image-editor-btn image-editor-btn-primary image-editor-btn-flex"
             >
-              <Check class="w-4 h-4" />
+              <Check class="image-editor-btn-icon" />
               {{ t('imageEditor.crop.confirm') }}
             </button>
           </div>
-          <div v-else class="flex gap-3">
+          <div v-else class="image-editor-btn-group">
             <button
               @click="enterCropMode"
-              class="px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-colors flex items-center gap-2"
+              class="image-editor-btn image-editor-btn-warning image-editor-btn-flex"
             >
-              <Crop class="w-4 h-4" />
+              <Crop class="image-editor-btn-icon" />
               {{ t('imageEditor.edit.crop') }}
             </button>
             <button
               @click="resetImage"
-              class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
+              class="image-editor-btn image-editor-btn-secondary"
             >
               {{ t('imageEditor.edit.reset') }}
             </button>
             <button
               @click="applyChanges"
-              class="flex-1 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+              class="image-editor-btn image-editor-btn-primary image-editor-btn-flex-grow"
             >
               {{ t('imageEditor.edit.apply') }}
             </button>
@@ -279,3 +279,262 @@ function applyChanges() {
   })
 }
 </script>
+
+<style scoped>
+/* Overlay */
+.image-editor-overlay {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.image-editor-backdrop {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+/* Modal */
+.image-editor-modal {
+  position: relative;
+  background-color: #ffffff;
+  border-radius: 0.5rem;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  max-width: 48rem;
+  width: 100%;
+  max-height: 90vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header */
+.image-editor-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem;
+  border-bottom: 1px solid #e5e7eb;
+  flex-shrink: 0;
+}
+
+.image-editor-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.image-editor-close-btn {
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  transition: background-color 0.2s;
+}
+
+.image-editor-close-btn:hover {
+  background-color: #f3f4f6;
+}
+
+.image-editor-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  color: #6b7280;
+}
+
+/* Content */
+.image-editor-content {
+  flex: 1;
+  overflow: auto;
+  padding: 1rem;
+}
+
+.image-editor-crop-area {
+  height: 400px;
+}
+
+.image-editor-cropper {
+  height: 100%;
+}
+
+.image-editor-edit-area {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.image-editor-preview-wrapper {
+  position: relative;
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 32rem;
+  margin-bottom: 1rem;
+}
+
+.image-editor-preview {
+  max-width: 100%;
+  height: auto;
+  border-radius: 0.25rem;
+}
+
+/* Grid */
+.image-editor-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+/* Field */
+.image-editor-field {
+  display: flex;
+  flex-direction: column;
+}
+
+.image-editor-label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 0.25rem;
+}
+
+.image-editor-input-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.image-editor-slider {
+  flex: 1;
+}
+
+.image-editor-value {
+  font-size: 0.875rem;
+  color: #4b5563;
+  width: 4rem;
+  text-align: right;
+}
+
+.image-editor-value-sm {
+  font-size: 0.875rem;
+  color: #4b5563;
+  width: 3rem;
+  text-align: right;
+}
+
+/* Section */
+.image-editor-section {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Layout buttons */
+.image-editor-layout-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.image-editor-layout-btn {
+  padding: 0.375rem 0.75rem;
+  font-size: 0.875rem;
+  border-radius: 0.25rem;
+  transition: background-color 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.image-editor-layout-btn-inactive {
+  background-color: #f3f4f6;
+  color: #374151;
+}
+
+.image-editor-layout-btn-inactive:hover {
+  background-color: #e5e7eb;
+}
+
+.image-editor-layout-btn-active {
+  background-color: #3b82f6;
+  color: #ffffff;
+}
+
+.image-editor-layout-icon {
+  width: 1rem;
+  height: 1rem;
+}
+
+/* Footer */
+.image-editor-footer {
+  border-top: 1px solid #e5e7eb;
+  padding: 1rem;
+  flex-shrink: 0;
+}
+
+.image-editor-btn-group {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.image-editor-btn {
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  transition: background-color 0.2s;
+  font-size: 0.875rem;
+}
+
+.image-editor-btn-primary {
+  background-color: #3b82f6;
+  color: #ffffff;
+}
+
+.image-editor-btn-primary:hover {
+  background-color: #2563eb;
+}
+
+.image-editor-btn-secondary {
+  background-color: #e5e7eb;
+  color: #374151;
+}
+
+.image-editor-btn-secondary:hover {
+  background-color: #d1d5db;
+}
+
+.image-editor-btn-warning {
+  background-color: #f59e0b;
+  color: #ffffff;
+}
+
+.image-editor-btn-warning:hover {
+  background-color: #d97706;
+}
+
+.image-editor-btn-flex {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.image-editor-btn-flex-grow {
+  flex: 1;
+  justify-content: center;
+}
+
+.image-editor-btn-icon {
+  width: 1rem;
+  height: 1rem;
+}
+</style>

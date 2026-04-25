@@ -1,7 +1,7 @@
 {
   "name": "vue3-simple-wordeditor",
-  "version": "1.0.0",
-  "description": "基于 Vue 3 + TipTap 3 构建的富文本编辑器组件，支持图片编辑、亮暗主题、样式自定义.演示网站https://github.com/liulianff/vue3-simple-wordeditor",
+  "version": "1.0.3",
+  "description": "基于 Vue 3 + TipTap 3 构建的富文本编辑器组件，支持图片编辑、亮暗主题、样式自定义",
   "keywords": [
     "vue",
     "vue3",
@@ -25,9 +25,17 @@
     ".": {
       "import": "./dist/vue3-simple-wordeditor.es.js",
       "require": "./dist/vue3-simple-wordeditor.umd.js",
-      "types": "./dist/index.d.ts"
+      "types": "./dist/index.d.ts",
+      "default": "./dist/vue3-simple-wordeditor.umd.js"
     },
-    "./dist/style.css": "./dist/vue3-simple-wordeditor.css"
+    "./dist/vue3-simple-wordeditor.css": {
+      "import": "./dist/vue3-simple-wordeditor.css",
+      "default": "./dist/vue3-simple-wordeditor.css"
+    },
+    "./css": {
+      "import": "./dist/vue3-simple-wordeditor.css",
+      "default": "./dist/vue3-simple-wordeditor.css"
+    }
   },
   "files": [
     "dist"

@@ -26,6 +26,12 @@
 | `.editor-color-swatch`         | 颜色选择色块       | `border-color: var(--editor-border-color)`                                                                                |
 | `.editor-color-picker-divider` | 颜色选择器分隔线     | `border-top: 1px solid var(--editor-border-color)`                                                                        |
 | `.editor-color-input`          | 颜色选择器自定义颜色输入 | `border: 1px solid var(--editor-border-color)`                                                                            |
+| `.editor-button`               | 工具栏按钮         | `display: flex; align-items: center; justify-content: center; padding: 0.375rem; border: none; background: transparent; cursor: pointer; color: var(--editor-text-color); transition: all 0.2s; border-radius: 0.25rem` |
+| `.icon`                        | 图标元素         | `width: 1rem; height: 1rem; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; fill: none` |
+| `.color-indicator`             | 颜色指示器         | `width: 0.75rem; height: 0.75rem; border-radius: 50%; border: 1px solid var(--editor-border-color)`                       |
+| `.slider-container`            | 滑块容器          | `display: flex; align-items: center; gap: 0.5rem`                                                                         |
+| `.slider-label`                | 滑块标签          | `font-size: 0.75rem; color: var(--editor-text-secondary); min-width: 3rem`                                                |
+| `.file-input`                  | 文件输入框        | `display: none`                                                                                                          |
 
 ## 布局容器类
 
@@ -35,8 +41,42 @@
 | `.editor-container` | 编辑器容器                 | `background-color: var(--editor-bg-color); border-radius: var(--editor-radius); border: 1px solid var(--editor-border-color); box-shadow: var(--editor-shadow)`    |
 | `.editor-toolbar`   | 工具栏                   | `background-color: var(--editor-toolbar-bg); border-bottom: 1px solid var(--editor-border-color); padding: 0.5rem`                                                 |
 | `.editor-popup`     | 弹出层（BubbleMenu、链接菜单等） | `background-color: var(--editor-bg-color); border: 1px solid var(--editor-border-color); border-radius: var(--editor-radius); box-shadow: var(--editor-shadow-lg)` |
-| `.editor-tooltip`   | 提示框                   | `background-color: var(--editor-text-color); color: var(--editor-bg-color)`                                                                                        |
+| `.editor-tooltip`   | 提示框                   | `position: fixed; z-index: 9999; padding: 4px 8px; font-size: 12px; border-radius: 4px; white-space: nowrap; pointer-events: none; background-color: var(--editor-text-color); color: var(--editor-bg-color)` |
 | `.editor-content`   | 编辑器内容区域               | `outline: none; min-height: 400px; padding: 1rem`                                                                                                                  |
+| `.editor-toolbar-wrapper` | 工具栏包装器               | `position: relative`                                                                                                                                               |
+| `.toolbar-group`    | 工具栏分组                 | `display: flex; align-items: center; gap: 0.25rem; margin-right: 0.5rem`                                                                                          |
+| `.editor-content-wrapper` | 编辑器内容包装器              | `position: relative`                                                                                                                                               |
+| `.bubble-menu`      | 气泡菜单                  | `display: flex; align-items: center; gap: 4px; padding: 4px 8px; position: absolute; z-index: 50; background-color: var(--editor-bg-color); border: 1px solid var(--editor-border-color); border-radius: var(--editor-radius); box-shadow: var(--editor-shadow-lg)` |
+
+## 弹出菜单类
+
+| 类名                  | 用途           | 默认样式                                                                                                                                                               |
+| ------------------- | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `.link-menu-popup`  | 链接菜单弹出层       | `position: absolute; z-index: 40; background-color: var(--editor-bg-color); border: 1px solid var(--editor-border-color); border-radius: var(--editor-radius); box-shadow: var(--editor-shadow-lg); padding: 0.5rem` |
+| `.link-menu-content` | 链接菜单内容        | `display: flex; flex-direction: column; gap: 0.5rem`                                                                                                                 |
+| `.link-menu-item`   | 链接菜单项         | `padding: 0.375rem 0.75rem; cursor: pointer; border-radius: 0.25rem; transition: background-color 0.2s; color: var(--editor-text-color)`                             |
+| `.link-menu-item:hover` | 链接菜单项悬停       | `background-color: var(--editor-toolbar-bg)`                                                                                                                         |
+| `.export-menu`      | 导出菜单         | `position: absolute; z-index: 40; background-color: var(--editor-bg-color); border: 1px solid var(--editor-border-color); border-radius: var(--editor-radius); box-shadow: var(--editor-shadow-lg); padding: 0.5rem` |
+| `.export-menu-content` | 导出菜单内容        | `display: flex; flex-direction: column; gap: 0.5rem`                                                                                                                 |
+| `.export-menu-item` | 导出菜单项         | `padding: 0.375rem 0.75rem; cursor: pointer; border-radius: 0.25rem; transition: background-color 0.2s; color: var(--editor-text-color)`                             |
+| `.export-menu-item:hover` | 导出菜单项悬停       | `background-color: var(--editor-toolbar-bg)`                                                                                                                         |
+| `.link-dialog`      | 链接对话框         | `position: absolute; z-index: 40; background-color: var(--editor-bg-color); border: 1px solid var(--editor-border-color); border-radius: var(--editor-radius); box-shadow: var(--editor-shadow-lg); padding: 1rem` |
+| `.link-dialog-buttons` | 链接对话框按钮组      | `display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 1rem`                                                                                            |
+| `.link-dialog-btn`  | 链接对话框按钮        | `padding: 0.375rem 0.75rem; border: none; border-radius: 0.25rem; cursor: pointer; font-size: 0.875rem`                                                             |
+
+## 颜色选择器类
+
+| 类名                  | 用途           | 默认样式                                                                                                                                                               |
+| ------------------- | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `.editor-color-picker` | 颜色选择器         | `position: absolute; z-index: 40; background-color: var(--editor-bg-color); border: 1px solid var(--editor-border-color); border-radius: var(--editor-radius); box-shadow: var(--editor-shadow-lg); padding: 0.75rem` |
+| `.color-picker-grid` | 颜色选择网格        | `display: grid; grid-template-columns: repeat(7, 1fr); gap: 0.25rem; margin-bottom: 0.75rem`                                                                         |
+| `.text-color-grid`  | 文本颜色网格        | 继承自 `.color-picker-grid`                                                                                                                                         |
+| `.highlight-color-grid` | 高亮颜色网格        | 继承自 `.color-picker-grid`                                                                                                                                         |
+| `.transparent-color` | 透明颜色选项        | `position: relative; border: 1px solid var(--editor-border-color); border-radius: 0.25rem; width: 1.5rem; height: 1.5rem; cursor: pointer; background: repeating-linear-gradient(45deg, #ccc, #ccc 5px, #fff 5px, #fff 10px)` |
+| `.transparent-indicator` | 透明指示器         | `position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 0.75rem; color: var(--editor-text-secondary)`                                |
+| `.color-swatch`     | 颜色色块         | `width: 1.5rem; height: 1.5rem; border-radius: 0.25rem; cursor: pointer; border: 1px solid var(--editor-border-color)`                                             |
+| `.custom-color-section` | 自定义颜色部分       | `margin-top: 0.75rem`                                                                                                                                               |
+| `.custom-color-label` | 自定义颜色标签       | `font-size: 0.75rem; color: var(--editor-text-secondary); margin-bottom: 0.5rem`                                                                                    |
 
 ## 图片节点类（ImageNodeView）
 

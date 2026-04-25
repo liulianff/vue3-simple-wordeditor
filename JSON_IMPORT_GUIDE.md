@@ -78,7 +78,7 @@ Vue Word Editor 使用 TipTap 编辑器作为底层实现，其 JSON 格式遵�
 <script setup lang="ts">
 import { ref } from 'vue'
 import Vue3SimpleWordEditor from 'vue3-simple-wordeditor'
-import 'vue3-simple-wordeditor/dist/style.css'
+import 'vue3-simple-wordeditor/dist/vue3-simple-wordeditor.css'
 
 const editorRef = ref()
 
@@ -339,7 +339,7 @@ async function loadJSONWithCache(key, fetchFunction) {
 <script setup lang="ts">
 import { ref } from 'vue'
 import Vue3SimpleWordEditor from 'vue3-simple-wordeditor'
-import 'vue3-simple-wordeditor/dist/style.css'
+import 'vue3-simple-wordeditor/dist/vue3-simple-wordeditor.css'
 
 const editorRef = ref()
 const content = ref('')

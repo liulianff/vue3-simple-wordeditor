@@ -36,7 +36,9 @@ export function useEditor({ placeholder = '开始编辑...', content = '', edita
       FontFamily.configure({
         types: ['textStyle'],
       }),
-      Color,
+      Color.configure({
+        types: ['textStyle'],
+      }),
       Highlight.configure({ multicolor: true }),
       Link.configure({
       openOnClick: false,
@@ -234,25 +236,45 @@ export function useEditor({ placeholder = '开始编辑...', content = '', edita
     }
   }
 
-  function addImage(src: string, alt: string = '') {
+  function addImage(src?: string, alt: string = '') {
     if (!ensureFocus()) return
 
-    const img = new Image()
-    img.onload = () => {
-      const naturalWidth = img.naturalWidth
-      const maxWidth = 800
-      const displayWidth = Math.min(naturalWidth, maxWidth)
-      editor.value!.commands.setDraggableImage({
-        src,
-        alt,
-        width: displayWidth,
-        height: img.naturalHeight
-      })
+    if (src) {
+      const img = new Image()
+      img.onload = () => {
+        const naturalWidth = img.naturalWidth
+        const maxWidth = 800
+        const displayWidth = Math.min(naturalWidth, maxWidth)
+        editor.value!.commands.setDraggableImage({
+          src,
+          alt,
+          width: displayWidth,
+          height: img.naturalHeight
+        })
+      }
+      img.onerror = () => {
+        editor.value!.commands.setDraggableImage({ src, alt })
+      }
+      img.src = src
+    } else {
+      // 弹出文件选择器
+      const input = document.createElement('input')
+      input.type = 'file'
+      input.accept = 'image/*'
+      input.onchange = (e) => {
+        const target = e.target as HTMLInputElement
+        const file = target.files?.[0]
+        if (file) {
+          const reader = new FileReader()
+          reader.onload = (event) => {
+            const result = event.target?.result as string
+            addImage(result, file.name)
+          }
+          reader.readAsDataURL(file)
+        }
+      }
+      input.click()
     }
-    img.onerror = () => {
-      editor.value!.commands.setDraggableImage({ src, alt })
-    }
-    img.src = src
   }
 
   function updateImageAttributes(attrs: Partial<ImageAttributes>) {
