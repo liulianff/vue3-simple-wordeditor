@@ -40,6 +40,7 @@ export default defineConfig(({ mode }) => {
 
   return {
     plugins: [vue()],
+    base: '/vue3-simple-wordeditor/',
     resolve: {
       alias: {
         '@': resolve(__dirname, 'src')
