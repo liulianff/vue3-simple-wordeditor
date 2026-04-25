@@ -1,6 +1,6 @@
 # JavaScript 兼容与使用指南
 
-本文档说明 VueWordEditor 如何在不同类型的项目中使用，包括 JavaScript 项目。
+本文档说明 vue3-simple-wordeditor 如何在不同类型的项目中使用，包括 JavaScript 项目。
 
 ## 目录
 
@@ -16,7 +16,7 @@
 
 ## 兼容性说明
 
-**VueWordEditor 完全兼容 JavaScript**。
+**vue3-simple-wordeditor 完全兼容 JavaScript**。
 
 - 项目使用 TypeScript 开发，但编译后生成标准 JavaScript 文件
 - 支持以下模块系统：

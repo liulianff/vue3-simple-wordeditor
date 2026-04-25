@@ -63,7 +63,7 @@ const content = ref('<p>Hello World</p>')
 
 ## 组件 API
 
-### VueWordEditor
+### vue3-simple-wordeditor
 
 主编辑器组件，通过 `v-model` 双向绑定 HTML 内容。
 
@@ -89,7 +89,7 @@ const content = ref('<p>Hello World</p>')
 
 ```typescript
 const editorRef = ref()
-// 模板中: <VueWordEditor ref="editorRef" />
+// 模板中: <vue3-simple-wordeditor ref="editorRef" />
 
 // 可用方法:
 editorRef.getHTML(): string                            // 获取当前 HTML 内容
@@ -136,13 +136,13 @@ const theme = ref<'light' | 'dark' | 'auto'>('light')
 
 ```vue
 <!-- 亮色主题（默认） -->
-<VueWordEditor theme="light" />
+<vue3-simple-wordeditor theme="light" />
 
 <!-- 暗色主题 -->
-<VueWordEditor theme="dark" />
+<vue3-simple-wordeditor theme="dark" />
 
 <!-- 跟随系统 -->
-<VueWordEditor theme="auto" />
+<vue3-simple-wordeditor theme="auto" />
 ```
 
 ### 自定义主题
@@ -774,7 +774,7 @@ npm run build
 ```
 src/
   components/
-    VueWordEditor.vue      # 主编辑器组件
+    VueWordEditor.vue      # 主编辑器组件（组件名保持 PascalCase）
     EditorToolbar.vue       # 工具栏组件
     ImageNodeView.vue       # 图片节点视图（渲染、裁剪、缩放）
     ImageEditor.vue         # 图片裁剪弹窗（备用）

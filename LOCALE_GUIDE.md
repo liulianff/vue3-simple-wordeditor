@@ -69,7 +69,7 @@ function switchLocale(locale: string) {
 
 ## 内置语言
 
-VueWordEditor 内置了以下语言包：
+vue3-simple-wordeditor 内置了以下语言包：
 
 | 语言   | 标识符     | 说明      |
 | ---- | ------- | ------- |
@@ -224,7 +224,7 @@ registerLocale('my-custom-locale', myLocale)
 **步骤 4：使用自定义语言**
 
 ```vue
-<VueWordEditor v-model="content" locale="my-custom-locale" />
+<vue3-simple-wordeditor v-model="content" locale="my-custom-locale" />
 ```
 
 ***
@@ -575,7 +575,7 @@ registerLocale('validated', customLocale)
 
 ### Q: 语言包必须在使用前注册吗？
 
-**A:** 是的，`registerLocale` 必须在 `VueWordEditor` 组件渲染之前调用。建议将语言包注册放在应用入口文件（如 `main.ts`）中。
+**A:** 是的，`registerLocale` 必须在 `vue3-simple-wordeditor` 组件渲染之前调用。建议将语言包注册放在应用入口文件（如 `main.ts`）中。
 
 ### Q: 可以注册多少个语言包？
 

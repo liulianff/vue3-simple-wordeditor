@@ -1,6 +1,6 @@
 # CSS 类参考手册
 
-本文档列出 VueWordEditor 所有组件的 CSS 类名及其默认样式，方便你参考和覆盖。
+本文档列出 vue3-simple-wordeditor 所有组件的 CSS 类名及其默认样式，方便你参考和覆盖。
 
 ## 通用工具类
 
