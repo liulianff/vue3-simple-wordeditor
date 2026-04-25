@@ -483,9 +483,9 @@ async function publishArticle() {
   }
 
   // 4. 最终获取的完整内容（所有图片已是服务器URL）
-  const finalHTML = editorRef.value.getHTML()//html
-  const finalJSON = editorRef.value.getHTML()//json
-  const finalMD = editorRef.value.getHTML()//markdown(纯文本推荐)
+  const finalHTML = editorRef.value.getHTML()//html(全样式)
+  const finalJSON = editorRef.value.getJSON()//json(全样式)
+  const finalMD = editorRef.value.getMarkdown()//markdown(纯文本推荐)
 
   // 5. 提交到后端
   await fetch('/api/articles', {
