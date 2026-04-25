@@ -3,7 +3,7 @@
     <div class="min-h-screen transition-colors duration-200" style="background-color: var(--editor-toolbar-bg, #f3f4f6);">
       <div class="max-w-4xl mx-auto py-8 px-4">
         <div class="flex items-center justify-between mb-6">
-          <h1 class="text-2xl font-bold transition-colors" style="color: var(--editor-text-color, #1f2937);">Vue Word Editor</h1>
+          <h1 class="text-2xl font-bold transition-colors" style="color: var(--editor-text-color, #1f2937);">vue3-simple-wordeditor Demo</h1>
           
           <div class="flex items-center gap-2">
             <button
@@ -115,7 +115,7 @@ const localeOptions = [
   { label: 'English', value: 'en-US' as const },
 ]
 
-const content = ref(`<h1>欢迎使用 Vue Word Editor</h1>
+const content = ref(`<h1>欢迎使用 vue3-simple-wordeditor</h1>
 <p>这是一个基于 Vue3 + TipTap3 构建的富文本编辑器。</p>
 <h2>功能特点</h2>
 <ul>
