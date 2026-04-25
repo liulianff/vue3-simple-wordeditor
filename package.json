@@ -1,17 +1,33 @@
 {
-  "name": "vue-word-editor",
+  "name": "vue3-simple-wordeditor",
   "version": "1.0.0",
+  "description": "基于 Vue 3 + TipTap 3 构建的富文本编辑器组件，支持图片编辑、亮暗主题、样式自定义",
+  "keywords": [
+    "vue",
+    "vue3",
+    "editor",
+    "rich-text",
+    "tiptap",
+    "word-editor",
+    "wysiwyg"
+  ],
+  "author": "LiuLianF",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/liulianff/vue3-simple-wordeditor.git"
+  },
   "type": "module",
-  "main": "./dist/vue-word-editor.umd.js",
-  "module": "./dist/vue-word-editor.es.js",
+  "main": "./dist/vue3-simple-wordeditor.umd.js",
+  "module": "./dist/vue3-simple-wordeditor.es.js",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "import": "./dist/vue-word-editor.es.js",
-      "require": "./dist/vue-word-editor.umd.js",
+      "import": "./dist/vue3-simple-wordeditor.es.js",
+      "require": "./dist/vue3-simple-wordeditor.umd.js",
       "types": "./dist/index.d.ts"
     },
-    "./dist/style.css": "./dist/vue-word-editor.css"
+    "./dist/style.css": "./dist/vue3-simple-wordeditor.css"
   },
   "files": [
     "dist"

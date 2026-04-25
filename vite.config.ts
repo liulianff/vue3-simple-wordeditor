@@ -14,9 +14,9 @@ export default defineConfig(({ mode }) => {
       build: {
         lib: {
           entry: resolve(__dirname, 'src/index.ts'),
-          name: 'VueWordEditor',
+          name: 'Vue3SimpleWordEditor',
           formats: ['es', 'umd'],
-          fileName: (format) => `vue-word-editor.${format}.js`,
+          fileName: (format) => `vue3-simple-wordeditor.${format}.js`,
         },
         rollupOptions: {
           external: ['vue', 'lucide-vue-next'],
@@ -27,7 +27,7 @@ export default defineConfig(({ mode }) => {
               'lucide-vue-next': 'LucideVueNext',
             },
             assetFileNames: (assetInfo) => {
-              if (assetInfo.name === 'style.css') return 'vue-word-editor.css'
+              if (assetInfo.name === 'style.css') return 'vue3-simple-wordeditor.css'
               return assetInfo.name!
             },
           },

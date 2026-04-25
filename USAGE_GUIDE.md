@@ -35,7 +35,7 @@
 **安装**：
 
 ```bash
-npm install vue-word-editor
+npm install vue3-simple-wordeditor
 ```
 
 **使用示例**：
@@ -45,14 +45,14 @@ npm install vue-word-editor
 <template>
   <div class="editor-container">
     <h2>编辑器示例</h2>
-    <VueWordEditor v-model="content" />
+    <Vue3SimpleWordEditor v-model="content" />
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import VueWordEditor from 'vue-word-editor'
-import 'vue-word-editor/dist/style.css'
+import Vue3SimpleWordEditor from 'vue3-simple-wordeditor'
+import 'vue3-simple-wordeditor/dist/style.css'
 
 const content = ref('<p>Hello World!</p>')
 </script>
@@ -73,7 +73,7 @@ const content = ref('<p>Hello World!</p>')
 **安装**：
 
 ```bash
-npm install vue-word-editor
+npm install vue3-simple-wordeditor
 ```
 
 **使用示例**：
@@ -83,14 +83,14 @@ npm install vue-word-editor
 <template>
   <div class="editor-container">
     <h2>编辑器示例</h2>
-    <VueWordEditor v-model="content" />
+    <Vue3SimpleWordEditor v-model="content" />
   </div>
 </template>
 
 <script setup>
 import { ref } from 'vue'
-import VueWordEditor from 'vue-word-editor'
-import 'vue-word-editor/dist/style.css'
+import Vue3SimpleWordEditor from 'vue3-simple-wordeditor'
+import 'vue3-simple-wordeditor/dist/style.css'
 
 const content = ref('<p>Hello World!</p>')
 </script>
@@ -116,28 +116,28 @@ const content = ref('<p>Hello World!</p>')
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>VueWordEditor 示例</title>
+  <title>Vue3SimpleWordEditor 示例</title>
   <!-- 引入 Vue 3 -->
   <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-  <!-- 引入 VueWordEditor -->
-  <script src="https://unpkg.com/vue-word-editor/dist/vue-word-editor.umd.js"></script>
+  <!-- 引入 Vue3SimpleWordEditor -->
+  <script src="https://unpkg.com/vue3-simple-wordeditor/dist/vue3-simple-wordeditor.umd.js"></script>
   <!-- 引入样式 -->
-  <link rel="stylesheet" href="https://unpkg.com/vue-word-editor/dist/vue-word-editor.css">
+  <link rel="stylesheet" href="https://unpkg.com/vue3-simple-wordeditor/dist/vue3-simple-wordeditor.css">
 </head>
 <body>
   <div id="app">
-    <h1>VueWordEditor 示例</h1>
-    <vue-word-editor v-model="content"></vue-word-editor>
+    <h1>Vue3SimpleWordEditor 示例</h1>
+    <vue3-simple-wordeditor v-model="content"></vue3-simple-wordeditor>
     <pre>{{ content }}</pre>
   </div>
 
   <script>
     const { createApp, ref } = Vue
-    const { VueWordEditor } = window['vue-word-editor']
+    const { Vue3SimpleWordEditor } = window['vue3-simple-wordeditor']
 
     createApp({
       components: {
-        VueWordEditor
+        Vue3SimpleWordEditor
       },
       setup() {
         const content = ref('<p>Hello World!</p>')
@@ -156,7 +156,7 @@ const content = ref('<p>Hello World!</p>')
 ### 项目自带的示例
 
 **文件**：`src/App.vue`
-**位置**：`.\VueEditorTools\src\App.vue`
+**位置**：`.\Vue3-Simple-WordEditor\src\App.vue`
 
 这个文件是项目的演示页面，包含了：
 
@@ -167,7 +167,7 @@ const content = ref('<p>Hello World!</p>')
 
 ### 语言包示例
 
-### **位置**：`.\VueEditorTools\src\locales\`
+### **位置**：`.\Vue3-Simple-WordEditor\src\locales\`
 
 **文件**：
 
@@ -201,7 +201,7 @@ const content = ref('<p>Hello World!</p>')
 
 ```javascript
 // src/main.js
-import { registerLocale } from 'vue-word-editor'
+import { registerLocale } from 'vue3-simple-wordeditor'
 
 // 注册自定义语言包
 registerLocale('ja-JP', {
@@ -223,7 +223,7 @@ registerLocale('ja-JP', {
 
 ```html
 <script>
-  const { registerLocale } = window['vue-word-editor']
+  const { registerLocale } = window['vue3-simple-wordeditor']
   
   registerLocale('ja-JP', {
     // 语言包内容
@@ -235,8 +235,8 @@ registerLocale('ja-JP', {
 
 **A:** 编译后的文件在 `dist/` 目录中：
 
-- `dist/vue-word-editor.umd.js` - 浏览器和 CommonJS 兼容
-- `dist/vue-word-editor.es.js` - ES 模块格式
+- `dist/vue3-simple-wordeditor.umd.js` - 浏览器和 CommonJS 兼容
+- `dist/vue3-simple-wordeditor.es.js` - ES 模块格式
 
 ### Q: 项目中使用的图标库是什么？
 
@@ -247,7 +247,7 @@ registerLocale('ja-JP', {
 ## 最佳实践
 
 1. **在 Vue 3 项目中**：
-   - 使用 ES 模块导入（`import VueWordEditor from 'vue-word-editor'`）
+   - 使用 ES 模块导入（`import Vue3SimpleWordEditor from 'vue3-simple-wordeditor'`）
    - 确保安装了 `lucide-vue-next` 依赖
 2. **在普通 HTML 页面中**：
    - 使用 UMD 格式（通过 CDN 或本地文件）
@@ -255,7 +255,7 @@ registerLocale('ja-JP', {
 3. **性能优化**：
    - 对于大型应用，考虑使用动态导入：
      ```javascript
-     const VueWordEditor = await import('vue-word-editor')
+     const Vue3SimpleWordEditor = await import('vue3-simple-wordeditor')
      ```
 4. **样式自定义**：
    - 通过 CSS 变量覆盖默认样式
@@ -267,12 +267,12 @@ registerLocale('ja-JP', {
 
 ### 打包产物
 
-| 文件                       | 格式         | 用途                  |
-| ------------------------ | ---------- | ------------------- |
-| `vue-word-editor.umd.js` | UMD        | 浏览器直接使用、CommonJS 项目 |
-| `vue-word-editor.es.js`  | ES Module  | ES 模块项目             |
-| `vue-word-editor.css`    | CSS        | 样式文件                |
-| `index.d.ts`             | TypeScript | 类型定义文件              |
+| 文件                          | 格式         | 用途                  |
+| --------------------------- | ---------- | ------------------- |
+| `vue3-simple-wordeditor.umd.js` | UMD        | 浏览器直接使用、CommonJS 项目 |
+| `vue3-simple-wordeditor.es.js`  | ES Module  | ES 模块项目             |
+| `vue3-simple-wordeditor.css`    | CSS        | 样式文件                |
+| `index.d.ts`                | TypeScript | 类型定义文件              |
 
 ### 依赖要求
 

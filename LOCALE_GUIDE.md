@@ -1,6 +1,6 @@
 # 国际化（i18n）自定义指南
 
-本文档详细介绍如何为 VueWordEditor 添加自定义语言支持。
+本文档详细介绍如何为 Vue3SimpleWordEditor 添加自定义语言支持。
 
 ## 目录
 
@@ -21,10 +21,10 @@
 ```vue
 <template>
   <!-- 使用英文 -->
-  <VueWordEditor v-model="content" locale="en-US" />
+  <Vue3SimpleWordEditor v-model="content" locale="en-US" />
 
   <!-- 使用中文 -->
-  <VueWordEditor v-model="content" locale="zh-CN" />
+  <Vue3SimpleWordEditor v-model="content" locale="zh-CN" />
 </template>
 ```
 
@@ -37,13 +37,13 @@
     <button @click="switchLocale('en-US')">English</button>
     <button @click="switchLocale('ja-JP')">日本語</button>
 
-    <VueWordEditor v-model="content" :locale="currentLocale" />
+    <Vue3SimpleWordEditor v-model="content" :locale="currentLocale" />
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { registerLocale } from 'vue-word-editor'
+import { registerLocale } from 'vue3-simple-wordeditor'
 
 // 先注册自定义语言
 registerLocale('ja-JP', {
@@ -85,8 +85,8 @@ VueWordEditor 内置了以下语言包：
 **步骤 1：导入必要的模块**
 
 ```typescript
-import { registerLocale } from 'vue-word-editor'
-import type { LocaleMessages } from 'vue-word-editor'
+import { registerLocale } from 'vue3-simple-wordeditor'
+import type { LocaleMessages } from 'vue3-simple-wordeditor'
 ```
 
 **步骤 2：创建语言包**
@@ -96,7 +96,7 @@ import type { LocaleMessages } from 'vue-word-editor'
 #### 方式 A：基于现有语言包扩展
 
 ```typescript
-import { enUS } from 'vue-word-editor'
+import { enUS } from 'vue3-simple-wordeditor'
 
 const myLocale: LocaleMessages = {
   ...enUS,  // 继承英文语言包
@@ -113,7 +113,7 @@ registerLocale('custom-en', myLocale)
 #### 方式 B：完全自定义语言包
 
 ```typescript
-import type { LocaleMessages } from 'vue-word-editor'
+import type { LocaleMessages } from 'vue3-simple-wordeditor'
 
 const myLocale: LocaleMessages = {
   toolbar: {
@@ -237,7 +237,7 @@ registerLocale('my-custom-locale', myLocale)
 
 ```typescript
 // ./locale/jaJP.ts
-import type { LocaleMessages } from 'vue-word-editor'
+import type { LocaleMessages } from 'vue3-simple-wordeditor'
 
 export const jaJP: LocaleMessages = {
   toolbar: {
@@ -350,14 +350,14 @@ export const jaJP: LocaleMessages = {
       <button @click="locale = 'ja-JP'">日本語</button>
     </div>
 
-    <VueWordEditor v-model="content" :locale="locale" />
+    <Vue3SimpleWordEditor v-model="content" :locale="locale" />
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import VueWordEditor from 'vue-word-editor'
-import { registerLocale } from 'vue-word-editor'
+import Vue3SimpleWordEditor from 'vue3-simple-wordeditor'
+import { registerLocale } from 'vue3-simple-wordeditor'
 import { jaJP } from './locale/jaJP'
 
 // 注册日语语言包
@@ -519,7 +519,7 @@ interface LocaleMessages {
 如果只想覆盖部分文本，可以继承内置语言包：
 
 ```typescript
-import { zhCN, registerLocale } from 'vue-word-editor'
+import { zhCN, registerLocale } from 'vue3-simple-wordeditor'
 
 // 只覆盖工具栏的加粗按钮文字
 const partialLocale = {
@@ -537,7 +537,7 @@ registerLocale('partial-custom', partialLocale)
 
 ```typescript
 import { ref, watch } from 'vue'
-import { registerLocale } from 'vue-word-editor'
+import { registerLocale } from 'vue3-simple-wordeditor'
 
 const currentLocale = ref('zh-CN')
 
@@ -552,9 +552,9 @@ watch(currentLocale, (newLocale) => {
 建议使用 TypeScript 来确保语言包完整性：
 
 ```typescript
-import { registerLocale } from 'vue-word-editor'
-import type { LocaleMessages } from 'vue-word-editor'
-import { zhCN } from 'vue-word-editor'
+import { registerLocale } from 'vue3-simple-wordeditor'
+import type { LocaleMessages } from 'vue3-simple-wordeditor'
+import { zhCN } from 'vue3-simple-wordeditor'
 
 // TypeScript 会检查是否包含所有必要字段
 const customLocale: LocaleMessages = {
@@ -597,18 +597,18 @@ registerLocale('validated', customLocale)
 
 ## 导出清单
 
-使用 `registerLocale` 前，需要确保从 `vue-word-editor` 导入：
+使用 `registerLocale` 前，需要确保从 `vue3-simple-wordeditor` 导入：
 
 ```typescript
 import {
   registerLocale, // 注册自定义语言包
   zhCN,           // 中文语言包（可作为参考或扩展基础）
   enUS,           // 英文语言包（可作为参考或扩展基础）
-} from 'vue-word-editor'
+} from 'vue3-simple-wordeditor'
 
 import type {
   LocaleMessages, // 语言包类型定义
   Locale,         // 语言标识符类型
-} from 'vue-word-editor'
+} from 'vue3-simple-wordeditor'
 ```
 
