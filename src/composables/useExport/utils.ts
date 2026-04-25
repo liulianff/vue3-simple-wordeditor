@@ -61,7 +61,7 @@ export async function cropImage(src: string, crop: CropData): Promise<string> {
 export interface ImageUploadItem {
   originalSrc: string
   base64Data: string
-  crop?: CropData | null
+  //crop?: CropData | null //上传服务器不需要该数据
 }
 
 export async function extractImagesForUpload(html: string): Promise<ImageUploadItem[]> {
@@ -92,7 +92,6 @@ export async function extractImagesForUpload(html: string): Promise<ImageUploadI
       images.push({
         originalSrc: cropAttr ? `${src}?cropped=${Date.now()}_${Math.random().toString(36).substr(2, 9)}` : src,
         base64Data,
-        crop: cropAttr ? JSON.parse(cropAttr) : null,
       })
     }
   }
@@ -112,6 +111,7 @@ export function replaceImagesInHTML(html: string, srcMapping: Map<string, string
     const currentSrc = imgEl.getAttribute('src')
     if (currentSrc && srcMapping.has(currentSrc)) {
       imgEl.setAttribute('src', srcMapping.get(currentSrc)!)
+      imgEl.removeAttribute('data-crop') //因为上传服务器不需要该数据,替换url时,删除data-crop数据
     }
   }
 
