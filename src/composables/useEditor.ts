@@ -284,7 +284,12 @@ export function useEditor({ placeholder = '开始编辑...', content = '', edita
 
   function getHTML() {
     if (!editor.value) return ''
-    return editor.value.getHTML()
+    let html = editor.value.getHTML()
+    // 处理空段落，用 &nbsp; 填充
+    html = html
+      .replace(/<p\s*>\s*<\/p>/gi, '<p>&nbsp;</p>')
+      .replace(/<p\s+[^>]*>\s*<\/p>/gi, (match) => match.replace(/><\/p>/, '>&nbsp;</p>'))
+    return html
   }
 
   function setHTML(html: string) {

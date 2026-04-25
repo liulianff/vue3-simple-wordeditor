@@ -1,18 +1,24 @@
-import type { ShallowRef } from 'vue'
-import type { Editor } from '@tiptap/vue-3'
-import { downloadFile, generateFilename, processImagesWithCrop } from './utils'
+import { processImagesWithCrop } from './useExport/utils'
 
-export function useExporterMarkdown(editor: ShallowRef<Editor | undefined>) {
-  async function getMarkdown(): Promise<string> {
-    const rawHtml = editor.value?.getHTML() || ''
-    const { html: processedHtml } = await processImagesWithCrop(rawHtml)
+export function useEditorPreview() {
+  async function getHTMLFromContent(html: string): Promise<string> {
+    // 如果已经是编辑器输出的 HTML，可以直接用它，
+    // 这里只是保持与导出器一致的处理逻辑（空段落等）
+    let processedHtml = html
+      .replace(/<p\s*>\s*<\/p>/gi, '<p>&nbsp;</p>')
+      .replace(/<p\s+[^>]*>\s*<\/p>/gi, (match) => match.replace(/><\/p>/, '>&nbsp;</p>'))
+    return processedHtml
+  }
+
+  async function getMarkdownFromHTML(html: string): Promise<string> {
+    // 重用 export 模块里的转换逻辑，只需要 HTML
+    const { html: processedHtml } = await processImagesWithCrop(html)
     
-    // 先处理空段落，用换行代替
-    let html = processedHtml
+    let mdHtml = processedHtml
       .replace(/<p\s*>\s*&nbsp;\s*<\/p>/gi, '\n\n')
       .replace(/<p\s*>\s*<\/p>/gi, '\n\n')
     
-    let md = html
+    let md = mdHtml
       .replace(/<h1[^>]*>(.*?)<\/h1>/gi, '# $1\n\n')
       .replace(/<h2[^>]*>(.*?)<\/h2>/gi, '## $1\n\n')
       .replace(/<h3[^>]*>(.*?)<\/h3>/gi, '### $1\n\n')
@@ -47,13 +53,12 @@ export function useExporterMarkdown(editor: ShallowRef<Editor | undefined>) {
       .replace(/&#39;/g, "'")
       .replace(/\n{3,}/g, '\n\n')
       .trim()
+    
     return md
   }
 
-  async function exportAsMD() {
-    const md = await getMarkdown()
-    downloadFile(md, generateFilename('md'), 'text/markdown')
+  return {
+    getHTMLFromContent,
+    getMarkdownFromHTML
   }
-
-  return { getMarkdown, exportAsMD }
 }

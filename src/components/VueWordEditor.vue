@@ -7,6 +7,7 @@
       @export="handleExport"
       @insert-image="addImage"
       @set-link="setLink"
+      @open-preview="openExportPreview"
       />
     </div>
 
@@ -222,6 +223,13 @@
         </div>
       </Teleport>
 
+      <Teleport to="body">
+        <ExportPreview
+          ref="exportPreviewRef"
+          :visible="showExportPreview"
+          @close="showExportPreview = false"
+        />
+      </Teleport>
 
     </div>
   </div>
@@ -233,6 +241,7 @@ import { EditorContent } from '@tiptap/vue-3'
 import { BubbleMenu } from '@tiptap/vue-3/menus'
 import { Trash2, Crop, AlignLeft, AlignRight, AlignCenter, Minus, Bold, Italic, Underline, Strikethrough, List, ListOrdered, Quote } from 'lucide-vue-next'
 import EditorToolbar from './EditorToolbar.vue'
+import ExportPreview from './ExportPreview.vue'
 import { useEditor } from '../composables/useEditor'
 import { useExport } from '../composables/useExport'
 import { useI18n } from '../composables/useI18n'
@@ -292,7 +301,6 @@ const {
   setLink,
   unsetLink,
   addImage,
-  getHTML,
   setHTML,
   setJSON,
 } = useEditor({
@@ -313,7 +321,7 @@ watch(resolvedPlaceholder, (newPlaceholder) => {
   }
 })
 
-const { exportAs, getImagesForUpload, replaceImageSrc, replaceMultipleImages } = useExport(editor)
+const { exportAs, getHTML, getJSON, getMarkdown, getImagesForUpload, replaceImageSrc, replaceMultipleImages } = useExport(editor)
 
 async function handleExport(format: string) {
   await exportAs(format as any)
@@ -325,6 +333,24 @@ const currentLinkHref = ref('')
 const showLinkEditDialog = ref(false)
 const linkEditUrl = ref('')
 const linkEditPosition = ref({ x: 0, y: 0 })
+const showExportPreview = ref(false)
+const exportPreviewRef = ref()
+
+async function openExportPreview() {
+  if (!editor.value) return
+  
+  const finalHTML = getHTML()
+  const finalJSON = await getJSON()
+  const finalMarkdown = await getMarkdown()
+  
+  console.log('Export preview data:', { finalHTML, finalJSON, finalMarkdown })
+  
+  showExportPreview.value = true
+  
+  setTimeout(() => {
+    exportPreviewRef.value?.open(finalHTML, finalJSON, finalMarkdown)
+  }, 0)
+}
 
 const isImageSelected = ref(false)
 const currentImageLayout = ref<ImageLayoutType>('inline')

@@ -164,6 +164,14 @@
         </button>
         <div class="editor-divider"></div>
         <button
+          @click="openPreview"
+          :class="['editor-button']"
+          @mouseenter="showTooltip($event, '预览导出格式')"
+          @mouseleave="hideTooltip"
+        >
+          <Eye class="icon" />
+        </button>
+        <button
           @click="toggleExportMenu"
           :class="['editor-button']"
           @mouseenter="showTooltip($event, t('toolbar.export'))"
@@ -300,7 +308,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
-import { Bold, Italic, Underline, Strikethrough, Heading1, Heading2, Heading3, List, ListOrdered, Quote, AlignLeft, AlignCenter, AlignRight, AlignJustify, Link, Unlink, Image, Palette, Highlighter, Download } from 'lucide-vue-next'
+import { Bold, Italic, Underline, Strikethrough, Heading1, Heading2, Heading3, List, ListOrdered, Quote, AlignLeft, AlignCenter, AlignRight, AlignJustify, Link, Unlink, Image, Palette, Highlighter, Download, Eye } from 'lucide-vue-next'
 import { useI18n } from '../composables/useI18n'
 
 const props = defineProps<{
@@ -312,6 +320,7 @@ const emit = defineEmits<{
   export: [format: string]
   insertImage: []
   setLink: [url: string]
+  openPreview: []
 }>()
 
 const { t } = useI18n()
@@ -443,6 +452,10 @@ function insertImage() {
 
 function removeLink() {
   props.editor?.chain().focus().extendMarkRange('link').unsetLink().run()
+}
+
+function openPreview() {
+  emit('openPreview')
 }
 
 function toggleExportMenu(event: MouseEvent) {

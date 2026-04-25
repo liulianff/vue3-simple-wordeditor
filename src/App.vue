@@ -28,15 +28,30 @@
           </div>
         </div>
 
-        <div class="app-editor-wrapper app-shadow">
-          <VueWordEditor
-            ref="editorRef"
-            v-model="content"
-            :theme="pageTheme"
-            :locale="currentLocale"
-            placeholder="开始编辑您的文档..."
-            class="app-editor-height"
-          />
+        <div class="app-grid">
+          <div class="app-grid-item">
+            <h2 class="app-h2 app-card-title">📝 编辑器</h2>
+            <div class="app-editor-wrapper app-shadow">
+              <VueWordEditor
+                ref="editorRef"
+                v-model="content"
+                :theme="pageTheme"
+                :locale="currentLocale"
+                placeholder="开始编辑您的文档..."
+                class="app-editor-height"
+              />
+            </div>
+          </div>
+          <div class="app-grid-item">
+            <h2 class="app-h2 app-card-title">👁️ 实时预览</h2>
+            <div class="app-preview-wrapper app-shadow">
+              <EditorPreview
+                :html="content"
+                :theme="pageTheme"
+                class="app-editor-height"
+              />
+            </div>
+          </div>
         </div>
 
         <div class="app-section app-card">
@@ -86,6 +101,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import VueWordEditor from './components/VueWordEditor.vue'
+import EditorPreview from './components/EditorPreview.vue'
 
 const pageTheme = ref<'light' | 'dark' | 'auto'>('light')
 const currentLocale = ref<'zh-CN' | 'en-US'>('zh-CN')
@@ -149,7 +165,7 @@ async function testUpload() {
     uploadStatus.value = `找到 ${images.length} 张图片，开始模拟上传...`
 
     const uploadResults = images.map((img, index) => ({
-      originalSrc: img.originalSrc,
+      tempId: img.tempId,
       url: `https://fake-upload.example.com/image-${index + 1}.jpg`
     }))
 
@@ -157,7 +173,7 @@ async function testUpload() {
 
     uploadStatus.value = '图片上传完成，正在替换 URL...'
 
-    const srcMapping = new Map(uploadResults.map(r => [r.originalSrc, r.url]))
+    const srcMapping = new Map(uploadResults.map(r => [r.tempId, r.url]))
     editorRef.value.replaceMultipleImages(srcMapping)
 
     await new Promise(resolve => setTimeout(resolve, 500))
@@ -219,7 +235,7 @@ async function importFromJSON() {
 }
 
 .app-container {
-  max-width: 896px;
+  max-width: 1400px;
   margin-left: auto;
   margin-right: auto;
 }
@@ -282,10 +298,25 @@ async function importFromJSON() {
   transition: all 0.2s;
 }
 
+/* Grid layout for editor + preview */
+.app-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.app-grid-item {
+  display: flex;
+  flex-direction: column;
+}
+
 /* Editor wrapper */
-.app-editor-wrapper {
+.app-editor-wrapper,
+.app-preview-wrapper {
   border-radius: 0.5rem;
   overflow: hidden;
+  flex: 1;
 }
 
 .app-shadow {
@@ -387,5 +418,12 @@ async function importFromJSON() {
 
 .theme-btn:hover:not(.active) {
   background-color: var(--editor-toolbar-bg, #f3f4f6);
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .app-grid {
+    grid-template-columns: 1fr;
+  }
 }
 </style>

@@ -1,0 +1,5 @@
+export { default as VueWordEditor } from './VueWordEditor.vue'
+export { default as EditorToolbar } from './EditorToolbar.vue'
+export { default as ImageNodeView } from './ImageNodeView.vue'
+export { default as ImageEditor } from './ImageEditor.vue'
+export { default as EditorPreview } from './EditorPreview.vue'

@@ -21,8 +21,11 @@
 | `.editor-select`               | 下拉选择框        | `background-color: var(--editor-bg-color); border: 1px solid var(--editor-border-color); color: var(--editor-text-color)` |
 | `.editor-select:hover`         | 下拉选择框悬停      | `background-color: var(--editor-toolbar-bg)`                                                                              |
 | `.editor-select:focus`         | 下拉选择框聚焦      | `box-shadow: 0 0 0 2px var(--editor-primary-color)`                                                                       |
+| `.heading-select`              | 标题下拉选择框      | 继承自 `.editor-select`                                                                                                 |
 | `.editor-input`                | 文本输入框        | `background-color: var(--editor-bg-color); border: 1px solid var(--editor-border-color); color: var(--editor-text-color)` |
 | `.editor-input:focus`          | 文本输入框聚焦      | `box-shadow: 0 0 0 2px var(--editor-primary-color)`                                                                       |
+| `.link-input`                  | 链接输入框        | `background-color: var(--editor-bg-color); border: 1px solid var(--editor-border-color); color: var(--editor-text-color)` |
+| `.link-input:focus`            | 链接输入框聚焦      | `box-shadow: 0 0 0 2px var(--editor-primary-color)`                                                                       |
 | `.editor-color-swatch`         | 颜色选择色块       | `border-color: var(--editor-border-color)`                                                                                |
 | `.editor-color-picker-divider` | 颜色选择器分隔线     | `border-top: 1px solid var(--editor-border-color)`                                                                        |
 | `.editor-color-input`          | 颜色选择器自定义颜色输入 | `border: 1px solid var(--editor-border-color)`                                                                            |
@@ -31,7 +34,6 @@
 | `.color-indicator`             | 颜色指示器         | `width: 0.75rem; height: 0.75rem; border-radius: 50%; border: 1px solid var(--editor-border-color)`                       |
 | `.slider-container`            | 滑块容器          | `display: flex; align-items: center; gap: 0.5rem`                                                                         |
 | `.slider-label`                | 滑块标签          | `font-size: 0.75rem; color: var(--editor-text-secondary); min-width: 3rem`                                                |
-| `.file-input`                  | 文件输入框        | `display: none`                                                                                                          |
 
 ## 布局容器类
 
@@ -47,6 +49,15 @@
 | `.toolbar-group`    | 工具栏分组                 | `display: flex; align-items: center; gap: 0.25rem; margin-right: 0.5rem`                                                                                          |
 | `.editor-content-wrapper` | 编辑器内容包装器              | `position: relative`                                                                                                                                               |
 | `.bubble-menu`      | 气泡菜单                  | `display: flex; align-items: center; gap: 4px; padding: 4px 8px; position: absolute; z-index: 50; background-color: var(--editor-bg-color); border: 1px solid var(--editor-border-color); border-radius: var(--editor-radius); box-shadow: var(--editor-shadow-lg)` |
+
+## 其他/辅助类
+
+| 类名                  | 用途           | 默认样式                                                                                                                                                               |
+| ------------------- | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `.editor-overlay`   | 遮罩层（ExportPreview） | `position: fixed; top: 0; right: 0; bottom: 0; left: 0; z-index: 9999; background-color: var(--editor-mask-color, rgba(0,0,0,0.6));`                                 |
+| `.editor-popup-fixed` | 固定定位弹出层     | `position: fixed; z-index: 9999;`                                                                                                                               |
+| `.editor-tooltip-fixed` | 固定定位工具提示    | `position: fixed; z-index: 9999;`                                                                                                                               |
+| `.file-input`       | 文件输入框        | `display: none;`                                                                                                                              |
 
 ## 弹出菜单类
 
@@ -138,6 +149,20 @@
 | `.tiptap img.wrap-left`      | 左环绕图片                                   |
 | `.tiptap img.wrap-right`     | 右环绕图片                                   |
 | `.tiptap img.block`          | 块级图片                                    |
+
+## 导出预览器类
+
+| 类名                       | 用途              | 默认样式                                                                                                                     |
+| ------------------------ | --------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| `.editor-preview-only`   | 预览组件根容器         | `display: flex; flex-direction: column; height: 100%; background-color: var(--editor-bg-color); border: 1px solid var(--editor-border-color); border-radius: var(--editor-radius); box-shadow: var(--editor-shadow)` |
+| `.editor-preview-popup`  | 预览器弹出层（ExportPreview） | `position: relative; z-index: 2; width: 90%; max-width: 1200px; height: 80vh; display: flex; flex-direction: column; overflow: hidden`                          |
+| `.editor-preview-header` | 预览器头部           | `display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 0.75rem 1rem; border-bottom: 1px solid var(--editor-border-color); background-color: var(--editor-toolbar-bg)` |
+| `.editor-preview-title`  | 预览器标题           | `font-size: 1rem; font-weight: 600; color: var(--editor-text-color); white-space: nowrap`                                                               |
+| `.editor-preview-tabs`   | 预览器标签栏          | `display: flex; gap: 0.25rem; flex: 1; justify-content: center`                                                                                      |
+| `.editor-preview-tabs .editor-button` | 预览器标签按钮 | `width: auto; padding: 0.5rem 1rem; height: auto; min-height: 32px`                                                                                 |
+| `.editor-preview-content` | 预览器内容区         | `flex: 1; overflow: auto; padding: 1rem; background-color: var(--editor-bg-color)`                                                                     |
+| `.editor-preview-footer` | 预览器底部           | `display: flex; justify-content: flex-end; padding: 0.75rem 1rem; border-top: 1px solid var(--editor-border-color); background-color: var(--editor-toolbar-bg)` |
+| `.editor-preview-footer .editor-button` | 预览器底部按钮 | `width: auto; padding: 0.5rem 1rem; height: auto; min-height: 32px`                                                                                 |
 
 ## 自定义示例
 

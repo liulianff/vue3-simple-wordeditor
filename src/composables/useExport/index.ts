@@ -16,8 +16,15 @@ export function useExport(editor: ShallowRef<Editor | undefined>) {
   const { exportAsPDF } = useExporterPDF(editor)
   const { exportAsDocx } = useExporterDocx(editor)
 
+  let currentHtmlWithTempIds: string | null = null
+
   function getHTML(): string {
-    return editor.value?.getHTML() || ''
+    let html = editor.value?.getHTML() || ''
+    // 处理空段落，用 &nbsp; 填充
+    html = html
+      .replace(/<p\s*>\s*<\/p>/gi, '<p>&nbsp;</p>')
+      .replace(/<p\s+[^>]*>\s*<\/p>/gi, (match) => match.replace(/><\/p>/, '>&nbsp;</p>'))
+    return html
   }
 
   async function exportAs(format: ExportFormat) {
@@ -42,7 +49,9 @@ export function useExport(editor: ShallowRef<Editor | undefined>) {
 
   async function getImagesForUpload(): Promise<ImageUploadItem[]> {
     const html = getHTML()
-    return await extractImagesForUpload(html)
+    const result = await extractImagesForUpload(html)
+    currentHtmlWithTempIds = result.htmlWithTempIds
+    return result.images
   }
 
   function replaceImageSrc(oldSrc: string, newSrc: string): boolean {
@@ -53,16 +62,18 @@ export function useExport(editor: ShallowRef<Editor | undefined>) {
     const newHtml = replaceImagesInHTML(html, mapping)
 
     editor.value.commands.setContent(newHtml)
+    currentHtmlWithTempIds = null
     return true
   }
 
   function replaceMultipleImages(srcMapping: Map<string, string>): boolean {
     if (!editor.value) return false
 
-    const html = getHTML()
+    const html = currentHtmlWithTempIds || getHTML()
     const newHtml = replaceImagesInHTML(html, srcMapping)
 
     editor.value.commands.setContent(newHtml)
+    currentHtmlWithTempIds = null
     return true
   }
 

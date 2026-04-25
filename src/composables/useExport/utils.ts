@@ -59,12 +59,13 @@ export async function cropImage(src: string, crop: CropData): Promise<string> {
 }
 
 export interface ImageUploadItem {
+  tempId: string
   originalSrc: string
   base64Data: string
   //crop?: CropData | null //上传服务器不需要该数据
 }
 
-export async function extractImagesForUpload(html: string): Promise<ImageUploadItem[]> {
+export async function extractImagesForUpload(html: string): Promise<{ images: ImageUploadItem[], htmlWithTempIds: string }> {
   const tempDiv = document.createElement('div')
   tempDiv.innerHTML = html
 
@@ -89,14 +90,18 @@ export async function extractImagesForUpload(html: string): Promise<ImageUploadI
         }
       }
 
+      const tempId = `img-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+      imgEl.setAttribute('data-temp-id', tempId)
+
       images.push({
-        originalSrc: cropAttr ? `${src}?cropped=${Date.now()}_${Math.random().toString(36).substr(2, 9)}` : src,
+        tempId,
+        originalSrc: src,
         base64Data,
       })
     }
   }
 
-  return images
+  return { images, htmlWithTempIds: tempDiv.innerHTML }
 }
 
 export function replaceImagesInHTML(html: string, srcMapping: Map<string, string>): string {
@@ -108,10 +113,11 @@ export function replaceImagesInHTML(html: string, srcMapping: Map<string, string
   const imgElements = Array.from(tempDiv.querySelectorAll('img'))
 
   for (const imgEl of imgElements) {
-    const currentSrc = imgEl.getAttribute('src')
-    if (currentSrc && srcMapping.has(currentSrc)) {
-      imgEl.setAttribute('src', srcMapping.get(currentSrc)!)
-      imgEl.removeAttribute('data-crop') //因为上传服务器不需要该数据,替换url时,删除data-crop数据
+    const tempId = imgEl.getAttribute('data-temp-id')
+    if (tempId && srcMapping.has(tempId)) {
+      imgEl.setAttribute('src', srcMapping.get(tempId)!)
+      imgEl.removeAttribute('data-crop')
+      imgEl.removeAttribute('data-temp-id')
     }
   }
 
@@ -208,6 +214,11 @@ export async function processImagesWithCrop(html: string): Promise<{ html: strin
   })
   processedHtml = tempDiv2.innerHTML
 
+  // 处理空段落，用 &nbsp; 填充
+  processedHtml = processedHtml
+    .replace(/<p\s*>\s*<\/p>/gi, '<p>&nbsp;</p>')
+    .replace(/<p\s+[^>]*>\s*<\/p>/gi, (match) => match.replace(/><\/p>/, '>&nbsp;</p>'))
+  
   return { html: processedHtml, imgSizes }
 }
 
