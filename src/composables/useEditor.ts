@@ -7,7 +7,12 @@ import Color from '@tiptap/extension-color'
 import Highlight from '@tiptap/extension-highlight'
 import { ref, computed } from 'vue'
 import Link  from '@tiptap/extension-link'
+import { Table } from '@tiptap/extension-table'
+import { TableRow } from '@tiptap/extension-table-row'
+import { TableCell } from '@tiptap/extension-table-cell'
+import { TableHeader } from '@tiptap/extension-table-header'
 import { DraggableImage } from '../extensions/DraggableImage'
+import { TableControls } from '../extensions/TableControls'
 import type { ImageAttributes } from '../types/editor'
 
 type Level = 1 | 2 | 3 | 4 | 5 | 6
@@ -44,6 +49,16 @@ export function useEditor({ placeholder = '开始编辑...', content = '', edita
       openOnClick: false,
       enableClickSelection: true,
     }),
+      Table.configure({
+        resizable: true,
+        handleWidth: 5,
+        cellMinWidth: 50,
+        lastColumnResizable: true,
+      }),
+      TableRow,
+      TableCell,
+      TableHeader,
+      TableControls,
     ],
     editorProps: {
       attributes: {
@@ -314,6 +329,78 @@ export function useEditor({ placeholder = '开始编辑...', content = '', edita
     editor.value.commands.updateImageAttributes(attrs)
   }
 
+  const isInTable = computed(() => editor.value?.isActive('table') ?? false)
+
+  function insertTable(rows = 3, cols = 3, withHeaderRow = true) {
+    if (!ensureFocus()) return
+    editor.value!.commands.insertTable({ rows, cols, withHeaderRow })
+  }
+
+  function addColumnBefore() {
+    if (!ensureFocus()) return
+    editor.value!.commands.addColumnBefore()
+  }
+
+  function addColumnAfter() {
+    if (!ensureFocus()) return
+    editor.value!.commands.addColumnAfter()
+  }
+
+  function deleteColumn() {
+    if (!ensureFocus()) return
+    editor.value!.commands.deleteColumn()
+  }
+
+  function addRowBefore() {
+    if (!ensureFocus()) return
+    editor.value!.commands.addRowBefore()
+  }
+
+  function addRowAfter() {
+    if (!ensureFocus()) return
+    editor.value!.commands.addRowAfter()
+  }
+
+  function deleteRow() {
+    if (!ensureFocus()) return
+    editor.value!.commands.deleteRow()
+  }
+
+  function deleteTable() {
+    if (!ensureFocus()) return
+    editor.value!.commands.deleteTable()
+  }
+
+  function mergeCells() {
+    if (!ensureFocus()) return
+    editor.value!.commands.mergeCells()
+  }
+
+  function splitCell() {
+    if (!ensureFocus()) return
+    editor.value!.commands.splitCell()
+  }
+
+  function toggleHeaderColumn() {
+    if (!ensureFocus()) return
+    editor.value!.commands.toggleHeaderColumn()
+  }
+
+  function toggleHeaderRow() {
+    if (!ensureFocus()) return
+    editor.value!.commands.toggleHeaderRow()
+  }
+
+  function mergeOrSplit() {
+    if (!ensureFocus()) return
+    editor.value!.commands.mergeOrSplit()
+  }
+
+  function setCellAttribute(name: string, value: any) {
+    if (!ensureFocus()) return
+    editor.value!.commands.setCellAttribute(name, value)
+  }
+
   function getHTML() {
     if (!editor.value) return ''
     let html = editor.value.getHTML()
@@ -354,6 +441,7 @@ export function useEditor({ placeholder = '开始编辑...', content = '', edita
     isBulletList,
     isOrderedList,
     isBlockquote,
+    isInTable,
     toggleBold,
     toggleItalic,
     toggleUnderline,
@@ -375,6 +463,20 @@ export function useEditor({ placeholder = '开始编辑...', content = '', edita
     unsetHighlightColor,
     addImage,
     updateImageAttributes,
+    insertTable,
+    addColumnBefore,
+    addColumnAfter,
+    deleteColumn,
+    addRowBefore,
+    addRowAfter,
+    deleteRow,
+    deleteTable,
+    mergeCells,
+    splitCell,
+    toggleHeaderColumn,
+    toggleHeaderRow,
+    mergeOrSplit,
+    setCellAttribute,
     getHTML,
     setHTML,
     setJSON,

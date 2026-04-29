@@ -1,5 +1,5 @@
 <template>
-  <div class="editor-toolbar" :class="{ 'dark': isDark }">
+  <div class="editor-toolbar">
     <div class="editor-toolbar-wrapper">
         <button
           @click="toggleBold"
@@ -165,6 +165,13 @@
         >
           <Image class="icon" />
         </button>
+        <button
+          :class="['editor-button', { active: isInTable }]"
+          @mouseenter="showTableGridPickerFn($event)"
+          @mouseleave="startHideTableGridPickerFn"
+        >
+          <Table2 class="icon" />
+        </button>
         <div class="editor-divider"></div>
         <button
           @click="toggleTextColorPicker"
@@ -327,12 +334,150 @@
         </div>
       </div>
     </Teleport>
+
+    <Teleport to="body">
+      <div
+        v-if="showTableMenu"
+        class="editor-popup-fixed editor-popup table-menu"
+        :style="{ left: tableMenuPosition.x + 'px', top: tableMenuPosition.y + 'px' }"
+        @click.stop
+      >
+        <div class="table-menu-content">
+          <button
+            @click="handleInsertTable"
+            class="table-menu-item editor-btn-default"
+          >
+            <Table2 class="icon" />
+            <span>{{ t('toolbar.table.insertTable') }}</span>
+          </button>
+          <template v-if="isInTable">
+            <div class="editor-divider"></div>
+            <button
+              @click="handleTableAction('addColumnBefore')"
+              class="table-menu-item editor-btn-default"
+            >
+              <Plus class="icon" />
+              <span>{{ t('toolbar.table.addColumnBefore') }}</span>
+            </button>
+            <button
+              @click="handleTableAction('addColumnAfter')"
+              class="table-menu-item editor-btn-default"
+            >
+              <Plus class="icon" />
+              <span>{{ t('toolbar.table.addColumnAfter') }}</span>
+            </button>
+            <button
+              @click="handleTableAction('deleteColumn')"
+              class="table-menu-item editor-btn-default"
+            >
+              <Minus class="icon" />
+              <span>{{ t('toolbar.table.deleteColumn') }}</span>
+            </button>
+            <div class="editor-divider"></div>
+            <button
+              @click="handleTableAction('addRowBefore')"
+              class="table-menu-item editor-btn-default"
+            >
+              <Plus class="icon" />
+              <span>{{ t('toolbar.table.addRowBefore') }}</span>
+            </button>
+            <button
+              @click="handleTableAction('addRowAfter')"
+              class="table-menu-item editor-btn-default"
+            >
+              <Plus class="icon" />
+              <span>{{ t('toolbar.table.addRowAfter') }}</span>
+            </button>
+            <button
+              @click="handleTableAction('deleteRow')"
+              class="table-menu-item editor-btn-default"
+            >
+              <Minus class="icon" />
+              <span>{{ t('toolbar.table.deleteRow') }}</span>
+            </button>
+            <div class="editor-divider"></div>
+            <button
+              @click="handleTableAction('mergeCells')"
+              class="table-menu-item editor-btn-default"
+            >
+              <Merge class="icon" />
+              <span>{{ t('toolbar.table.mergeCells') }}</span>
+            </button>
+            <button
+              @click="handleTableAction('splitCell')"
+              class="table-menu-item editor-btn-default"
+            >
+              <Split class="icon" />
+              <span>{{ t('toolbar.table.splitCell') }}</span>
+            </button>
+            <div class="editor-divider"></div>
+            <button
+              @click="handleTableAction('toggleHeaderColumn')"
+              class="table-menu-item editor-btn-default"
+            >
+              <Columns class="icon" />
+              <span>{{ t('toolbar.table.toggleHeaderColumn') }}</span>
+            </button>
+            <button
+              @click="handleTableAction('toggleHeaderRow')"
+              class="table-menu-item editor-btn-default"
+            >
+              <Rows class="icon" />
+              <span>{{ t('toolbar.table.toggleHeaderRow') }}</span>
+            </button>
+            <div class="editor-divider"></div>
+            <button
+              @click="handleTableAction('deleteTable')"
+              class="table-menu-item editor-btn-danger"
+            >
+              <Trash2 class="icon" />
+              <span>{{ t('toolbar.table.deleteTable') }}</span>
+            </button>
+          </template>
+        </div>
+      </div>
+    </Teleport>
+
+    <Teleport to="body">
+      <div
+        v-if="showTableGridPicker"
+        class="editor-popup-fixed editor-popup table-grid-picker"
+        :style="{ left: tableGridPickerPosition.x + 'px', top: tableGridPickerPosition.y + 'px' }"
+        @click.stop
+        @mouseenter="onGridPickerMouseEnter"
+        @mouseleave="onGridPickerMouseLeave"
+      >
+        <div class="table-grid-picker-content">
+          <div class="table-grid-picker-grid">
+            <div
+              v-for="row in 8"
+              :key="'row-' + row"
+              class="table-grid-picker-row"
+            >
+              <div
+                v-for="col in 10"
+                :key="'cell-' + row + '-' + col"
+                class="table-grid-picker-cell"
+                :class="{
+                  'active': row <= hoveredRow && col <= hoveredCol
+                }"
+                @mouseenter="onGridCellHover(row, col)"
+                @click="onGridCellClick(row, col)"
+              ></div>
+            </div>
+          </div>
+          <div class="table-grid-picker-label">
+            {{ hoveredRow }} × {{ hoveredCol }}
+          </div>
+        </div>
+      </div>
+    </Teleport>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
-import { Bold, Italic, Underline, Strikethrough, List, ListOrdered, Quote, AlignLeft, AlignCenter, AlignRight, AlignJustify, Link, Unlink, Image, Palette, Highlighter, Download, Eye } from 'lucide-vue-next'
+import { Bold, Italic, Underline, Strikethrough, List, ListOrdered, Quote, AlignLeft, AlignCenter, AlignRight, AlignJustify, Link, Unlink, Image, Palette, Highlighter, Download, Eye, Table2, Plus, Minus, Trash2, Merge, Split, Columns, Rows } from 'lucide-vue-next'
 import { useI18n } from '../composables/useI18n'
 
 const props = defineProps<{
@@ -341,6 +486,7 @@ const props = defineProps<{
   currentFontSize?: string
   currentFontFamily?: string
   headingLevel?: number
+  isInTable?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -351,6 +497,18 @@ const emit = defineEmits<{
   setFontSize: [size: string]
   setFontFamily: [family: string]
   setHeading: [level: number]
+  insertTable: [rows?: number, cols?: number]
+  addColumnBefore: []
+  addColumnAfter: []
+  deleteColumn: []
+  addRowBefore: []
+  addRowAfter: []
+  deleteRow: []
+  deleteTable: []
+  mergeCells: []
+  splitCell: []
+  toggleHeaderColumn: []
+  toggleHeaderRow: []
 }>()
 
 const currentFontSize = computed(() => props.currentFontSize ?? '16')
@@ -393,6 +551,15 @@ const highlightColorPickerPosition = ref({ x: 0, y: 0 })
 
 const tooltip = ref({ visible: false, text: '', x: 0, y: 0, above: true })
 let tooltipTimer: ReturnType<typeof setTimeout> | null = null
+
+const showTableMenu = ref(false)
+const tableMenuPosition = ref({ x: 0, y: 0 })
+
+const showTableGridPicker = ref(false)
+const tableGridPickerPosition = ref({ x: 0, y: 0 })
+const hoveredRow = ref(0)
+const hoveredCol = ref(0)
+let hideGridTimer: ReturnType<typeof setTimeout> | null = null
 
 const isBold = computed(() => props.editor?.isActive('bold') || false)
 const isItalic = computed(() => props.editor?.isActive('italic') || false)
@@ -569,6 +736,63 @@ function removeHighlightColor() {
   showHighlightColorPicker.value = false
 }
 
+function handleInsertTable() {
+  emit('insertTable')
+  showTableMenu.value = false
+}
+
+function handleTableAction(action: string) {
+  emit(action as any)
+  showTableMenu.value = false
+}
+
+function showTableGridPickerFn(event: MouseEvent) {
+  if (hideGridTimer) {
+    clearTimeout(hideGridTimer)
+    hideGridTimer = null
+  }
+  const target = event.currentTarget as HTMLElement
+  const rect = target.getBoundingClientRect()
+  tableGridPickerPosition.value = {
+    x: rect.left,
+    y: rect.bottom + 8
+  }
+  showTableGridPicker.value = true
+}
+
+function startHideTableGridPickerFn() {
+  hideGridTimer = setTimeout(() => {
+    showTableGridPicker.value = false
+    hoveredRow.value = 0
+    hoveredCol.value = 0
+  }, 300)
+}
+
+function onGridCellHover(row: number, col: number) {
+  hoveredRow.value = row
+  hoveredCol.value = col
+}
+
+function onGridCellClick(row: number, col: number) {
+  emit('insertTable', row, col)
+  showTableGridPicker.value = false
+  hoveredRow.value = 0
+  hoveredCol.value = 0
+}
+
+function onGridPickerMouseEnter() {
+  if (hideGridTimer) {
+    clearTimeout(hideGridTimer)
+    hideGridTimer = null
+  }
+}
+
+function onGridPickerMouseLeave() {
+  showTableGridPicker.value = false
+  hoveredRow.value = 0
+  hoveredCol.value = 0
+}
+
 function showTooltip(event: MouseEvent, text: string) {
   const target = event.currentTarget as HTMLElement
   const rect = target.getBoundingClientRect()
@@ -599,6 +823,10 @@ function handleDocumentClick() {
   showLinkDialog.value = false
   showTextColorPicker.value = false
   showHighlightColorPicker.value = false
+  showTableMenu.value = false
+  showTableGridPicker.value = false
+  hoveredRow.value = 0
+  hoveredCol.value = 0
 }
 
 function getContrastColor(backgroundColor: string): string {
@@ -690,21 +918,6 @@ onUnmounted(() => {
   outline: none;
   border-color: var(--editor-primary-color, #3b82f6);
   box-shadow: 0 0 0 2px var(--editor-primary-color, #3b82f6);
-}
-
-.editor-toolbar.dark .editor-select {
-  color: var(--editor-text-color, #f3f4f6);
-  background-color: var(--editor-bg-color, #111827);
-  border-color: var(--editor-border-color, #374151);
-}
-
-.editor-toolbar.dark .editor-select:hover {
-  border-color: var(--editor-primary-color, #60a5fa);
-}
-
-.editor-toolbar.dark .editor-select:focus {
-  border-color: var(--editor-primary-color, #60a5fa);
-  box-shadow: 0 0 0 2px var(--editor-primary-color, #60a5fa);
 }
 
 /* 工具栏分组 */
@@ -953,55 +1166,5 @@ onUnmounted(() => {
 
 .editor-btn-secondary:hover {
   background-color: var(--editor-border-color, #d1d5db);
-}
-
-/* 深色主题 */
-.editor-toolbar.dark {
-  background-color: var(--editor-toolbar-bg, #111827);
-  border-bottom-color: var(--editor-border-color, #374151);
-}
-
-.editor-toolbar.dark .editor-button {
-  color: var(--editor-text-color, #f3f4f6);
-}
-
-.editor-toolbar.dark .editor-button:hover {
-  background-color: var(--editor-border-color, #374151);
-}
-
-.editor-toolbar.dark .export-menu-item {
-  color: var(--editor-text-color, #f3f4f6);
-}
-
-.editor-toolbar.dark .export-menu-item:hover {
-  background-color: var(--editor-border-color, #374151);
-}
-
-.editor-toolbar.dark .editor-input {
-  color: var(--editor-text-color, #f3f4f6);
-  background-color: var(--editor-bg-color, #1f2937);
-  border-color: var(--editor-border-color, #374151);
-}
-
-.editor-toolbar.dark .editor-input:focus {
-  border-color: var(--editor-primary-color, #60a5fa);
-  box-shadow: 0 0 0 2px var(--editor-primary-color, #60a5fa);
-}
-
-.editor-toolbar.dark .editor-btn-default {
-  color: var(--editor-text-color, #f3f4f6);
-}
-
-.editor-toolbar.dark .editor-btn-default:hover {
-  background-color: var(--editor-border-color, #374151);
-}
-
-.editor-toolbar.dark .editor-btn-secondary {
-  background-color: var(--editor-border-color, #374151);
-  color: var(--editor-text-color, #f3f4f6);
-}
-
-.editor-toolbar.dark .editor-btn-secondary:hover {
-  background-color: var(--editor-border-color, #4b5563);
 }
 </style>

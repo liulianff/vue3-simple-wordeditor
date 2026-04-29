@@ -40,12 +40,27 @@ export interface LocaleMessages {
     insertLink: string
     removeLink: string
     insertImage: string
+    insertTable: string
     export: string
     preview: string
     linkDialog: {
       placeholder: string
       confirm: string
       cancel: string
+    }
+    table: {
+      insertTable: string
+      addColumnBefore: string
+      addColumnAfter: string
+      deleteColumn: string
+      addRowBefore: string
+      addRowAfter: string
+      deleteRow: string
+      deleteTable: string
+      mergeCells: string
+      splitCell: string
+      toggleHeaderColumn: string
+      toggleHeaderRow: string
     }
   }
   bubbleMenu: {

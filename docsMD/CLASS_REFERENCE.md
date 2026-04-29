@@ -2,6 +2,32 @@
 
 本文档列出 vue3-simple-wordeditor 所有组件的 CSS 类名及其默认样式，方便你参考和覆盖。
 
+## CSS 变量速查
+
+所有组件样式均通过 CSS 变量控制。自定义样式时，只需覆盖顶层变量，子组件自动跟随（包括暗色主题）。
+
+| 变量名 | 亮色默认值 | 暗色默认值 | 说明 |
+|--------|------------|------------|------|
+| `--editor-primary-color` | `#3b82f6` | `#60a5fa` | 主色（按钮激活、链接、高亮） |
+| `--editor-primary-hover` | `#2563eb` | `#93bbfd` | 主色悬停态 |
+| `--editor-border-color` | `#e5e7eb` | `#374151` | 边框颜色 |
+| `--editor-bg-color` | `#ffffff` | `#1f2937` | 背景色 |
+| `--editor-text-color` | `#1f2937` | `#f3f4f6` | 文本颜色 |
+| `--editor-text-secondary` | `#6b7280` | `#9ca3af` | 次要文本颜色 |
+| `--editor-toolbar-bg` | `#f9fafb` | `#111827` | 工具栏背景色 |
+| `--editor-danger-color` | `#ef4444` | `#f87171` | 危险操作颜色 |
+| `--editor-danger-hover` | `#fee2e2` | `#7f1d1d` | 危险操作悬停 |
+| `--editor-selection-color` | `#4a90d9` | `#60a5fa` | 选中区域颜色 |
+| `--editor-mask-color` | `rgba(0,0,0,0.5)` | `rgba(0,0,0,0.6)` | 遮罩颜色 |
+| `--editor-shadow` | `0 1px 3px rgba(0,0,0,0.1)` | `0 1px 3px rgba(0,0,0,0.3)` | 普通阴影 |
+| `--editor-shadow-lg` | `0 4px 6px -1px rgba(0,0,0,0.1)` | `0 4px 6px -1px rgba(0,0,0,0.4)` | 大阴影 |
+| `--editor-radius` | `0.5rem` | `0.5rem` | 圆角 |
+| `--editor-font-family` | `-apple-system,...` | `-apple-system,...` | 字体族 |
+
+> **暗色主题机制：** `.vue-word-editor.dark` 选择器会自动切换所有变量值，子组件无需额外 `.dark` 规则。
+
+详细的自定义示例请参考 [STYLING_GUIDE.md](./STYLING_GUIDE.md)。
+
 ## 通用工具类
 
 | 类名                             | 用途           | 默认样式                                                                                                                      |
@@ -149,6 +175,78 @@
 | `.tiptap img.wrap-left`      | 左环绕图片                                   |
 | `.tiptap img.wrap-right`     | 右环绕图片                                   |
 | `.tiptap img.block`          | 块级图片                                    |
+
+## 表格类
+
+### 表格相关 CSS 变量
+
+表格样式复用通用 CSS 变量，无需额外变量：
+
+| 变量名 | 表格用途 |
+|--------|----------|
+| `--editor-border-color` | 表格边框、菜单分隔线 |
+| `--editor-bg-color` | 控制按钮背景、网格单元格背景 |
+| `--editor-text-color` | 菜单项文本 |
+| `--editor-text-secondary` | 控制按钮颜色、网格标签 |
+| `--editor-primary-color` | 悬停高亮、网格选中、上下文菜单悬停 |
+| `--editor-danger-color` | 删除按钮、危险操作 |
+| `--editor-toolbar-bg` | 表头背景色 |
+
+### 表格内容样式
+
+| 选择器 | 说明 |
+|--------|------|
+| `.tiptap table` | 表格容器，`border-collapse: collapse; table-layout: fixed; width: 100%` |
+| `.tiptap table td` | 表格单元格，`border: 2px solid var(--editor-border-color); min-width: 50px; padding: 6px 8px` |
+| `.tiptap table th` | 表头单元格，`background-color: var(--editor-toolbar-bg); font-weight: bold` |
+| `.tiptap table .selectedCell::after` | 选中单元格高亮，`background: var(--editor-primary-color)` |
+| `.tiptap table .column-resize-handle` | 列宽拖动手柄，`background-color: var(--editor-primary-color); width: 4px` |
+| `.tiptap .tableWrapper` | 表格滚动容器，`overflow-x: auto` |
+| `.tiptap.resize-cursor` | 列宽调整时的光标，`cursor: col-resize` |
+
+### 表格控制按钮
+
+| 类名 | 用途 | 默认样式 |
+|------|------|----------|
+| `.table-controls-container` | 控制按钮容器 | `display: flex; justify-content: center; gap: 4px; padding: 4px 0; pointer-events: none` |
+| `.table-control-btn` | 添加行/列按钮 | `width: 24px; height: 24px; border: 1px dashed var(--editor-border-color); background-color: var(--editor-bg-color); color: var(--editor-text-secondary)` |
+| `.table-control-btn:hover` | 添加按钮悬停态 | `border-color: var(--editor-primary-color); color: var(--editor-primary-color); background-color: rgba(59, 130, 246, 0.08)` |
+| `.table-control-delete-row` | 删除行按钮 | `border-color: var(--editor-danger-color); color: var(--editor-danger-color)` |
+| `.table-control-delete-row:hover` | 删除行按钮悬停 | `background-color: rgba(239, 68, 68, 0.1)` |
+
+### 表格菜单
+
+| 类名 | 用途 | 默认样式 |
+|------|------|----------|
+| `.table-menu` | 表格菜单容器 | `width: 200px` |
+| `.table-menu-content` | 菜单内容 | `display: flex; flex-direction: column; gap: 0.25rem; padding: 0.5rem` |
+| `.table-menu-item` | 菜单项 | `display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; color: var(--editor-text-color)` |
+| `.table-menu-item:hover` | 菜单项悬停 | `background-color: var(--editor-border-color)` |
+| `.table-menu-item .icon` | 菜单项图标 | `width: 1rem; height: 1rem; flex-shrink: 0` |
+
+### 表格网格选择器
+
+| 类名 | 用途 | 默认样式 |
+|------|------|----------|
+| `.table-grid-picker` | 网格选择器容器 | `width: auto; padding: 0.5rem` |
+| `.table-grid-picker-content` | 网格内容 | `display: flex; flex-direction: column; gap: 0.5rem` |
+| `.table-grid-picker-grid` | 网格行容器 | `display: flex; flex-direction: column; gap: 2px` |
+| `.table-grid-picker-row` | 网格单行 | `display: flex; gap: 2px` |
+| `.table-grid-picker-cell` | 网格单元格 | `width: 18px; height: 18px; border: 1px solid var(--editor-border-color); background-color: var(--editor-bg-color)` |
+| `.table-grid-picker-cell:hover` | 单元格悬停/激活 | `background-color: var(--editor-primary-color); border-color: var(--editor-primary-color)` |
+| `.table-grid-picker-label` | 尺寸标签 | `text-align: center; font-size: 0.875rem; color: var(--editor-text-secondary)` |
+
+### 表格上下文菜单（右键菜单）
+
+| 类名 | 用途 | 默认样式 |
+|------|------|----------|
+| `.table-context-menu` | 右键菜单容器 | `min-width: 180px; padding: 0.25rem 0; z-index: 1000` |
+| `.table-context-menu-content` | 菜单内容 | `display: flex; flex-direction: column` |
+| `.table-context-menu-item` | 菜单项 | `padding: 0.4rem 0.75rem; font-size: 0.875rem; color: var(--editor-text-color); white-space: nowrap` |
+| `.table-context-menu-item:hover` | 菜单项悬停 | `background-color: var(--editor-primary-color); color: #fff` |
+| `.table-context-menu-danger` | 危险操作项 | `color: var(--editor-danger-color)` |
+| `.table-context-menu-danger:hover` | 危险操作项悬停 | `background-color: var(--editor-danger-color); color: #fff` |
+| `.table-context-menu-divider` | 菜单分隔线 | `height: 1px; margin: 0.25rem 0; background-color: var(--editor-border-color)` |
 
 ## 导出预览器类
 

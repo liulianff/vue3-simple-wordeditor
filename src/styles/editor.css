@@ -607,6 +607,124 @@
   text-decoration: line-through;
 }
 
+.tiptap table {
+  border-collapse: collapse;
+  margin: 0;
+  overflow: hidden;
+  table-layout: fixed;
+  width: 100%;
+}
+
+.tiptap table td,
+.tiptap table th {
+  border: 2px solid var(--editor-border-color, #ced4da);
+  box-sizing: border-box;
+  min-width: 50px;
+  padding: 6px 8px;
+  position: relative;
+  vertical-align: top;
+}
+
+.tiptap table td > p,
+.tiptap table th > p {
+  margin: 0;
+}
+
+.tiptap table th {
+  background-color: var(--editor-toolbar-bg, #f1f3f5);
+  font-weight: bold;
+  text-align: left;
+}
+
+.tiptap table .selectedCell::after {
+  background: var(--editor-primary-color, rgba(59, 130, 246, 0.15));
+  content: "";
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  pointer-events: none;
+  position: absolute;
+  z-index: 2;
+}
+
+.tiptap table .column-resize-handle {
+  background-color: var(--editor-primary-color, #6adf36);
+  bottom: -2px;
+  position: absolute;
+  right: -2px;
+  pointer-events: none;
+  top: 0;
+  width: 4px;
+}
+
+.tiptap table p {
+  margin: 0;
+}
+
+.tiptap .tableWrapper {
+  overflow-x: auto;
+}
+
+.tiptap.resize-cursor {
+  cursor: col-resize;
+}
+
+.editor-content :deep(table) {
+  border-collapse: collapse;
+  margin: 0.5em 0;
+  overflow: hidden;
+  table-layout: fixed;
+  width: 100%;
+}
+
+.editor-content :deep(table td),
+.editor-content :deep(table th) {
+  border: 2px solid var(--editor-border-color, #ced4da);
+  box-sizing: border-box;
+  min-width: 50px;
+  padding: 6px 8px;
+  position: relative;
+  vertical-align: top;
+}
+
+.editor-content :deep(table td > p),
+.editor-content :deep(table th > p) {
+  margin: 0;
+}
+
+.editor-content :deep(table th) {
+  background-color: var(--editor-toolbar-bg, #f1f3f5);
+  font-weight: bold;
+  text-align: left;
+}
+
+.editor-content :deep(table .selectedCell::after) {
+  background: var(--editor-primary-color, rgba(59, 130, 246, 0.15));
+  content: "";
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  pointer-events: none;
+  position: absolute;
+  z-index: 2;
+}
+
+.editor-content :deep(table .column-resize-handle) {
+  background-color: var(--editor-primary-color, #6adf36);
+  bottom: -2px;
+  position: absolute;
+  right: -2px;
+  pointer-events: none;
+  top: 0;
+  width: 4px;
+}
+
+.editor-content :deep(.resize-cursor) {
+  cursor: col-resize;
+}
+
 .editor-btn-default {
   color: var(--editor-text-color, #1f2937);
   background: transparent;
@@ -684,6 +802,177 @@
 }
 .editor-color-swatch:hover {
   --tw-ring-color: var(--editor-primary-color, #3b82f6);
+}
+
+/* 表格控制按钮 */
+.table-controls-container {
+  display: flex;
+  justify-content: center;
+  gap: 4px;
+  padding: 4px 0;
+  position: relative;
+  pointer-events: none;
+}
+
+.table-control-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: 1px dashed var(--editor-border-color, #d1d5db);
+  border-radius: 4px;
+  background-color: var(--editor-bg-color, #ffffff);
+  color: var(--editor-text-secondary, #9ca3af);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  pointer-events: auto;
+}
+
+.table-control-btn:hover {
+  border-color: var(--editor-primary-color, #3b82f6);
+  color: var(--editor-primary-color, #3b82f6);
+  background-color: rgba(59, 130, 246, 0.08);
+}
+
+.table-control-delete-row {
+  border-color: var(--editor-danger-color, #ef4444);
+  color: var(--editor-danger-color, #ef4444);
+}
+
+.table-control-delete-row:hover {
+  background-color: rgba(239, 68, 68, 0.1);
+}
+
+/* 表格菜单 */
+.table-menu {
+  width: 200px;
+}
+
+.table-menu-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.5rem;
+}
+
+.table-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  text-align: left;
+  border: none;
+  background: transparent;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  color: var(--editor-text-color, #1f2937);
+  width: 100%;
+}
+
+.table-menu-item:hover {
+  background-color: var(--editor-border-color, #e5e7eb);
+}
+
+.table-menu-item .icon {
+  width: 1rem;
+  height: 1rem;
+  flex-shrink: 0;
+}
+
+.table-menu-item span {
+  font-size: 0.875rem;
+}
+
+/* 表格网格选择器 */
+.table-grid-picker {
+  width: auto;
+  padding: 0.5rem;
+}
+
+.table-grid-picker-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.table-grid-picker-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.table-grid-picker-row {
+  display: flex;
+  gap: 2px;
+}
+
+.table-grid-picker-cell {
+  width: 18px;
+  height: 18px;
+  border: 1px solid var(--editor-border-color, #d1d5db);
+  background-color: var(--editor-bg-color, #ffffff);
+  cursor: pointer;
+  transition: background-color 0.1s, border-color 0.1s;
+}
+
+.table-grid-picker-cell:hover,
+.table-grid-picker-cell.active {
+  background-color: var(--editor-primary-color, #3b82f6);
+  border-color: var(--editor-primary-color, #3b82f6);
+}
+
+.table-grid-picker-label {
+  text-align: center;
+  font-size: 0.875rem;
+  color: var(--editor-text-secondary, #6b7280);
+}
+
+/* 表格右键上下文菜单 */
+.table-context-menu {
+  min-width: 180px;
+  padding: 0.25rem 0;
+  z-index: 1000;
+}
+
+.table-context-menu-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.table-context-menu-item {
+  display: block;
+  width: 100%;
+  padding: 0.4rem 0.75rem;
+  text-align: left;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  transition: background-color 0.15s;
+  font-size: 0.875rem;
+  color: var(--editor-text-color, #1f2937);
+  white-space: nowrap;
+}
+
+.table-context-menu-item:hover {
+  background-color: var(--editor-primary-color, #3b82f6);
+  color: #fff;
+}
+
+.table-context-menu-danger {
+  color: var(--editor-danger-color, #ef4444);
+}
+
+.table-context-menu-danger:hover {
+  background-color: var(--editor-danger-color, #ef4444);
+  color: #fff;
+}
+
+.table-context-menu-divider {
+  height: 1px;
+  margin: 0.25rem 0;
+  background-color: var(--editor-border-color, #e5e7eb);
 }
 
 @media (max-width: 640px) {

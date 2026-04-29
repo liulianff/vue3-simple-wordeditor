@@ -7,6 +7,7 @@
       :current-font-size="currentFontSize"
       :current-font-family="currentFontFamily"
       :heading-level="headingLevel || 0"
+      :is-in-table="isInTable"
       @export="handleExport"
       @insert-image="addImage"
       @set-link="setLink"
@@ -14,6 +15,18 @@
       @set-font-size="setFontSize"
       @set-font-family="setFontFamily"
       @set-heading="setHeading"
+      @insert-table="handleInsertTable"
+      @add-column-before="addColumnBefore"
+      @add-column-after="addColumnAfter"
+      @delete-column="deleteColumn"
+      @add-row-before="addRowBefore"
+      @add-row-after="addRowAfter"
+      @delete-row="deleteRow"
+      @delete-table="deleteTable"
+      @merge-cells="mergeCells"
+      @split-cell="splitCell"
+      @toggle-header-column="toggleHeaderColumn"
+      @toggle-header-row="toggleHeaderRow"
       />
     </div>
 
@@ -237,6 +250,89 @@
         />
       </Teleport>
 
+      <Teleport to="body">
+        <div
+          v-if="showTableContextMenu"
+          class="editor-popup-fixed table-context-menu editor-popup"
+          :style="{ left: tableContextMenuPosition.x + 'px', top: tableContextMenuPosition.y + 'px' }"
+          @click.stop
+          @contextmenu.prevent
+        >
+          <div class="table-context-menu-content">
+            <button
+              @click="handleTableCtxAction('addColumnBefore')"
+              class="table-context-menu-item"
+            >
+              {{ t('toolbar.table.addColumnBefore') }}
+            </button>
+            <button
+              @click="handleTableCtxAction('addColumnAfter')"
+              class="table-context-menu-item"
+            >
+              {{ t('toolbar.table.addColumnAfter') }}
+            </button>
+            <button
+              @click="handleTableCtxAction('deleteColumn')"
+              class="table-context-menu-item"
+            >
+              {{ t('toolbar.table.deleteColumn') }}
+            </button>
+            <div class="table-context-menu-divider"></div>
+            <button
+              @click="handleTableCtxAction('addRowBefore')"
+              class="table-context-menu-item"
+            >
+              {{ t('toolbar.table.addRowBefore') }}
+            </button>
+            <button
+              @click="handleTableCtxAction('addRowAfter')"
+              class="table-context-menu-item"
+            >
+              {{ t('toolbar.table.addRowAfter') }}
+            </button>
+            <button
+              @click="handleTableCtxAction('deleteRow')"
+              class="table-context-menu-item"
+            >
+              {{ t('toolbar.table.deleteRow') }}
+            </button>
+            <div class="table-context-menu-divider"></div>
+            <button
+              @click="handleTableCtxAction('mergeCells')"
+              class="table-context-menu-item"
+            >
+              {{ t('toolbar.table.mergeCells') }}
+            </button>
+            <button
+              @click="handleTableCtxAction('splitCell')"
+              class="table-context-menu-item"
+            >
+              {{ t('toolbar.table.splitCell') }}
+            </button>
+            <div class="table-context-menu-divider"></div>
+            <button
+              @click="handleTableCtxAction('toggleHeaderRow')"
+              class="table-context-menu-item"
+            >
+              {{ t('toolbar.table.toggleHeaderRow') }}
+            </button>
+            <button
+              @click="handleTableCtxAction('toggleHeaderColumn')"
+              class="table-context-menu-item"
+            >
+              {{ t('toolbar.table.toggleHeaderColumn') }}
+            </button>
+            <div class="table-context-menu-divider"></div>
+            <button
+              @click="handleTableCtxAction('deleteTable')"
+              class="table-context-menu-item table-context-menu-danger"
+            >
+              {{ t('toolbar.table.deleteTable') }}
+            </button>
+          </div>
+        </div>
+      </Teleport>
+
     </div>
   </div>
 </template>
@@ -300,6 +396,7 @@ const {
   isBulletList,
   isOrderedList,
   isBlockquote,
+  isInTable,
   toggleBold,
   toggleItalic,
   toggleUnderline,
@@ -315,6 +412,18 @@ const {
   setFontSize,
   setFontFamily,
   setHeading,
+  insertTable,
+  addColumnBefore,
+  addColumnAfter,
+  deleteColumn,
+  addRowBefore,
+  addRowAfter,
+  deleteRow,
+  deleteTable,
+  mergeCells,
+  splitCell,
+  toggleHeaderColumn,
+  toggleHeaderRow,
 } = useEditor({
   content: props.modelValue || '',
   placeholder: resolvedPlaceholder.value,
@@ -339,6 +448,10 @@ async function handleExport(format: string) {
   await exportAs(format as any)
 }
 
+function handleInsertTable(rows?: number, cols?: number) {
+  insertTable(rows || 3, cols || 3, true)
+}
+
 const showLinkMenu = ref(false)
 const linkMenuPosition = ref({ x: 0, y: 0 })
 const currentLinkHref = ref('')
@@ -347,6 +460,53 @@ const linkEditUrl = ref('')
 const linkEditPosition = ref({ x: 0, y: 0 })
 const showExportPreview = ref(false)
 const exportPreviewRef = ref()
+
+const showTableContextMenu = ref(false)
+const tableContextMenuPosition = ref({ x: 0, y: 0 })
+
+const tableActionMap: Record<string, () => void> = {
+  addColumnBefore,
+  addColumnAfter,
+  deleteColumn,
+  addRowBefore,
+  addRowAfter,
+  deleteRow,
+  deleteTable,
+  mergeCells,
+  splitCell,
+  toggleHeaderRow,
+  toggleHeaderColumn,
+}
+
+function handleTableCtxAction(action: string) {
+  const fn = tableActionMap[action]
+  if (fn) fn()
+  showTableContextMenu.value = false
+}
+
+function onEditorContextMenu(event: MouseEvent) {
+  if (!editor.value) return
+  const target = event.target as HTMLElement
+  const cell = target.closest('td, th') || target.closest('table')
+  if (!cell) {
+    showTableContextMenu.value = false
+    return
+  }
+  event.preventDefault()
+  event.stopPropagation()
+  const menuWidth = 180
+  const menuHeight = 360
+  let x = event.clientX
+  let y = event.clientY
+  if (x + menuWidth > window.innerWidth) {
+    x = window.innerWidth - menuWidth - 8
+  }
+  if (y + menuHeight > window.innerHeight) {
+    y = window.innerHeight - menuHeight - 8
+  }
+  tableContextMenuPosition.value = { x, y }
+  showTableContextMenu.value = true
+}
 
 async function openExportPreview() {
   if (!editor.value) return
@@ -547,6 +707,11 @@ function handleDocumentClick() {
   showLinkMenu.value = false
   showLinkEditDialog.value = false
   linkEditUrl.value = ''
+  showTableContextMenu.value = false
+}
+
+function handleScroll() {
+  showTableContextMenu.value = false
 }
 
 onMounted(() => {
@@ -583,16 +748,21 @@ onMounted(() => {
       showLinkMenu.value = false
       showLinkEditDialog.value = false
       linkEditUrl.value = ''
+      showTableContextMenu.value = false
     }
   })
 
-  // 添加文档点击事件监听
+  editor.value?.view.dom.addEventListener('contextmenu', onEditorContextMenu, true)
+
+  editorContainerRef.value?.addEventListener('scroll', handleScroll, true)
+
   document.addEventListener('click', handleDocumentClick)
 })
 
 onBeforeUnmount(() => {
-  // 移除文档点击事件监听
   document.removeEventListener('click', handleDocumentClick)
+  editorContainerRef.value?.removeEventListener('scroll', handleScroll, true)
+  editor.value?.view.dom.removeEventListener('contextmenu', onEditorContextMenu, true)
 })
 
 function updateCurrentStyle() {

@@ -12,6 +12,7 @@
 - ✅ **列表**：有序、无序列表
 - ✅ **引用**：引用块
 - ✅ **图片**：插入、裁剪、缩放、布局（左环绕、右环绕、居中）
+- ✅ **表格**：插入、行列增删、合并拆分单元格、表头切换、右键菜单编辑
 - ✅ **导出**：HTML、JSON、Markdown、PDF、Word (docx)
 - ✅ **主题**：亮色、暗色、跟随系统
 - ✅ **预览**：独立的预览组件，保证编辑预览一致
@@ -164,6 +165,7 @@ const theme = ref<'light' | 'dark' | 'auto'>('light')
 | 文档                                                             | 说明          |
 | -------------------------------------------------------------- | ----------- |
 | [docsMD/STYLING\_GUIDE.md](./docsMD/STYLING_GUIDE.md)          | 样式自定义指南 ⭐   |
+| [docsMD/TABLE\_GUIDE.md](./docsMD/TABLE_GUIDE.md)              | 表格编辑教程 ⭐    |
 | [docsMD/PREVIEW\_COMPONENT.md](./docsMD/PREVIEW_COMPONENT.md)  | 预览组件完整指南    |
 | [docsMD/USAGE\_GUIDE.md](./docsMD/USAGE_GUIDE.md)              | 完整使用指南      |
 | [docsMD/JSON\_IMPORT\_GUIDE.md](./docsMD/JSON_IMPORT_GUIDE.md) | JSON 导入教程   |
@@ -189,6 +191,50 @@ const theme = ref<'light' | 'dark' | 'auto'>('light')
 ```
 
 完整的样式教程请参考 [docsMD/STYLING\_GUIDE.md](./docsMD/STYLING_GUIDE.md)
+
+***
+
+## 表格编辑
+
+### 插入表格
+
+鼠标悬停在工具栏的表格图标上，会弹出一个 8×10 的网格选择器。拖动鼠标选择所需的行数和列数（如 3×4），点击即可插入表格。
+
+### 编辑表格
+
+**方式一：表格控制按钮**
+
+表格下方会显示两个按钮：
+- ＋ 蓝色按钮：在表格末尾添加新行
+- ＿ 红色按钮：删除当前行
+
+**方式二：右键上下文菜单**
+
+在表格单元格中右键，会弹出编辑菜单，支持：
+- 在左侧/右侧插入列
+- 在上方/下方插入行
+- 删除行/列
+- 合并/拆分单元格
+- 切换表头行/列
+- 删除整个表格
+
+**方式三：键盘快捷键**
+
+- 选中整个表格后，按 `Backspace` 键可删除表格
+
+### 自定义表格样式
+
+使用 CSS 变量自定义表格外观：
+
+```vue
+<style>
+.vue-word-editor {
+  --editor-table-border: #d1d5db;
+  --editor-table-header-bg: #f1f3f5;
+  --editor-table-selected-bg: rgba(59, 130, 246, 0.15);
+}
+</style>
+```
 
 ***
 
