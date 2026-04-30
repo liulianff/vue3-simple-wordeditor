@@ -572,11 +572,10 @@ const isBlockquote = computed(() => props.editor?.isActive('blockquote') || fals
 const isLink = computed(() => props.editor?.isActive('link') || false)
 
 const alignment = computed(() => {
-  if (props.editor?.isActive('textAlign', { align: 'left' })) return 'left'
-  if (props.editor?.isActive('textAlign', { align: 'center' })) return 'center'
-  if (props.editor?.isActive('textAlign', { align: 'right' })) return 'right'
-  if (props.editor?.isActive('textAlign', { align: 'justify' })) return 'justify'
-  return 'left'
+  if (!props.editor) return 'left'
+  const paragraphAttrs = props.editor.getAttributes('paragraph')
+  const headingAttrs = props.editor.getAttributes('heading')
+  return paragraphAttrs?.textAlign || headingAttrs?.textAlign || 'left'
 })
 
 function toggleBold() {
@@ -623,7 +622,7 @@ function toggleBlockquote() {
 }
 
 function toggleAlignment(align: string) {
-  props.editor?.chain().focus().setTextAlign({ align }).run()
+  props.editor?.chain().focus().setTextAlign(align).run()
 }
 
 function insertLink(event: MouseEvent) {
