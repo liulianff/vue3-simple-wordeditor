@@ -451,5 +451,4 @@ npm run build:lib
 ***
 
 ## License
-
-MIT
+[MIT License](./LICENSE) 
