@@ -5,7 +5,7 @@
     'has-crop': hasCrop,
     [`layout-${nodeAttrs.layout || 'inline'}`]: true
   }" :style="nodeStyle" :draggable="isCropping ? false : true" @dragstart.prevent>
-    <div v-if="isCropping" class="crop-wrapper" contenteditable="false" @mousedown.stop @dragstart.prevent>
+    <div v-if="isCropping" class="crop-wrapper" contenteditable="false" @mousedown.stop @touchstart.stop @dragstart.prevent>
       <div class="crop-image-wrap" ref="cropWrapRef">
         <img
           :src="nodeAttrs.src"
@@ -16,16 +16,18 @@
           ref="cropImageRef"
           @load="initCrop"
           @mousedown.prevent
+          @touchstart.prevent
           @dragstart.prevent
         />
         <div class="crop-mask" :style="maskStyle"></div>
-        <div class="crop-box" :style="cropBoxStyle" @mousedown.stop="startCropMove" @dragstart.prevent>
+        <div class="crop-box" :style="cropBoxStyle" @mousedown.stop="startCropMove" @touchstart.stop="startCropMove" @dragstart.prevent>
           <div
             v-for="(handle, i) in cropHandles"
             :key="i"
             class="crop-handle"
             :class="'handle-' + handle"
             @mousedown.stop="startCropResize($event, handle)"
+            @touchstart.stop="startCropResize($event, handle)"
           ></div>
         </div>
       </div>
@@ -60,6 +62,7 @@
         class="image-resize-handle"
         contenteditable="false"
         @mousedown.stop="startResize"
+        @touchstart.stop="startResize"
         @dragstart.prevent
       ></span>
     </template>
@@ -141,31 +144,47 @@ const imgStyle = computed(() => {
   return style
 })
 
-function startResize(e: MouseEvent) {
+function startResize(e: MouseEvent | TouchEvent) {
   e.preventDefault()
   isResizing.value = true
   const startW = nodeAttrs.value.width || 200
   localWidth.value = startW
+  const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX
   resizeStart.value = {
-    x: e.clientX,
-    y: e.clientY,
+    x: clientX,
+    y: 0,
     w: startW,
   }
   document.addEventListener('mousemove', onResize)
   document.addEventListener('mouseup', stopResize)
+  document.addEventListener('touchmove', onResize, { passive: false })
+  document.addEventListener('touchend', stopResize)
 }
 
-function onResize(e: MouseEvent) {
+let resizeRaf: number | null = null
+function onResize(e: MouseEvent | TouchEvent) {
   if (!isResizing.value) return
-  const dx = e.clientX - resizeStart.value.x
-  const newWidth = Math.max(30, Math.min(800, resizeStart.value.w + dx))
-  localWidth.value = Math.round(newWidth)
+  e.preventDefault()
+  if (resizeRaf !== null) return
+  resizeRaf = requestAnimationFrame(() => {
+    resizeRaf = null
+    const clientX = 'touches' in e ? e.touches[0].clientX : (e as MouseEvent).clientX
+    const dx = clientX - resizeStart.value.x
+    const newWidth = Math.max(30, Math.min(800, resizeStart.value.w + dx))
+    localWidth.value = Math.round(newWidth)
+  })
 }
 
 function stopResize() {
+  if (resizeRaf !== null) {
+    cancelAnimationFrame(resizeRaf)
+    resizeRaf = null
+  }
   isResizing.value = false
   document.removeEventListener('mousemove', onResize)
   document.removeEventListener('mouseup', stopResize)
+  document.removeEventListener('touchmove', onResize)
+  document.removeEventListener('touchend', stopResize)
   props.updateAttributes({ width: localWidth.value })
 }
 
@@ -174,6 +193,12 @@ defineExpose({ enterCropMode })
 onBeforeUnmount(() => {
   document.removeEventListener('mousemove', onResize)
   document.removeEventListener('mouseup', stopResize)
+  document.removeEventListener('touchmove', onResize)
+  document.removeEventListener('touchend', stopResize)
+  if (resizeRaf !== null) {
+    cancelAnimationFrame(resizeRaf)
+    resizeRaf = null
+  }
 })
 </script>
 
@@ -248,26 +273,27 @@ onBeforeUnmount(() => {
   cursor: move;
   z-index: 5;
   box-sizing: border-box;
+  will-change: left, top, width, height;
 }
 
 .crop-handle {
   position: absolute;
-  width: 10px;
-  height: 10px;
+  width: 16px;
+  height: 16px;
   background: var(--editor-bg-color, #fff);
   border: 1px solid var(--editor-border-color, #666);
   z-index: 6;
   box-sizing: border-box;
 }
 
-.crop-handle.handle-nw { top: -5px; left: -5px; cursor: nw-resize; }
-.crop-handle.handle-n { top: -5px; left: 50%; margin-left: -5px; cursor: n-resize; }
-.crop-handle.handle-ne { top: -5px; right: -5px; cursor: ne-resize; }
-.crop-handle.handle-e { top: 50%; right: -5px; margin-top: -5px; cursor: e-resize; }
-.crop-handle.handle-se { bottom: -5px; right: -5px; cursor: se-resize; }
-.crop-handle.handle-s { bottom: -5px; left: 50%; margin-left: -5px; cursor: s-resize; }
-.crop-handle.handle-sw { bottom: -5px; left: -5px; cursor: sw-resize; }
-.crop-handle.handle-w { top: 50%; left: -5px; margin-top: -5px; cursor: w-resize; }
+.crop-handle.handle-nw { top: -8px; left: -8px; cursor: nw-resize; }
+.crop-handle.handle-n { top: -8px; left: 50%; margin-left: -8px; cursor: n-resize; }
+.crop-handle.handle-ne { top: -8px; right: -8px; cursor: ne-resize; }
+.crop-handle.handle-e { top: 50%; right: -8px; margin-top: -8px; cursor: e-resize; }
+.crop-handle.handle-se { bottom: -8px; right: -8px; cursor: se-resize; }
+.crop-handle.handle-s { bottom: -8px; left: 50%; margin-left: -8px; cursor: s-resize; }
+.crop-handle.handle-sw { bottom: -8px; left: -8px; cursor: sw-resize; }
+.crop-handle.handle-w { top: 50%; left: -8px; margin-top: -8px; cursor: w-resize; }
 
 .crop-view {
   border-radius: var(--editor-radius, 2px);

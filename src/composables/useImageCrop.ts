@@ -56,6 +56,144 @@ export function useImageCrop(
 
   const cropHandles = ['nw', 'n', 'ne', 'e', 'se', 's', 'sw', 'w']
 
+  function getClientXY(e: MouseEvent | TouchEvent): { clientX: number; clientY: number } {
+    if ('touches' in e) {
+      const touch = e.touches[0] || (e as TouchEvent).changedTouches[0]
+      return { clientX: touch.clientX, clientY: touch.clientY }
+    }
+    return { clientX: (e as MouseEvent).clientX, clientY: (e as MouseEvent).clientY }
+  }
+
+  let rafId: number | null = null
+  function scheduleUpdate(fn: () => void) {
+    if (rafId !== null) return
+    rafId = requestAnimationFrame(() => {
+      rafId = null
+      fn()
+    })
+  }
+
+  function cancelScheduledUpdate() {
+    if (rafId !== null) {
+      cancelAnimationFrame(rafId)
+      rafId = null
+    }
+  }
+
+  function startCropResize(e: MouseEvent | TouchEvent, handle: string) {
+    e.preventDefault()
+    e.stopPropagation()
+    activeHandle.value = handle
+    const { clientX, clientY } = getClientXY(e)
+    cropDragStart.value = {
+      x: clientX,
+      y: clientY,
+      rx: cropRect.value.x,
+      ry: cropRect.value.y,
+      rw: cropRect.value.w,
+      rh: cropRect.value.h,
+    }
+    document.addEventListener('mousemove', onCropResize)
+    document.addEventListener('mouseup', stopCropResize)
+    document.addEventListener('touchmove', onCropResize, { passive: false })
+    document.addEventListener('touchend', stopCropResize)
+  }
+
+  function onCropResize(e: MouseEvent | TouchEvent) {
+    e.preventDefault()
+    e.stopPropagation()
+    scheduleUpdate(() => {
+      const { clientX, clientY } = getClientXY(e)
+      const dx = clientX - cropDragStart.value.x
+      const dy = clientY - cropDragStart.value.y
+      const dw = cropDisplaySize.value.w
+      const dh = cropDisplaySize.value.h
+      const r = cropDragStart.value
+      let x = r.rx, y = r.ry, w = r.rw, h = r.rh
+      const handle = activeHandle.value
+
+      if (!handle) return
+
+      if (handle.includes('e')) {
+        w = Math.max(10, Math.min(dw - x, r.rw + dx))
+      }
+      if (handle.includes('w')) {
+        const maxW = x + r.rw
+        const newW = Math.max(10, Math.min(maxW, r.rw - dx))
+        x = maxW - newW
+        w = newW
+      }
+      if (handle.includes('s')) {
+        h = Math.max(10, Math.min(dh - y, r.rh + dy))
+      }
+      if (handle.includes('n')) {
+        const maxH = y + r.rh
+        const newH = Math.max(10, Math.min(maxH, r.rh - dy))
+        y = maxH - newH
+        h = newH
+      }
+
+      cropRect.value = { x: Math.round(x), y: Math.round(y), w: Math.round(w), h: Math.round(h) }
+    })
+  }
+
+  function stopCropResize() {
+    cancelScheduledUpdate()
+    activeHandle.value = null
+    document.removeEventListener('mousemove', onCropResize)
+    document.removeEventListener('mouseup', stopCropResize)
+    document.removeEventListener('touchmove', onCropResize)
+    document.removeEventListener('touchend', stopCropResize)
+  }
+
+  function startCropMove(e: MouseEvent | TouchEvent) {
+    const target = e.target as HTMLElement
+    if (target.classList.contains('crop-handle')) return
+    e.preventDefault()
+    e.stopPropagation()
+    isMoving.value = true
+    const { clientX, clientY } = getClientXY(e)
+    moveStart.value = {
+      x: clientX,
+      y: clientY,
+      rx: cropRect.value.x,
+      ry: cropRect.value.y,
+    }
+    document.addEventListener('mousemove', onCropMove)
+    document.addEventListener('mouseup', stopCropMove)
+    document.addEventListener('touchmove', onCropMove, { passive: false })
+    document.addEventListener('touchend', stopCropMove)
+  }
+
+  function onCropMove(e: MouseEvent | TouchEvent) {
+    e.preventDefault()
+    e.stopPropagation()
+    if (!isMoving.value) return
+    scheduleUpdate(() => {
+      const { clientX, clientY } = getClientXY(e)
+      const dx = clientX - moveStart.value.x
+      const dy = clientY - moveStart.value.y
+      const dw = cropDisplaySize.value.w
+      const dh = cropDisplaySize.value.h
+      const rw = cropRect.value.w
+      const rh = cropRect.value.h
+      let x = moveStart.value.rx + dx
+      let y = moveStart.value.ry + dy
+      x = Math.max(0, Math.min(dw - rw, x))
+      y = Math.max(0, Math.min(dh - rh, y))
+      cropRect.value = { ...cropRect.value, x: Math.round(x), y: Math.round(y) }
+    })
+  }
+
+  function stopCropMove() {
+    cancelScheduledUpdate()
+    isMoving.value = false
+    document.removeEventListener('mousemove', onCropMove)
+    document.removeEventListener('mouseup', stopCropMove)
+    document.removeEventListener('touchmove', onCropMove)
+    document.removeEventListener('touchend', stopCropMove)
+  }
+
   const cropBoxStyle = computed(() => ({
     left: `${cropRect.value.x}px`,
     top: `${cropRect.value.y}px`,
@@ -97,8 +235,6 @@ export function useImageCrop(
         scaleFactor = displayW / imgWidth
       }
     } else if (c) {
-      // 当没有原始尺寸时，使用用户设置的宽度作为参考
-      // 假设裁剪宽度为 100% 时，显示宽度等于图片宽度
       scaleFactor = 1
     }
 
@@ -158,101 +294,6 @@ export function useImageCrop(
     }
   }
 
-  function startCropResize(e: MouseEvent, handle: string) {
-    e.preventDefault()
-    e.stopPropagation()
-    activeHandle.value = handle
-    cropDragStart.value = {
-      x: e.clientX,
-      y: e.clientY,
-      rx: cropRect.value.x,
-      ry: cropRect.value.y,
-      rw: cropRect.value.w,
-      rh: cropRect.value.h,
-    }
-    document.addEventListener('mousemove', onCropResize)
-    document.addEventListener('mouseup', stopCropResize)
-  }
-
-  function onCropResize(e: MouseEvent) {
-    e.preventDefault()
-    e.stopPropagation()
-    const dx = e.clientX - cropDragStart.value.x
-    const dy = e.clientY - cropDragStart.value.y
-    const dw = cropDisplaySize.value.w
-    const dh = cropDisplaySize.value.h
-    const r = cropDragStart.value
-    let x = r.rx, y = r.ry, w = r.rw, h = r.rh
-    const handle = activeHandle.value
-
-    if (!handle) return
-
-    if (handle.includes('e')) {
-      w = Math.max(10, Math.min(dw - x, r.rw + dx))
-    }
-    if (handle.includes('w')) {
-      const maxW = x + r.rw
-      const newW = Math.max(10, Math.min(maxW, r.rw - dx))
-      x = maxW - newW
-      w = newW
-    }
-    if (handle.includes('s')) {
-      h = Math.max(10, Math.min(dh - y, r.rh + dy))
-    }
-    if (handle.includes('n')) {
-      const maxH = y + r.rh
-      const newH = Math.max(10, Math.min(maxH, r.rh - dy))
-      y = maxH - newH
-      h = newH
-    }
-
-    cropRect.value = { x: Math.round(x), y: Math.round(y), w: Math.round(w), h: Math.round(h) }
-  }
-
-  function stopCropResize() {
-    activeHandle.value = null
-    document.removeEventListener('mousemove', onCropResize)
-    document.removeEventListener('mouseup', stopCropResize)
-  }
-
-  function startCropMove(e: MouseEvent) {
-    if ((e.target as HTMLElement).classList.contains('crop-handle')) return
-    e.preventDefault()
-    e.stopPropagation()
-    isMoving.value = true
-    moveStart.value = {
-      x: e.clientX,
-      y: e.clientY,
-      rx: cropRect.value.x,
-      ry: cropRect.value.y,
-    }
-    document.addEventListener('mousemove', onCropMove)
-    document.addEventListener('mouseup', stopCropMove)
-  }
-
-  function onCropMove(e: MouseEvent) {
-    e.preventDefault()
-    e.stopPropagation()
-    if (!isMoving.value) return
-    const dx = e.clientX - moveStart.value.x
-    const dy = e.clientY - moveStart.value.y
-    const dw = cropDisplaySize.value.w
-    const dh = cropDisplaySize.value.h
-    const rw = cropRect.value.w
-    const rh = cropRect.value.h
-    let x = moveStart.value.rx + dx
-    let y = moveStart.value.ry + dy
-    x = Math.max(0, Math.min(dw - rw, x))
-    y = Math.max(0, Math.min(dh - rh, y))
-    cropRect.value = { ...cropRect.value, x: Math.round(x), y: Math.round(y) }
-  }
-
-  function stopCropMove() {
-    isMoving.value = false
-    document.removeEventListener('mousemove', onCropMove)
-    document.removeEventListener('mouseup', stopCropMove)
-  }
-
   function applyCrop() {
     const dw = cropDisplaySize.value.w
     const dh = cropDisplaySize.value.h
@@ -268,6 +309,7 @@ export function useImageCrop(
     updateAttributes({ crop, width: cropRect.value.w })
     isCropping.value = false
     document.removeEventListener('mousedown', onOutsideClick)
+    document.removeEventListener('touchstart', onOutsideClick)
 
     nextTick(() => {
       offscreenImg.value = null
@@ -286,6 +328,7 @@ export function useImageCrop(
   function cancelCrop() {
     isCropping.value = false
     document.removeEventListener('mousedown', onOutsideClick)
+    document.removeEventListener('touchstart', onOutsideClick)
   }
 
   function enterCropMode() {
@@ -293,6 +336,7 @@ export function useImageCrop(
     nextTick(() => {
       initCrop()
       document.addEventListener('mousedown', onOutsideClick)
+      document.addEventListener('touchstart', onOutsideClick)
     })
   }
 
@@ -300,7 +344,7 @@ export function useImageCrop(
     window.dispatchEvent(new CustomEvent('image-crop-state-changed', { detail: { isCropping: val } }))
   })
 
-  function onOutsideClick(e: MouseEvent) {
+  function onOutsideClick(e: MouseEvent | TouchEvent) {
     if (!isCropping.value) return
     const target = e.target as HTMLElement
     if (target.closest('.bubble-menu') || target.closest('.crop-wrapper')) return
@@ -329,9 +373,15 @@ export function useImageCrop(
     window.removeEventListener('image-crop-reset', onCropResetEvent)
     document.removeEventListener('mousemove', onCropResize)
     document.removeEventListener('mouseup', stopCropResize)
+    document.removeEventListener('touchmove', onCropResize)
+    document.removeEventListener('touchend', stopCropResize)
     document.removeEventListener('mousemove', onCropMove)
     document.removeEventListener('mouseup', stopCropMove)
+    document.removeEventListener('touchmove', onCropMove)
+    document.removeEventListener('touchend', stopCropMove)
     document.removeEventListener('mousedown', onOutsideClick)
+    document.removeEventListener('touchstart', onOutsideClick)
+    cancelScheduledUpdate()
   })
 
   return {
