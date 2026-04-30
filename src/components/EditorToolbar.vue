@@ -129,8 +129,26 @@ const props = withDefaults(defineProps<{
   currentFontFamily?: string
   headingLevel?: number
   isInTable?: boolean
+  isBold?: boolean
+  isItalic?: boolean
+  isUnderline?: boolean
+  isStrike?: boolean
+  isBulletList?: boolean
+  isOrderedList?: boolean
+  isBlockquote?: boolean
+  isLink?: boolean
+  alignment?: string
 }>(), {
-  isInTable: false
+  isInTable: false,
+  isBold: false,
+  isItalic: false,
+  isUnderline: false,
+  isStrike: false,
+  isBulletList: false,
+  isOrderedList: false,
+  isBlockquote: false,
+  isLink: false,
+  alignment: 'left',
 })
 
 const emit = defineEmits<{
@@ -162,23 +180,6 @@ const currentHeadingLevel = computed(() => props.headingLevel ?? 0)
 const tooltipRef = ref<InstanceType<typeof ToolbarTooltip> | null>(null)
 const colorPickerRef = ref<InstanceType<typeof ColorPicker> | null>(null)
 const exportMenuRef = ref<InstanceType<typeof ExportMenu> | null>(null)
-
-const isBold = computed(() => props.editor?.isActive('bold') || false)
-const isItalic = computed(() => props.editor?.isActive('italic') || false)
-const isUnderline = computed(() => props.editor?.isActive('underline') || false)
-const isStrike = computed(() => props.editor?.isActive('strike') || false)
-
-const isBulletList = computed(() => props.editor?.isActive('bulletList') || false)
-const isOrderedList = computed(() => props.editor?.isActive('orderedList') || false)
-const isBlockquote = computed(() => props.editor?.isActive('blockquote') || false)
-const isLink = computed(() => props.editor?.isActive('link') || false)
-
-const alignment = computed(() => {
-  if (!props.editor) return 'left'
-  const paragraphAttrs = props.editor.getAttributes('paragraph')
-  const headingAttrs = props.editor.getAttributes('heading')
-  return paragraphAttrs?.textAlign || headingAttrs?.textAlign || 'left'
-})
 
 const showTableMenu = ref(false)
 const tableMenuPosition = ref({ x: 0, y: 0 })
@@ -247,6 +248,7 @@ function onGridCellClick(row: number, col: number) {
 
 function handleDocumentClick() {
   showTableMenu.value = false
+  closeOtherPopups()
 }
 
 onMounted(() => {

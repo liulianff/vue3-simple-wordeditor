@@ -38,6 +38,7 @@ const theme = ref<'light' | 'dark' | 'auto'>('light')
 |------|------|--------|-----|
 | `html` | `string` | - | ✅ | 要显示的 HTML 内容 |
 | `theme` | `'light' \| 'dark' \| 'auto'` | `'light'` | - | 主题设置 |
+| `inline` | `boolean` | `false` | - | 内联模式，不渲染外层容器（用于嵌入弹窗等场景） |
 
 ---
 

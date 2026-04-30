@@ -1,9 +1,14 @@
 <template>
-  <div class="vue-word-editor editor-container editor-preview-only" :class="{ dark: isDark }">
+  <div
+    v-if="!inline"
+    class="vue-word-editor editor-container editor-preview-only"
+    :class="{ dark: isDark }"
+  >
     <div class="editor-content-wrapper">
       <div class="editor-content tiptap" v-html="html"></div>
     </div>
   </div>
+  <div v-else class="editor-content tiptap" :class="{ dark: isDark }" v-html="html"></div>
 </template>
 
 <script setup lang="ts">
@@ -12,10 +17,12 @@ import { computed } from 'vue'
 interface Props {
   html: string
   theme?: 'light' | 'dark' | 'auto'
+  inline?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  theme: 'light'
+  theme: 'light',
+  inline: false
 })
 
 const isDark = computed(() => {
@@ -28,7 +35,6 @@ const isDark = computed(() => {
 </script>
 
 <style scoped>
-/* 继承编辑器的样式体系，独立预览也能完美复刻 */
 .editor-preview-only {
   display: flex;
   flex-direction: column;
@@ -40,7 +46,6 @@ const isDark = computed(() => {
 }
 
 .editor-preview-only.editor-container {
-  /* 预览模式只需要内容区域，不需要工具栏，调整 padding */
   padding: 0;
 }
 </style>

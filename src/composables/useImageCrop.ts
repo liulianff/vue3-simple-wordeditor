@@ -265,7 +265,6 @@ export function useImageCrop(
       height: Math.round((cropRect.value.h / dh) * 10000) / 100,
     }
 
-    // ✅ 同时更新 crop 和 width，让图片以裁剪框的实际尺寸显示
     updateAttributes({ crop, width: cropRect.value.w })
     isCropping.value = false
     document.removeEventListener('mousedown', onOutsideClick)
@@ -277,8 +276,10 @@ export function useImageCrop(
   }
 
   function resetCrop() {
-    const dw = cropDisplaySize.value.w
-    const dh = cropDisplaySize.value.h
+    const img = cropImageRef.value
+    const dw = cropDisplaySize.value.w || (img ? img.offsetWidth : 0)
+    const dh = cropDisplaySize.value.h || (img ? img.offsetHeight : 0)
+    if (dw === 0 || dh === 0) return
     cropRect.value = { x: 0, y: 0, w: dw, h: dh }
   }
 
@@ -295,8 +296,14 @@ export function useImageCrop(
     })
   }
 
-  function onOutsideClick() {
+  watch(isCropping, (val) => {
+    window.dispatchEvent(new CustomEvent('image-crop-state-changed', { detail: { isCropping: val } }))
+  })
+
+  function onOutsideClick(e: MouseEvent) {
     if (!isCropping.value) return
+    const target = e.target as HTMLElement
+    if (target.closest('.bubble-menu') || target.closest('.crop-wrapper')) return
     applyCrop()
   }
 
@@ -304,12 +311,22 @@ export function useImageCrop(
     enterCropMode()
   }
 
+  function onCropApplyEvent() { applyCrop() }
+  function onCropCancelEvent() { cancelCrop() }
+  function onCropResetEvent() { resetCrop() }
+
   onMounted(() => {
     window.addEventListener('image-start-crop', onCropEvent)
+    window.addEventListener('image-crop-apply', onCropApplyEvent)
+    window.addEventListener('image-crop-cancel', onCropCancelEvent)
+    window.addEventListener('image-crop-reset', onCropResetEvent)
   })
 
   onBeforeUnmount(() => {
     window.removeEventListener('image-start-crop', onCropEvent)
+    window.removeEventListener('image-crop-apply', onCropApplyEvent)
+    window.removeEventListener('image-crop-cancel', onCropCancelEvent)
+    window.removeEventListener('image-crop-reset', onCropResetEvent)
     document.removeEventListener('mousemove', onCropResize)
     document.removeEventListener('mouseup', stopCropResize)
     document.removeEventListener('mousemove', onCropMove)

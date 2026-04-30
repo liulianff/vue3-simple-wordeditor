@@ -29,11 +29,6 @@
           ></div>
         </div>
       </div>
-      <div class="crop-toolbar">
-        <button class="crop-btn reset" @click.stop="resetCrop">{{ t('imageNodeView.resetCrop') }}</button>
-        <button class="crop-btn cancel" @click.stop="cancelCrop">{{ t('imageNodeView.cancel') }}</button>
-        <button class="crop-btn apply" @click.stop="applyCrop">{{ t('imageNodeView.applyCrop') }}</button>
-      </div>
     </div>
     <template v-else>
       <div v-if="hasCrop" class="crop-view" :style="cropViewStyle">
@@ -74,7 +69,6 @@
 <script setup lang="ts">
 import { ref, computed, onBeforeUnmount } from 'vue'
 import { NodeViewWrapper } from '@tiptap/vue-3'
-import { useI18n } from '../composables/useI18n'
 import { useImageCrop } from '../composables/useImageCrop'
 
 const props = defineProps<{
@@ -85,8 +79,6 @@ const props = defineProps<{
   updateAttributes: (attrs: Record<string, any>) => void
   deleteNode: () => void
 }>()
-
-const { t } = useI18n()
 
 const isResizing = ref(false)
 const resizeStart = ref({ x: 0, y: 0, w: 0 })
@@ -110,9 +102,6 @@ const {
   initCrop,
   startCropResize,
   startCropMove,
-  applyCrop,
-  resetCrop,
-  cancelCrop,
   enterCropMode,
 } = useImageCrop(nodeAttrs, isResizing, localWidth, props.updateAttributes)
 
@@ -279,53 +268,6 @@ onBeforeUnmount(() => {
 .crop-handle.handle-s { bottom: -5px; left: 50%; margin-left: -5px; cursor: s-resize; }
 .crop-handle.handle-sw { bottom: -5px; left: -5px; cursor: sw-resize; }
 .crop-handle.handle-w { top: 50%; left: -5px; margin-top: -5px; cursor: w-resize; }
-
-.crop-toolbar {
-  display: flex;
-  justify-content: center;
-  gap: 8px;
-  margin-top: 8px;
-  line-height: 1;
-}
-
-.crop-btn {
-  padding: 5px 16px;
-  font-size: 12px;
-  border: none;
-  border-radius: var(--editor-radius, 4px);
-  cursor: pointer;
-  font-family: var(--editor-font-family, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif);
-  transition: all 0.12s;
-}
-
-.crop-btn.reset {
-  background: var(--editor-toolbar-bg, #f0f0f0);
-  color: var(--editor-text-color, #333);
-  border: 1px solid var(--editor-border-color, #d0d0d0);
-}
-
-.crop-btn.reset:hover {
-  background: var(--editor-border-color, #e0e0e0);
-}
-
-.crop-btn.cancel {
-  background: var(--editor-toolbar-bg, #f0f0f0);
-  color: var(--editor-text-color, #333);
-  border: 1px solid var(--editor-border-color, #d0d0d0);
-}
-
-.crop-btn.cancel:hover {
-  background: var(--editor-border-color, #e0e0e0);
-}
-
-.crop-btn.apply {
-  background: var(--editor-primary-color, #4a90d9);
-  color: var(--editor-bg-color, #fff);
-}
-
-.crop-btn.apply:hover {
-  background: var(--editor-primary-hover, #357abd);
-}
 
 .crop-view {
   border-radius: var(--editor-radius, 2px);

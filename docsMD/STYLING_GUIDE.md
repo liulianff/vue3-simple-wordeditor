@@ -229,14 +229,26 @@
 ### 列表样式
 
 ```css
-.tiptap ul,
+.tiptap ul {
+  list-style-type: disc;
+  padding-left: 1.5rem;
+  margin: 0.5em 0;
+}
+
 .tiptap ol {
+  list-style-type: decimal;
   padding-left: 1.5rem;
   margin: 0.5em 0;
 }
 
 .tiptap li {
   margin: 0.25em 0;
+  list-style-position: inside;
+}
+
+.tiptap li > p {
+  display: inline;
+  margin: 0;
 }
 ```
 

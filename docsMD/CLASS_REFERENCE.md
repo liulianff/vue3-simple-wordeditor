@@ -70,7 +70,7 @@
 | `.editor-toolbar`   | 工具栏                   | `background-color: var(--editor-toolbar-bg); border-bottom: 1px solid var(--editor-border-color); padding: 0.5rem`                                                 |
 | `.editor-popup`     | 弹出层（BubbleMenu、链接菜单等） | `background-color: var(--editor-bg-color); border: 1px solid var(--editor-border-color); border-radius: var(--editor-radius); box-shadow: var(--editor-shadow-lg)` |
 | `.editor-tooltip`   | 提示框                   | `position: fixed; z-index: 9999; padding: 4px 8px; font-size: 12px; border-radius: 4px; white-space: nowrap; pointer-events: none; background-color: var(--editor-text-color); color: var(--editor-bg-color)` |
-| `.editor-content`   | 编辑器内容区域               | `outline: none; min-height: 400px; padding: 1rem`                                                                                                                  |
+| `.editor-content`   | 编辑器内容区域               | `outline: none; min-height: 400px`                                                                                                                       |
 | `.editor-toolbar-wrapper` | 工具栏包装器               | `position: relative`                                                                                                                                               |
 | `.toolbar-group`    | 工具栏分组                 | `display: flex; align-items: center; gap: 0.25rem; margin-right: 0.5rem`                                                                                          |
 | `.editor-content-wrapper` | 编辑器内容包装器              | `position: relative`                                                                                                                                               |
@@ -138,14 +138,6 @@
 | `.crop-handle.handle-s`        | 下方手柄       | `bottom: -5px; left: 50%; margin-left: -5px; cursor: s-resize`                                                                                                                     |
 | `.crop-handle.handle-sw`       | 左下角手柄      | `bottom: -5px; left: -5px; cursor: sw-resize`                                                                                                                                      |
 | `.crop-handle.handle-w`        | 左侧手柄       | `top: 50%; left: -5px; margin-top: -5px; cursor: w-resize`                                                                                                                         |
-| `.crop-toolbar`                | 裁剪工具栏      | `display: flex; justify-content: center; gap: 8px; margin-top: 8px`                                                                                                                |
-| `.crop-btn`                    | 裁剪按钮       | `padding: 5px 16px; font-size: 12px; border: none; border-radius: var(--editor-radius, 4px); cursor: pointer; font-family: var(--editor-font-family, ...)`                         |
-| `.crop-btn.reset`              | 裁剪重置按钮     | `background: var(--editor-toolbar-bg, #f0f0f0); color: var(--editor-text-color, #333); border: 1px solid var(--editor-border-color, #d0d0d0)`                                      |
-| `.crop-btn.reset:hover`        | 裁剪重置按钮悬停   | `background: var(--editor-border-color, #e0e0e0)`                                                                                                                                  |
-| `.crop-btn.cancel`             | 裁剪取消按钮     | `background: var(--editor-toolbar-bg, #f0f0f0); color: var(--editor-text-color, #333); border: 1px solid var(--editor-border-color, #d0d0d0)`                                      |
-| `.crop-btn.cancel:hover`       | 裁剪取消按钮悬停   | `background: var(--editor-border-color, #e0e0e0)`                                                                                                                                  |
-| `.crop-btn.apply`              | 裁剪应用按钮     | `background: var(--editor-primary-color, #4a90d9); color: var(--editor-bg-color, #fff)`                                                                                            |
-| `.crop-btn.apply:hover`        | 裁剪应用按钮悬停   | `background: var(--editor-primary-hover, #357abd)`                                                                                                                                 |
 | `.crop-view`                   | 裁剪结果视图     | `border-radius: var(--editor-radius, 2px)`                                                                                                                                         |
 
 ## 布局状态类

@@ -95,9 +95,9 @@ const content = ref('')
 ```vue
 <style>
 .vue-word-editor {
-  --editor-table-border: #d1d5db;
-  --editor-table-header-bg: #f1f3f5;
-  --editor-table-selected-bg: rgba(59, 130, 246, 0.15);
+  --editor-border-color: #d1d5db;
+  --editor-toolbar-bg: #f1f3f5;
+  --editor-primary-color: rgba(59, 130, 246, 0.15);
 }
 </style>
 ```
@@ -106,9 +106,9 @@ const content = ref('')
 
 | 变量名 | 说明 | 默认值 |
 |--------|------|--------|
-| `--editor-table-border` | 表格边框颜色 | `#d1d5db` |
-| `--editor-table-header-bg` | 表头背景色 | `#f1f3f5` |
-| `--editor-table-selected-bg` | 选中单元格背景色 | `rgba(59, 130, 246, 0.15)` |
+| `--editor-border-color` | 表格边框颜色 | `#e5e7eb` |
+| `--editor-toolbar-bg` | 表头背景色 | `#f1f3f5` |
+| `--editor-primary-color` | 选中单元格高亮 | `#3b82f6` |
 
 ***
 

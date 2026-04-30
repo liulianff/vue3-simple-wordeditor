@@ -8,6 +8,15 @@
       :current-font-family="currentFontFamily"
       :heading-level="headingLevel || 0"
       :is-in-table="isInTable"
+      :is-bold="isBold"
+      :is-italic="isItalic"
+      :is-underline="isUnderline"
+      :is-strike="isStrike"
+      :is-bullet-list="isBulletList"
+      :is-ordered-list="isOrderedList"
+      :is-blockquote="isBlockquote"
+      :is-link="isLink"
+      :alignment="textAlign"
       @export="handleExport"
       @insert-image="addImage"
       @set-link="setLink"
@@ -33,7 +42,7 @@
     <div class="editor-content-wrapper" ref="editorContainerRef">
       <EditorContent
         :editor="editor"
-        class="editor-content"
+        class="editor-content tiptap"
       />
       
       <BubbleMenu
@@ -43,7 +52,33 @@
         :tippy-options="bubbleMenuTippyOptions"
         class="bubble-menu editor-popup"
       >
-        <template v-if="isImageSelected">
+        <template v-if="isCropping">
+          <button
+            @click="dispatchCropEvent('image-crop-reset')"
+            class="editor-btn-default"
+            style="padding: 4px 12px; border-radius: 4px; font-size: 13px; border: 1px solid var(--editor-border-color, #d0d0d0); cursor: pointer;"
+            :title="t('imageNodeView.resetCrop')"
+          >
+            {{ t('imageNodeView.resetCrop') }}
+          </button>
+          <button
+            @click="dispatchCropEvent('image-crop-cancel')"
+            class="editor-btn-danger"
+            style="padding: 4px 12px; border-radius: 4px; font-size: 13px; cursor: pointer;"
+            :title="t('imageNodeView.cancel')"
+          >
+            {{ t('imageNodeView.cancel') }}
+          </button>
+          <button
+            @click="dispatchCropEvent('image-crop-apply')"
+            class="editor-btn-primary"
+            style="padding: 4px 12px; border-radius: 4px; font-size: 13px; cursor: pointer;"
+            :title="t('imageNodeView.applyCrop')"
+          >
+            {{ t('imageNodeView.applyCrop') }}
+          </button>
+        </template>
+        <template v-else-if="isImageSelected">
           <button
             @click="toggleBulletList"
             :class="[
@@ -396,7 +431,9 @@ const {
   isBulletList,
   isOrderedList,
   isBlockquote,
+  isLink,
   isInTable,
+  textAlign,
   toggleBold,
   toggleItalic,
   toggleUnderline,
@@ -525,6 +562,7 @@ async function openExportPreview() {
 }
 
 const isImageSelected = ref(false)
+const isCropping = ref(false)
 const currentImageLayout = ref<ImageLayoutType>('inline')
 const currentImageWidth = ref(200)
 const sliderWidth = ref(200)
@@ -539,7 +577,7 @@ const effectiveTheme = computed(() => {
 })
 
 const bubbleMenuTippyOptions = computed(() => {
-  if (isImageSelected.value && imageNodeRef.value) {
+  if ((isImageSelected.value || isCropping.value) && imageNodeRef.value) {
     return {
       placement: 'top' as const,
       getReferenceClientRect: () => imageNodeRef.value!.getBoundingClientRect(),
@@ -556,6 +594,8 @@ const imageLayoutOptions = computed(() => [
 ])
 
 function shouldShowBubbleMenu({ editor }: { editor: any }) {
+  if (isCropping.value) return true
+
   const { selection } = editor.state
   const { empty, from, to } = selection
   let found = false
@@ -645,6 +685,10 @@ function deleteImage() {
 
 function startCropImage() {
   window.dispatchEvent(new CustomEvent('image-start-crop'))
+}
+
+function dispatchCropEvent(eventName: string) {
+  window.dispatchEvent(new CustomEvent(eventName))
 }
 
 function handleLinkClick(event: MouseEvent, href: string) {
@@ -757,12 +801,26 @@ onMounted(() => {
   editorContainerRef.value?.addEventListener('scroll', handleScroll, true)
 
   document.addEventListener('click', handleDocumentClick)
+
+  window.addEventListener('image-crop-state-changed', onCropStateChanged as EventListener)
 })
+
+function onCropStateChanged(e: Event) {
+  isCropping.value = (e as CustomEvent).detail?.isCropping ?? false
+  if (isCropping.value && !imageNodeRef.value) {
+    const editorEl = editor.value?.view.dom
+    if (editorEl) {
+      const nodeView = editorEl.querySelector('.image-node-view.is-cropping, .image-node-view.is-selected') as HTMLElement
+      if (nodeView) imageNodeRef.value = nodeView
+    }
+  }
+}
 
 onBeforeUnmount(() => {
   document.removeEventListener('click', handleDocumentClick)
   editorContainerRef.value?.removeEventListener('scroll', handleScroll, true)
   editor.value?.view.dom.removeEventListener('contextmenu', onEditorContextMenu, true)
+  window.removeEventListener('image-crop-state-changed', onCropStateChanged as EventListener)
 })
 
 function updateCurrentStyle() {
@@ -809,6 +867,8 @@ function updateCurrentStyle() {
 defineExpose({
   editor,
   getHTML,
+  getJSON,
+  getMarkdown,
   setHTML,
   setJSON,
   getImagesForUpload,
@@ -820,116 +880,6 @@ defineExpose({
 <style scoped>
 .vue-word-editor {
   min-height: 500px;
-}
-
-.editor-content {
-  outline: none;
-}
-
-.editor-content :deep(h1) {
-  font-size: 2em;
-  font-weight: bold;
-  margin: 0.5em 0;
-  color: inherit;
-}
-
-.editor-content :deep(h2) {
-  font-size: 1.5em;
-  font-weight: bold;
-  margin: 0.5em 0;
-  color: inherit;
-}
-
-.editor-content :deep(h3) {
-  font-size: 1.25em;
-  font-weight: bold;
-  margin: 0.5em 0;
-  color: inherit;
-}
-
-.editor-content :deep(h4) {
-  font-size: 1em;
-  font-weight: bold;
-  margin: 0.5em 0;
-  color: inherit;
-}
-
-.editor-content :deep(h5) {
-  font-size: 0.875em;
-  font-weight: bold;
-  margin: 0.5em 0;
-  color: inherit;
-}
-
-.editor-content :deep(h6) {
-  font-size: 0.75em;
-  font-weight: bold;
-  margin: 0.5em 0;
-  color: inherit;
-}
-
-.editor-content :deep(p) {
-  margin: 0.5em 0;
-  line-height: 1.6;
-  color: inherit;
-}
-
-.editor-content :deep(ul) {
-  list-style-type: disc;
-  padding-left: 1.5rem;
-  margin: 0.5em 0;
-  color: inherit;
-}
-
-.editor-content :deep(ol) {
-  list-style-type: decimal;
-  padding-left: 1.5rem;
-  margin: 0.5em 0;
-  color: inherit;
-}
-
-.editor-content :deep(li) {
-  margin: 0.25em 0;
-  color: inherit;
-}
-
-.editor-content :deep(blockquote) {
-  border-left: 4px solid var(--editor-primary-color, #3b82f6);
-  padding-left: 1rem;
-  margin: 1em 0;
-  color: var(--editor-text-secondary, #6b7280);
-  background-color: var(--editor-toolbar-bg, #f3f4f6);
-  padding: 0.5rem 1rem;
-  border-radius: 0 0.25rem 0.25rem 0;
-}
-
-.editor-content :deep(img) {
-  max-width: 100%;
-  height: auto;
-  border-radius: 0.25rem;
-}
-
-.editor-content :deep(mark) {
-  background-color: #ffff00;
-  padding: 0 0.2em;
-  color: inherit;
-}
-
-.editor-content :deep(a) {
-  color: var(--editor-primary-color, #3b82f6);
-  text-decoration: underline;
-}
-
-.editor-content :deep(strong) {
-  font-weight: bold;
-}
-
-.editor-content :deep(em) {
-  font-style: italic;
-}
-
-.editor-content :deep(s) {
-  text-decoration: line-through;
 }
 
 .link-menu-popup {

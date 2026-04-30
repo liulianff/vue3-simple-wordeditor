@@ -25,8 +25,10 @@
         </div>
         
         <div class="editor-content-wrapper">
-          <!-- HTML Preview - 直接使用编辑器的内容区域样式 -->
-          <div v-if="activeTab === 'html'" class="editor-preview-content editor-content tiptap" v-html="previewData.html"></div>
+          <!-- HTML Preview -->
+          <div v-if="activeTab === 'html'" class="editor-preview-content">
+            <EditorPreview inline :html="previewData.html" />
+          </div>
           
           <!-- JSON Preview -->
           <div v-if="activeTab === 'json'" class="editor-preview-content">
@@ -51,6 +53,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
+import EditorPreview from './EditorPreview.vue'
 
 defineProps<{
   visible: boolean

@@ -196,8 +196,9 @@ export async function processImagesWithCrop(html: string): Promise<{ html: strin
   let processedHtml = html
   for (const [oldSrc, newSrc] of srcMapping.entries()) {
     processedHtml = processedHtml.replace(new RegExp(oldSrc.replace(/[.*+?^${}()|\[\]\\]/g, '\\$&'), 'g'), newSrc)
-    processedHtml = processedHtml.replace(/data-crop="[^"]*"/g, '')
   }
+
+  processedHtml = processedHtml.replace(/ data-crop="[^"]*"/g, '')
 
   // 确保保留宽度属性
   const tempDiv2 = document.createElement('div')

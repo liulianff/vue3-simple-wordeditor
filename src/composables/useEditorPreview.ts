@@ -2,9 +2,8 @@ import { processImagesWithCrop } from './useExport/utils'
 
 export function useEditorPreview() {
   async function getHTMLFromContent(html: string): Promise<string> {
-    // 如果已经是编辑器输出的 HTML，可以直接用它，
-    // 这里只是保持与导出器一致的处理逻辑（空段落等）
     let processedHtml = html
+      .replace(/ data-crop="[^"]*"/g, '')
       .replace(/<p\s*>\s*<\/p>/gi, '<p>&nbsp;</p>')
       .replace(/<p\s+[^>]*>\s*<\/p>/gi, (match) => match.replace(/><\/p>/, '>&nbsp;</p>'))
     return processedHtml
