@@ -59,10 +59,10 @@ const content = ref('')
 }
 ```
 
-如果你对源码有改动
+<br />
 
 ```bash
-npm run build:lib
+npm install
 ```
 
 然后正常使用：
@@ -132,13 +132,13 @@ const theme = ref<'light' | 'dark' | 'auto'>('light')
 
 ### VueWordEditor
 
-| 属性            | 类型                             | 默认值         | 说明          |
-| ------------- | ------------------------------ | ----------- | ----------- |
-| `modelValue`  | `string`                       | `''`        | 编辑器 HTML 内容 |
-| `placeholder` | `string`                       | `''`        | 占位符文本       |
-| `editable`    | `boolean`                      | `true`      | 是否可编辑       |
-| `theme`       | `'light' \| 'dark' \| 'auto'`  | `'light'`   | 主题设置        |
-| `locale`      | `'zh-CN' \| 'en-US' \| string` | `'zh-CN'`   | 语言设置        |
+| 属性            | 类型                             | 默认值       | 说明          |
+| ------------- | ------------------------------ | --------- | ----------- |
+| `modelValue`  | `string`                       | `''`      | 编辑器 HTML 内容 |
+| `placeholder` | `string`                       | `''`      | 占位符文本       |
+| `editable`    | `boolean`                      | `true`    | 是否可编辑       |
+| `theme`       | `'light' \| 'dark' \| 'auto'`  | `'light'` | 主题设置        |
+| `locale`      | `'zh-CN' \| 'en-US' \| string` | `'zh-CN'` | 语言设置        |
 
 | 方法                                | 说明               |
 | --------------------------------- | ---------------- |
@@ -451,4 +451,5 @@ npm run build:lib
 ***
 
 ## License
-[MIT License](./LICENSE) 
+
+[MIT License](./LICENSE)

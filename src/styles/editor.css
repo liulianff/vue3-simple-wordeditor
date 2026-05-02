@@ -383,9 +383,9 @@
 }
 
 /* 工具提示固定定位 */
-.editor-tooltip-fixed {
-  position: fixed;
-  z-index: 99;
+.editor-tooltip-abs {
+  position: absolute;
+  z-index: 9999;
 }
 
 /* 工具提示 */

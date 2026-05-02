@@ -1,5 +1,5 @@
 <template>
-  <div class="editor-toolbar">
+  <div ref="toolbarRef" class="editor-toolbar">
     <div class="editor-toolbar-wrapper">
       <TextFormatButtons
         :editor="editor"
@@ -180,12 +180,27 @@ const currentHeadingLevel = computed(() => props.headingLevel ?? 0)
 const tooltipRef = ref<InstanceType<typeof ToolbarTooltip> | null>(null)
 const colorPickerRef = ref<InstanceType<typeof ColorPicker> | null>(null)
 const exportMenuRef = ref<InstanceType<typeof ExportMenu> | null>(null)
+const toolbarRef = ref<HTMLElement | null>(null)
 
 const showTableMenu = ref(false)
 const tableMenuPosition = ref({ x: 0, y: 0 })
 
 function showTooltip(event: MouseEvent, text: string) {
-  tooltipRef.value?.showTooltip(event, text)
+  const target = event.currentTarget as HTMLElement
+  if (!target || !toolbarRef.value) return
+  const targetRect = target.getBoundingClientRect()
+  const toolbarRect = toolbarRef.value.getBoundingClientRect()
+
+  const x = targetRect.left + targetRect.width / 2 - toolbarRect.left
+  const tooltipHeight = 28
+  const spaceAbove = targetRect.top - toolbarRect.top
+  const showAbove = spaceAbove >= tooltipHeight + 8
+
+  const y = showAbove
+    ? targetRect.top - toolbarRect.top - 4
+    : targetRect.bottom - toolbarRect.top + 8
+
+  tooltipRef.value?.showTooltip(x, y, text, showAbove)
 }
 
 function hideTooltip() {
@@ -262,6 +277,8 @@ onUnmounted(() => {
 
 <style scoped>
 .editor-toolbar {
+  position: relative;
+  overflow: visible;
   background-color: var(--editor-toolbar-bg, #f9fafb);
   padding: 0.5rem;
 }

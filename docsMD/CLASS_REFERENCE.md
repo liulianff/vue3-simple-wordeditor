@@ -69,7 +69,7 @@
 | `.editor-container` | 编辑器容器                 | `background-color: var(--editor-bg-color); border-radius: var(--editor-radius); border: 1px solid var(--editor-border-color); box-shadow: var(--editor-shadow)`    |
 | `.editor-toolbar`   | 工具栏                   | `background-color: var(--editor-toolbar-bg); border-bottom: 1px solid var(--editor-border-color); padding: 0.5rem`                                                 |
 | `.editor-popup`     | 弹出层（BubbleMenu、链接菜单等） | `background-color: var(--editor-bg-color); border: 1px solid var(--editor-border-color); border-radius: var(--editor-radius); box-shadow: var(--editor-shadow-lg)` |
-| `.editor-tooltip`   | 提示框                   | `position: fixed; z-index: 9999; padding: 4px 8px; font-size: 12px; border-radius: 4px; white-space: nowrap; pointer-events: none; background-color: var(--editor-text-color); color: var(--editor-bg-color)` |
+| `.editor-tooltip`   | 提示框                   | `position: absolute; z-index: 9999; padding: 4px 8px; font-size: 12px; border-radius: 4px; white-space: nowrap; pointer-events: none; background-color: var(--editor-text-color); color: var(--editor-bg-color)` |
 | `.editor-content`   | 编辑器内容区域               | `outline: none; min-height: 400px`                                                                                                                       |
 | `.editor-toolbar-wrapper` | 工具栏包装器               | `position: relative`                                                                                                                                               |
 | `.toolbar-group`    | 工具栏分组                 | `display: flex; align-items: center; gap: 0.25rem; margin-right: 0.5rem`                                                                                          |
@@ -82,7 +82,7 @@
 | ------------------- | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `.editor-overlay`   | 遮罩层（ExportPreview） | `position: fixed; top: 0; right: 0; bottom: 0; left: 0; z-index: 9999; background-color: var(--editor-mask-color, rgba(0,0,0,0.6));`                                 |
 | `.editor-popup-fixed` | 固定定位弹出层     | `position: fixed; z-index: 9999;`                                                                                                                               |
-| `.editor-tooltip-fixed` | 固定定位工具提示    | `position: fixed; z-index: 9999;`                                                                                                                               |
+| `.editor-tooltip-abs` | 工具提示容器（使用 absolute 定位，相对工具栏） | `position: absolute; z-index: 9999; pointer-events: none` |                                                                                                                              |
 | `.file-input`       | 文件输入框        | `display: none;`                                                                                                                              |
 
 ## 弹出菜单类

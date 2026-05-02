@@ -1,7 +1,7 @@
 <template>
   <div
     v-if="tooltip.visible"
-    class="editor-tooltip-fixed editor-tooltip"
+    class="editor-tooltip-abs editor-tooltip"
     :style="{
       left: tooltip.x + 'px',
       top: tooltip.y + 'px',
@@ -18,22 +18,11 @@ import { ref, onUnmounted } from 'vue'
 const tooltip = ref({ visible: false, text: '', x: 0, y: 0, above: true })
 let tooltipTimer: ReturnType<typeof setTimeout> | null = null
 
-function showTooltip(event: MouseEvent, text: string) {
-  const target = event.currentTarget as HTMLElement
-  const rect = target.getBoundingClientRect()
+function showTooltip(x: number, y: number, text: string, above = true) {
   if (tooltipTimer) clearTimeout(tooltipTimer)
-  const tooltipHeight = 28
-  const spaceAbove = rect.top
-  const showAbove = spaceAbove >= tooltipHeight + 8
 
   tooltipTimer = setTimeout(() => {
-    tooltip.value = {
-      visible: true,
-      text,
-      x: rect.left + rect.width / 2,
-      y: showAbove ? rect.top : rect.bottom + 8,
-      above: showAbove
-    }
+    tooltip.value = { visible: true, text, x, y, above }
   }, 500)
 }
 
@@ -53,8 +42,8 @@ defineExpose({
 </script>
 
 <style scoped>
-.editor-tooltip-fixed {
-  position: fixed;
+.editor-tooltip-abs {
+  position: absolute;
   z-index: 9999;
   pointer-events: none;
 }
