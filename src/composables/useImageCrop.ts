@@ -248,11 +248,13 @@ export function useImageCrop(
     const { scaleFactor, imgHeight } = getCropScaleFactor(displayW)
     const displayH = imgHeight * scaleFactor * (c.height / 100)
     return {
-      width: `${Math.round(displayW)}px`,
-      height: `${Math.round(displayH)}px`,
+      width: `${Math.round(displayW)}px !important`,
+      height: `${Math.round(displayH)}px !important`,
+      maxWidth: '100% !important',
       overflow: 'hidden',
       position: 'relative' as const,
       lineHeight: 0,
+      margin: '0 !important',
     }
   })
 

@@ -298,4 +298,10 @@ onBeforeUnmount(() => {
 .crop-view {
   border-radius: var(--editor-radius, 2px);
 }
+
+.crop-view img {
+  max-width: none !important;
+  margin: 0 !important;
+}
+
 </style>

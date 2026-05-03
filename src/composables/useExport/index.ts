@@ -21,7 +21,6 @@ export function useExport(editor: ShallowRef<Editor | undefined>) {
   function getHTML(): string {
     let html = editor.value?.getHTML() || ''
     html = html
-      .replace(/ data-crop="[^"]*"/g, '')
       .replace(/<p\s*>\s*<\/p>/gi, '<p>&nbsp;</p>')
       .replace(/<p\s+[^>]*>\s*<\/p>/gi, (match) => match.replace(/><\/p>/, '>&nbsp;</p>'))
     return html

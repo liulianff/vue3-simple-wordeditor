@@ -128,6 +128,11 @@ export const DraggableImage = Node.create<DraggableImageOptions>({
           if (typeof el === 'string') return {}
           const img = el as HTMLImageElement
           const layout = img.getAttribute('data-layout')
+          let crop = null
+          const cropRaw = img.getAttribute('data-crop')
+          if (cropRaw) {
+            try { crop = JSON.parse(cropRaw) } catch {}
+          }
           return {
             src: img.getAttribute('src'),
             alt: img.getAttribute('alt'),
@@ -140,6 +145,7 @@ export const DraggableImage = Node.create<DraggableImageOptions>({
               : img.classList.contains('wrap-right') ? 'wrap-right'
               : img.classList.contains('block') ? 'block'
               : 'inline',
+            crop,
             marginTop: img.style.marginTop ? parseInt(img.style.marginTop, 10) : 0,
             marginRight: img.style.marginRight ? parseInt(img.style.marginRight, 10) : 16,
             marginBottom: img.style.marginBottom ? parseInt(img.style.marginBottom, 10) : 8,
