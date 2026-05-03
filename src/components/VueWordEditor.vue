@@ -419,6 +419,7 @@ const editorContainerRef = ref<HTMLElement | null>(null)
 
 const {
   editor,
+  isReady,
   fontSize,
   fontFamily,
   currentFontSize,
@@ -466,6 +467,12 @@ const {
   placeholder: resolvedPlaceholder.value,
   editable: props.editable,
 })
+
+function getEditorViewDom(): HTMLElement | null {
+  if (!isReady.value || !editor.value) return null
+  if (editor.value.isDestroyed) return null
+  return editor.value.view.dom
+}
 
 watch(resolvedPlaceholder, (newPlaceholder) => {
   if (editor.value) {
@@ -668,7 +675,9 @@ function onSliderChange(e: Event) {
 }
 
 function deleteImage() {
-  const { state, view } = editor.value!
+  const ed = editor.value
+  if (!ed) return
+  const { state, view } = ed
   const { from, to } = state.selection
   let pos: number | null = null
   state.doc.nodesBetween(from, to, (node: any, p: number) => {
@@ -770,15 +779,15 @@ onMounted(() => {
     updateCurrentStyle()
   })
 
-  editor.value?.view.dom.addEventListener('mouseup', () => {
+  getEditorViewDom()?.addEventListener('mouseup', () => {
     updateCurrentStyle()
   })
 
-  editor.value?.view.dom.addEventListener('keyup', () => {
+  getEditorViewDom()?.addEventListener('keyup', () => {
     updateCurrentStyle()
   })
 
-  editor.value?.view.dom.addEventListener('click', (event) => {
+  getEditorViewDom()?.addEventListener('click', (event) => {
     const target = event.target as HTMLElement
     const link = target.closest('a')
     if (link) {
@@ -787,7 +796,7 @@ onMounted(() => {
     }
   })
 
-  editor.value?.view.dom.addEventListener('keydown', (event: KeyboardEvent) => {
+  getEditorViewDom()?.addEventListener('keydown', (event: KeyboardEvent) => {
     if (event.key === 'Escape') {
       showLinkMenu.value = false
       showLinkEditDialog.value = false
@@ -796,7 +805,7 @@ onMounted(() => {
     }
   })
 
-  editor.value?.view.dom.addEventListener('contextmenu', onEditorContextMenu, true)
+  getEditorViewDom()?.addEventListener('contextmenu', onEditorContextMenu, true)
 
   editorContainerRef.value?.addEventListener('scroll', handleScroll, true)
 
@@ -808,7 +817,7 @@ onMounted(() => {
 function onCropStateChanged(e: Event) {
   isCropping.value = (e as CustomEvent).detail?.isCropping ?? false
   if (isCropping.value && !imageNodeRef.value) {
-    const editorEl = editor.value?.view.dom
+    const editorEl = getEditorViewDom()
     if (editorEl) {
       const nodeView = editorEl.querySelector('.image-node-view.is-cropping, .image-node-view.is-selected') as HTMLElement
       if (nodeView) imageNodeRef.value = nodeView
@@ -819,12 +828,12 @@ function onCropStateChanged(e: Event) {
 onBeforeUnmount(() => {
   document.removeEventListener('click', handleDocumentClick)
   editorContainerRef.value?.removeEventListener('scroll', handleScroll, true)
-  editor.value?.view.dom.removeEventListener('contextmenu', onEditorContextMenu, true)
+  getEditorViewDom()?.removeEventListener('contextmenu', onEditorContextMenu, true)
   window.removeEventListener('image-crop-state-changed', onCropStateChanged as EventListener)
 })
 
 function updateCurrentStyle() {
-  if (!editor.value) return
+  if (!editor.value || editor.value.isDestroyed) return
   
   const { from, to } = editor.value.state.selection
   
